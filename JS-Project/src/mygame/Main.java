@@ -1,11 +1,11 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
+//import com.jme3.material.Material;
+//import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+//import com.jme3.scene.Geometry;
+//import com.jme3.scene.shape.Box;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -20,15 +20,22 @@ public class Main extends SimpleApplication {
     }
 
     @Override
-    public void simpleInitApp() {
-        Box b = new Box(1, 1, 1);
-        Geometry geom = new Geometry("Box", b);
+    public void simpleInitApp() 
+    {
+//        Box b = new Box(1, 1, 1);
+//        Geometry geom = new Geometry("Box", b);
+//
+//        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        mat.setColor("Color", ColorRGBA.Blue);
+//        geom.setMaterial(mat);
+//
+//        rootNode.attachChild(geom);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Blue);
-        geom.setMaterial(mat);
-
-        rootNode.attachChild(geom);
+//public RecDivMazeGen(AssetManager newAssetManagerint areaWidth, int areaHeight, int newMinRoomWidth, int newMinRoomHeight, 
+//int doorSize, int wallThickness)
+        
+        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 100, 100, 5, 5, 2, 2);
+        rootNode.attachChild(maze.generateMaze());
     }
 
     @Override
