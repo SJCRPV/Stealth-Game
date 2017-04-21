@@ -26,10 +26,10 @@ public class RecDivMazeGen {
     Material mat;
     final int MAX_AREA_WIDTH;
     final int MAX_AREA_HEIGHT;
-    final int WALL_THICKNESS;
-    int minRoomWidth;
-    int minRoomHeight;
-    int doorSize;
+    final float WALL_THICKNESS;
+    float minRoomWidth;
+    float minRoomHeight;
+    float doorSize;
     boolean cutIsHorizontal;
     
     private boolean isCutHorizontal(float quadWidth, float quadHeight)
@@ -157,10 +157,11 @@ public class RecDivMazeGen {
         plane.setLocalTranslation(temp);
     }
     
-    public RecDivMazeGen(AssetManager newAssetManager, int areaWidth, int areaHeight, int newMinRoomWidth, int newMinRoomHeight,
-            int doorSize, int wallThickness)
+    public RecDivMazeGen(AssetManager newAssetManager, int areaWidth, int areaHeight, float newMinRoomWidth, float newMinRoomHeight,
+            float doorSize, float wallThickness)
     {
         assetManager = newAssetManager;
+        generatedMaze = new Node("Maze");
         mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         MAX_AREA_WIDTH = areaWidth;
@@ -171,7 +172,6 @@ public class RecDivMazeGen {
         plane = new Geometry("Floor", new Quad(MAX_AREA_WIDTH, MAX_AREA_HEIGHT));
         givePlaneSaneCoordinates();
         createBorderWalls();
-        generatedMaze = new Node("Maze");
         generatedMaze.attachChild(plane);
     }
 }
