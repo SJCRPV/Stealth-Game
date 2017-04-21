@@ -22,29 +22,10 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() 
     {
-//        Box b = new Box(1, 1, 1);
-//        Geometry geom = new Geometry("Box", b);
-//
-//        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//        mat.setColor("Color", ColorRGBA.Blue);
-//        geom.setMaterial(mat);
-//
-//        rootNode.attachChild(geom);
-
 //public RecDivMazeGen(AssetManager newAssetManagerint areaWidth, int areaHeight, int newMinRoomWidth, int newMinRoomHeight, 
 //int doorSize, int wallThickness)
         
-        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 100, 100, 3, 3, 1, 0.5f);
+        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 20, 20, 0.5f, 0.5f, 0.1f, 0.05f);
         rootNode.attachChild(maze.generateMaze());
-    }
-
-    @Override
-    public void simpleUpdate(float tpf) {
-        //TODO: add update code
-    }
-
-    @Override
-    public void simpleRender(RenderManager rm) {
-        //TODO: add render code
     }
 }

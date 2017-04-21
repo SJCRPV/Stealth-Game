@@ -84,9 +84,12 @@ public class RecDivMazeGen {
         }
         
         bisectionGeoms[0] = new Geometry("BisectionLeftOrUp", carvedBoxes[0]);
+        bisectionGeoms[0].setMaterial(mat);
         bisectionGeoms[0].setLocalTranslation(centreOfBisection.subtract(offsetAfterCarve));
+        
         bisectionGeoms[1] = new Geometry("BisectionRightOrDown", carvedBoxes[1]);
         bisectionGeoms[1].setLocalTranslation(centreOfBisection.add(offsetAfterCarve));
+        bisectionGeoms[1].setMaterial(mat);
         
         return bisectionGeoms;
     }
@@ -162,14 +165,16 @@ public class RecDivMazeGen {
     {
         assetManager = newAssetManager;
         generatedMaze = new Node("Maze");
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Blue);
         MAX_AREA_WIDTH = areaWidth;
         MAX_AREA_HEIGHT = areaHeight;
         WALL_THICKNESS = wallThickness;
         minRoomWidth = newMinRoomWidth;
         minRoomHeight = newMinRoomHeight;
+        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.Red);
         plane = new Geometry("Floor", new Quad(MAX_AREA_WIDTH, MAX_AREA_HEIGHT));
+        plane.setMaterial(mat);
+        mat.setColor("Color", ColorRGBA.Blue);
         givePlaneSaneCoordinates();
         createBorderWalls();
         generatedMaze.attachChild(plane);
