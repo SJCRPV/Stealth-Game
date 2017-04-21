@@ -25,7 +25,8 @@ public class Main extends SimpleApplication {
 //public RecDivMazeGen(AssetManager newAssetManagerint areaWidth, int areaHeight, int newMinRoomWidth, int newMinRoomHeight, 
 //int doorSize, int wallThickness)
         
-        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 20, 20, 0.5f, 0.5f, 0.1f, 0.05f);
-        rootNode.attachChild(maze.generateMaze());
+        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 5, 5, 0.125f, 0.125f, 0.025f, 0.0125f);
+        //rootNode.attachChild(maze.generateMaze());
+        rootNode.attachChild(maze.getNode());
     }
 }

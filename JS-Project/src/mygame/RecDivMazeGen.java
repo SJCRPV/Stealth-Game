@@ -23,7 +23,8 @@ public class RecDivMazeGen {
     Node generatedMaze;
     AssetManager assetManager;
     Geometry plane;
-    Material mat;
+    Material wallMat;
+    Material floorMat;
     final int MAX_AREA_WIDTH;
     final int MAX_AREA_HEIGHT;
     final float WALL_THICKNESS;
@@ -31,6 +32,12 @@ public class RecDivMazeGen {
     float minRoomHeight;
     float doorSize;
     boolean cutIsHorizontal;
+    
+    //Temp method. Delete when walls are being placed correctly
+    public Node getNode()
+    {
+        return generatedMaze;
+    }
     
     private boolean isCutHorizontal(float quadWidth, float quadHeight)
     {
@@ -84,12 +91,12 @@ public class RecDivMazeGen {
         }
         
         bisectionGeoms[0] = new Geometry("BisectionLeftOrUp", carvedBoxes[0]);
-        bisectionGeoms[0].setMaterial(mat);
+        bisectionGeoms[0].setMaterial(wallMat);
         bisectionGeoms[0].setLocalTranslation(centreOfBisection.subtract(offsetAfterCarve));
         
         bisectionGeoms[1] = new Geometry("BisectionRightOrDown", carvedBoxes[1]);
         bisectionGeoms[1].setLocalTranslation(centreOfBisection.add(offsetAfterCarve));
-        bisectionGeoms[1].setMaterial(mat);
+        bisectionGeoms[1].setMaterial(wallMat);
         
         return bisectionGeoms;
     }
@@ -122,40 +129,50 @@ public class RecDivMazeGen {
         return generatedMaze;
     }
     
+//Temporarily commented. Replacement method below meant to just test wall placement.
+//    private void createBorderWalls()
+//    {        
+//        Box up = new Box(MAX_AREA_WIDTH, WALL_THICKNESS, 1);
+//        Box left = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT, 1);
+//        Box down = new Box(MAX_AREA_WIDTH, WALL_THICKNESS, 1);
+//        Box right = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT, 1);
+//        
+//        Geometry upGeom = new Geometry("UpBorder", up);
+//        Geometry leftGeom = new Geometry("LeftBorder", left);
+//        Geometry downGeom = new Geometry("DownBorder", down);
+//        Geometry rightGeom = new Geometry("RightBorder", right);
+//        
+//        upGeom.setMaterial(wallMat);
+//        leftGeom.setMaterial(wallMat);
+//        downGeom.setMaterial(wallMat);
+//        rightGeom.setMaterial(wallMat);
+//        
+//        upGeom.setLocalTranslation(MAX_AREA_WIDTH/2, MAX_AREA_HEIGHT - WALL_THICKNESS, 0);
+//        leftGeom.setLocalTranslation(WALL_THICKNESS, MAX_AREA_HEIGHT/2, 0);
+//        downGeom.setLocalTranslation(MAX_AREA_WIDTH/2, WALL_THICKNESS, 0);
+//        rightGeom.setLocalTranslation(MAX_AREA_WIDTH - WALL_THICKNESS, MAX_AREA_HEIGHT/2, 0);
+//        
+//        generatedMaze.attachChild(upGeom);
+//        generatedMaze.attachChild(leftGeom);
+//        generatedMaze.attachChild(downGeom);
+//        generatedMaze.attachChild(rightGeom);
+//    }
+    
     private void createBorderWalls()
-    {        
-        Box up = new Box(MAX_AREA_WIDTH, WALL_THICKNESS, 1);
-        Box left = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT, 1);
-        Box down = new Box(MAX_AREA_WIDTH, WALL_THICKNESS, 1);
-        Box right = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT, 1);
-        
+    {
+        Box up = new Box(MAX_AREA_WIDTH/2, WALL_THICKNESS, 0.125f);        
         Geometry upGeom = new Geometry("UpBorder", up);
-        Geometry leftGeom = new Geometry("LeftBorder", left);
-        Geometry downGeom = new Geometry("DownBorder", down);
-        Geometry rightGeom = new Geometry("RightBorder", right);
-        
-        upGeom.setMaterial(mat);
-        leftGeom.setMaterial(mat);
-        downGeom.setMaterial(mat);
-        rightGeom.setMaterial(mat);
-        
-        upGeom.setLocalTranslation(MAX_AREA_WIDTH/2, MAX_AREA_HEIGHT - WALL_THICKNESS, 0);
-        leftGeom.setLocalTranslation(WALL_THICKNESS, MAX_AREA_HEIGHT/2, 0);
-        downGeom.setLocalTranslation(MAX_AREA_WIDTH/2, WALL_THICKNESS, 0);
-        rightGeom.setLocalTranslation(MAX_AREA_WIDTH - WALL_THICKNESS, MAX_AREA_HEIGHT/2, 0);
-        
+        upGeom.setMaterial(wallMat);
+        upGeom.setLocalTranslation(MAX_AREA_WIDTH/2, MAX_AREA_HEIGHT - WALL_THICKNESS/2, 0);
         generatedMaze.attachChild(upGeom);
-        generatedMaze.attachChild(leftGeom);
-        generatedMaze.attachChild(downGeom);
-        generatedMaze.attachChild(rightGeom);
     }
     
     //(0,0) will be on the bottom left
     private void givePlaneSaneCoordinates()
     {
         Vector3f temp = plane.getLocalTranslation();
-        temp.x = 0 + MAX_AREA_WIDTH/2;
-        temp.y = 0 + MAX_AREA_HEIGHT/2;
+        temp.x = 0 - MAX_AREA_WIDTH/2;
+        temp.y = 0 - MAX_AREA_HEIGHT/2;
         
         plane.setLocalTranslation(temp);
     }
@@ -170,12 +187,14 @@ public class RecDivMazeGen {
         WALL_THICKNESS = wallThickness;
         minRoomWidth = newMinRoomWidth;
         minRoomHeight = newMinRoomHeight;
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Red);
+        wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        wallMat.setColor("Color", ColorRGBA.Blue);
+        floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        floorMat.setColor("Color", ColorRGBA.Red);
         plane = new Geometry("Floor", new Quad(MAX_AREA_WIDTH, MAX_AREA_HEIGHT));
-        plane.setMaterial(mat);
-        mat.setColor("Color", ColorRGBA.Blue);
-        givePlaneSaneCoordinates();
+        plane.setMaterial(floorMat);
+        wallMat.setColor("Color", ColorRGBA.Blue);
+        //givePlaneSaneCoordinates();
         createBorderWalls();
         generatedMaze.attachChild(plane);
     }
