@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mygame;
 
 import com.jme3.asset.AssetManager;
@@ -25,6 +20,9 @@ public class RecDivMazeGen {
     Geometry plane;
     Material wallMat;
     Material floorMat;
+    Integer nameCounter = 0;
+    Vector3f centreOfCurrAreaInWC;
+    final float zHeightOfAll = 1;
     final int MAX_AREA_WIDTH;
     final int MAX_AREA_HEIGHT;
     final float WALL_THICKNESS;
@@ -46,15 +44,16 @@ public class RecDivMazeGen {
     
     private Box[] carveOpening(Box box)
     {
+        //TODO: Randomize the placement of the doors. You can probably do it with one side being "p" and the other side being "1-p"
         Box[] boxesToReturn = new Box[2];
         
         if(cutIsHorizontal)
         {
-            boxesToReturn[0] = new Box(box.xExtent/2f - doorSize/2f, box.yExtent/2f, 0.125f);
+            boxesToReturn[0] = new Box(box.xExtent/2f - doorSize/2f, box.yExtent, zHeightOfAll);
         }
         else
         {
-            boxesToReturn[0] = new Box(box.xExtent/2f, box.yExtent/2f - doorSize/2f, 0.125f);
+            boxesToReturn[0] = new Box(box.xExtent, box.yExtent/2f - doorSize/2f, zHeightOfAll);
         }
         
         boxesToReturn[1] = boxesToReturn[0];
@@ -69,32 +68,35 @@ public class RecDivMazeGen {
         Vector3f centreOfBisection = new Vector3f(area.getBound().getCenter());
         Vector3f offsetAfterCarve;
         cutIsHorizontal = isCutHorizontal(area.getWidth(), area.getHeight());
+        String sLeftOrUp = "BisectionLeftOrUp" + nameCounter.toString();
+        String sRightOrDown = "BisectionRightOrDown" + nameCounter.toString();
+        nameCounter++;
         
         if(cutIsHorizontal)
         {
-            bisection = new Box(area.getWidth(), WALL_THICKNESS, 1);
+            bisection = new Box(area.getWidth(), WALL_THICKNESS/2f, zHeightOfAll);
         }
         else
         {
-            bisection = new Box(WALL_THICKNESS, area.getHeight(), 1);
+            bisection = new Box(WALL_THICKNESS/2f, area.getHeight(), zHeightOfAll);
         }
         
         Box[] carvedBoxes = carveOpening(bisection);
         
         if(cutIsHorizontal)
         {
-            offsetAfterCarve = new Vector3f(centreOfBisection.x - carvedBoxes[0].xExtent/2f, 0, 0);
+            offsetAfterCarve = new Vector3f(centreOfBisection.x - carvedBoxes[0].xExtent, 0, 0);
         }
         else
         {
-            offsetAfterCarve = new Vector3f(centreOfBisection.y - carvedBoxes[0].yExtent/2f, 0, 0);
+            offsetAfterCarve = new Vector3f(0, centreOfBisection.y - carvedBoxes[0].yExtent, 0);
         }
         
-        bisectionGeoms[0] = new Geometry("BisectionLeftOrUp", carvedBoxes[0]);
+        bisectionGeoms[0] = new Geometry(sLeftOrUp, carvedBoxes[0]);
         bisectionGeoms[0].setMaterial(wallMat);
         bisectionGeoms[0].setLocalTranslation(centreOfBisection.subtract(offsetAfterCarve));
         
-        bisectionGeoms[1] = new Geometry("BisectionRightOrDown", carvedBoxes[1]);
+        bisectionGeoms[1] = new Geometry(sRightOrDown, carvedBoxes[1]);
         bisectionGeoms[1].setLocalTranslation(centreOfBisection.add(offsetAfterCarve));
         bisectionGeoms[1].setMaterial(wallMat);
         
@@ -108,19 +110,36 @@ public class RecDivMazeGen {
             //Bisect,
             //Fill,
             //Carve,
+            //TODO: Make a door. Box of size doorSize, Green material. Insert Door,
             //Recursion.
             Geometry[] bisectionGeoms = bisectArea(area);
             generatedMaze.attachChild(bisectionGeoms[0]);
             generatedMaze.attachChild(bisectionGeoms[1]);
             
             Box tempBox = (Box)bisectionGeoms[0].getMesh();
-            Quad newArea = new Quad(tempBox.xExtent, tempBox.yExtent);
+            Quad newArea;
+            if(cutIsHorizontal)
+            {
+                newArea = new Quad(tempBox.xExtent, area.getHeight()/2f);
+            }
+            else
+            {
+                newArea = new Quad(area.getWidth()/2f, tempBox.yExtent);
+            }
             recursiveDivision(newArea);
             
             tempBox = (Box)bisectionGeoms[1].getMesh();
-            newArea = new Quad(tempBox.xExtent, tempBox.yExtent);
+            if(cutIsHorizontal)
+            {
+                newArea = new Quad(tempBox.xExtent, area.getHeight()/2f);
+            }
+            else
+            {
+                newArea = new Quad(area.getWidth()/2f, tempBox.yExtent);
+            }
             recursiveDivision(newArea);
         }
+        return;
     }
     
     public Node generateMaze()
@@ -131,10 +150,10 @@ public class RecDivMazeGen {
     
     private void createBorderWalls()
     {
-        Box up = new Box(MAX_AREA_WIDTH/2f, WALL_THICKNESS, 0.125f);
-        Box left = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT/2f, 0.125f);
-        Box down = new Box(MAX_AREA_WIDTH/2f, WALL_THICKNESS, 0.125f);
-        Box right = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT/2f, 0.125f);
+        Box up = new Box(MAX_AREA_WIDTH/2f, WALL_THICKNESS, zHeightOfAll);
+        Box left = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT/2f, zHeightOfAll);
+        Box down = new Box(MAX_AREA_WIDTH/2f, WALL_THICKNESS, zHeightOfAll);
+        Box right = new Box(WALL_THICKNESS, MAX_AREA_HEIGHT/2f, zHeightOfAll);
         
         Geometry upGeom = new Geometry("UpBorder", up);
         Geometry leftGeom = new Geometry("LeftBorder", left);
@@ -158,7 +177,7 @@ public class RecDivMazeGen {
     }
     
     public RecDivMazeGen(AssetManager newAssetManager, int areaWidth, int areaHeight, float newMinRoomWidth, float newMinRoomHeight,
-            float doorSize, float wallThickness)
+            float newDoorSize, float wallThickness)
     {
         assetManager = newAssetManager;
         generatedMaze = new Node("Maze");
@@ -167,6 +186,7 @@ public class RecDivMazeGen {
         WALL_THICKNESS = wallThickness;
         minRoomWidth = newMinRoomWidth;
         minRoomHeight = newMinRoomHeight;
+        doorSize = newDoorSize;
         wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         wallMat.setColor("Color", ColorRGBA.Blue);
         floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");

@@ -12,3 +12,5 @@ Assets needed:
 		Chairs
 		Glass wall
 		
+	Rooms:
+		3-4 templates
