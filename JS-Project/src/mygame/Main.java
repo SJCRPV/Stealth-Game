@@ -22,11 +22,11 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() 
     {
-//public RecDivMazeGen(AssetManager newAssetManagerint areaWidth, int areaHeight, int newMinRoomWidth, int newMinRoomHeight, 
-//int doorSize, int wallThickness)
+//public RecDivMazeGen(AssetManager newAssetManager, int areaWidth, int areaHeight, float newMinRoomWidth, 
+//        float newMinRoomHeight, float doorSize, float wallThickness)
         
-        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 5, 5, 0.125f, 0.125f, 0.025f, 0.0125f);
-        //rootNode.attachChild(maze.generateMaze());
-        rootNode.attachChild(maze.getNode());
+        RecDivMazeGen maze = new RecDivMazeGen(assetManager, 5, 5, 0.125f, 0.125f, 0.025f, 0.00625f);
+        rootNode.attachChild(maze.generateMaze());
+        //rootNode.attachChild(maze.getNode());
     }
 }
