@@ -116,6 +116,7 @@ public class RecDivMazeGen {
             generatedMaze.attachChild(bisectionGeoms[0]);
             generatedMaze.attachChild(bisectionGeoms[1]);
             
+            //Error, taking into account the box instead of the actual area. Also take into account WALL_THICKNESS/2f
             Box tempBox = (Box)bisectionGeoms[0].getMesh();
             Quad newArea;
             if(cutIsHorizontal)

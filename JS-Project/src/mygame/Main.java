@@ -3,7 +3,6 @@ package mygame;
 import com.jme3.app.SimpleApplication;
 //import com.jme3.material.Material;
 //import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.RenderManager;
 //import com.jme3.scene.Geometry;
 //import com.jme3.scene.shape.Box;
 
@@ -22,9 +21,8 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() 
     {
-//public RecDivMazeGen(AssetManager newAssetManager, int areaWidth, int areaHeight, float newMinRoomWidth, 
-//        float newMinRoomHeight, float doorSize, float wallThickness)
-        
+//Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight,
+//                          float wallThickness, int doorCellSize)
         RecDivMazeGen maze = new RecDivMazeGen(assetManager, 20, 20, 0.25f, 0.25f, 0.025f, 0.00625f);
         rootNode.attachChild(maze.generateMaze());
         //rootNode.attachChild(maze.getNode());
