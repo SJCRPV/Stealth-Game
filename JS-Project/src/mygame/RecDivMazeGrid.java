@@ -6,6 +6,7 @@
 package mygame;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.input.InputManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
@@ -27,7 +28,7 @@ public class RecDivMazeGrid {
     Material floorMat;
     Material cellMat;
     Cell[][] grid;
-    final int Z_HEIGHT_OF_ALL = 1;
+    final float Z_HEIGHT_OF_ALL = 1f;
     final float CELL_WIDTH;
     final float CELL_HEIGHT;
     final float WALL_THICKNESS;
@@ -42,7 +43,7 @@ public class RecDivMazeGrid {
     
     private float calcSize(int numOfCells)
     {
-        return (WALL_THICKNESS * (numOfCells + 1) + (CELL_WIDTH * numOfCells));
+        return ((WALL_THICKNESS + CELL_WIDTH * 2) * numOfCells) + WALL_THICKNESS;
     }
     
     private Vector3f centreCoords(Vector3f vector)
@@ -120,23 +121,23 @@ public class RecDivMazeGrid {
         generatedMaze.attachChild(geom);
     }
     
-    private void representOnMaze(Vector3f topLeft)
+    private void representOnMaze(Vector3f translation)
     {
-        Box box = new Box(CELL_WIDTH, CELL_HEIGHT, Z_HEIGHT_OF_ALL);
+        Box box = new Box(CELL_WIDTH, CELL_HEIGHT, 0f);
         Geometry geom = new Geometry("Cell", box);
         geom.setMaterial(cellMat);
-        topLeft.x += CELL_WIDTH/2f;
-        topLeft.y += CELL_HEIGHT/2f;
-        geom.setLocalTranslation(topLeft);
+        translation.x += CELL_WIDTH/2f;
+        translation.y += CELL_HEIGHT/2f;
+        geom.setLocalTranslation(translation);
         
         generatedMaze.attachChild(geom);
     }
     
-    private void createCell(int i, int j, Vector3f WCTopLeft)
+    private void createCell(int i, int j, Vector3f translation)
     {
         //Constructor Cell(Vector3f WCTopLeft, int cellX, int cellY)
-        grid[i][j] = new Cell(WCTopLeft, i, j);
-        representOnMaze(WCTopLeft);
+        grid[i][j] = new Cell(translation, i, j);
+        representOnMaze(translation);
     }
     
     private void createBaseMap()
@@ -147,7 +148,7 @@ public class RecDivMazeGrid {
             for(int j = 0; j < grid[i].length; j++)
             {
                 float vectorDotX = calcSize(j);
-                Vector3f temp = new Vector3f(vectorDotX, vectorDotY, Z_HEIGHT_OF_ALL);
+                Vector3f temp = new Vector3f(vectorDotX, vectorDotY, 0);
                 createCell(i, j, temp);
             }
         }
@@ -174,7 +175,7 @@ public class RecDivMazeGrid {
         WALL_THICKNESS = wallThickness;
         DOOR_SIZE = doorCellSize;
         createMaterials();
-        createBorders(numCellsWide, numCellsTall);
+        //createBorders(numCellsWide, numCellsTall);
         createBaseMap();
     }
 }
