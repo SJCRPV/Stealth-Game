@@ -6,10 +6,8 @@
 package mygame;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.input.InputManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -41,23 +39,75 @@ public class RecDivMazeGrid {
         return generatedMaze;
     }
     
+    private int generateRandomNum(int lowerBound, int higherBound)
+    {
+        return (int)(Math.random() * higherBound + lowerBound);
+    }
+    
+    private boolean isCutHorizontal(int cellsWide, int cellsTall)
+    {
+        if(cellsTall == cellsWide)
+        {   
+            return generateRandomNum(1, 2) == 1;
+        }
+        
+        return cellsTall > cellsWide;
+    }
+    
     private float calcSize(int numOfCells)
     {
         return ((WALL_THICKNESS + CELL_WIDTH * 2) * numOfCells) + WALL_THICKNESS;
     }
     
-    private Vector3f centreCoords(Vector3f vector)
+    private void createWall(int gridStartCoorX, int gridStartCoorY, int numOfCells, String geomName)
     {
-        return new Vector3f();
+        float wallSize = calcSize(numOfCells);
+        float wallXPos = calcSize(gridStartCoorX);
+        float wallYPos = calcSize(gridStartCoorY);
+        
+        Box box;
+        if(cutIsHorizontal)
+        {
+            box = new Box(wallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+        }
+        else
+        {
+            box = new Box(WALL_THICKNESS/2f, wallSize/2f, Z_HEIGHT_OF_ALL/2f);
+        }
+        
+        Geometry geom = new Geometry(geomName, box);
+        geom.setMaterial(wallMat);
+        
+        //This won't be exactly right just yet
+        geom.setLocalTranslation(wallXPos, wallYPos, 0);
+        
+        generatedMaze.attachChild(geom);
     }
     
+    private void makeCutAt(int cutCoor)
+    {
+        
+    }
+    
+    //This will only be called at the start. At the end of the function call the overloaded method. That one will be recursive
     private void recursiveDivision()
     {
-        //Generate random cut area
+        //Pick random spot for cut
         //Make wall
         //Generate random door area
         //Carve door
         //Repeat on resulting areas.
+        cutIsHorizontal = isCutHorizontal(grid.length, grid[0].length);
+        int randomCoor = generateRandomNum(0, grid.length);
+        
+        if(cutIsHorizontal)
+        {
+            createWall(randomCoor, 0, grid.length, (randomCoor + ", " + 0));
+        }
+        else
+        {
+            createWall(0, randomCoor, grid[randomCoor].length, (0 + ", " + randomCoor));
+        }
     }
     
     public Node generateMaze()
@@ -98,46 +148,23 @@ public class RecDivMazeGrid {
         generatedMaze.attachChild(rightGeom);
     }
     
-    private void createWall(int numOfCellsWide, int numOfCellsTall, String geomName, boolean isVertical, Vector3f centre)
-    {
-        float wallWidth = calcSize(numOfCellsWide);
-        float wallHeight = calcSize(numOfCellsTall);
-        
-        Box box;
-        if(isVertical)
-        {
-            box = new Box(WALL_THICKNESS/2f, CELL_HEIGHT/2f, Z_HEIGHT_OF_ALL/2f);
-        }
-        else
-        {
-            box = new Box(CELL_WIDTH/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-        }
-        
-        Geometry geom = new Geometry(geomName, box);
-        geom.setMaterial(wallMat);
-        
-        geom.setLocalTranslation(wallWidth/2f, wallHeight/2f, 0);
-        
-        generatedMaze.attachChild(geom);
-    }
-    
-    private void representOnMaze(Vector3f translation)
+    private void representOnMaze(Vector3f position)
     {
         Box box = new Box(CELL_WIDTH, CELL_HEIGHT, 0f);
         Geometry geom = new Geometry("Cell", box);
         geom.setMaterial(cellMat);
-        translation.x += CELL_WIDTH/2f;
-        translation.y += CELL_HEIGHT/2f;
-        geom.setLocalTranslation(translation);
+        position.x += CELL_WIDTH/2f;
+        position.y += CELL_HEIGHT/2f;
+        geom.setLocalTranslation(position);
         
         generatedMaze.attachChild(geom);
     }
     
-    private void createCell(int i, int j, Vector3f translation)
+    private void createCell(int x, int y, Vector3f position)
     {
-        //Constructor Cell(Vector3f WCTopLeft, int cellX, int cellY)
-        grid[i][j] = new Cell(translation, i, j);
-        representOnMaze(translation);
+        //Constructor Cell(Vector3f position, int cellX, int cellY)
+        grid[x][y] = new Cell(position, x, y);
+        representOnMaze(position);
     }
     
     private void createBaseMap()
