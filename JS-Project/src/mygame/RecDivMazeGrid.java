@@ -30,7 +30,7 @@ public class RecDivMazeGrid {
     final float CELL_WIDTH;
     final float CELL_HEIGHT;
     final float WALL_THICKNESS;
-    final float DOOR_SIZE;
+    final int DOOR_SIZE;
     boolean cutIsHorizontal;
     
     //Temp method to test wall placement.
@@ -56,37 +56,71 @@ public class RecDivMazeGrid {
     
     private float calcSize(int numOfCells)
     {
-        return ((WALL_THICKNESS + CELL_WIDTH * 2) * numOfCells) + WALL_THICKNESS;
+        return ((WALL_THICKNESS + CELL_WIDTH * 2) * numOfCells);
+    }
+    
+    private float[] carveDoor(int numOfCells)
+    {
+        int doorCoor = generateRandomNum(0, numOfCells);
+        float leftDownWallSize = calcSize(doorCoor);
+        float rightUpWallSize = calcSize(numOfCells - (doorCoor + DOOR_SIZE));
+        
+        float[] ret = {doorCoor, leftDownWallSize, rightUpWallSize};
+        return ret;
     }
     
     private void createWall(int gridStartCoorX, int gridStartCoorY, int numOfCells, String geomName)
     {
-        float wallSize = calcSize(numOfCells);
-        float wallXPos = calcSize(gridStartCoorX);
-        float wallYPos = calcSize(gridStartCoorY);
+        Geometry[] geoms = new Geometry[2];
+        Box[] boxes = new Box[2];
         
-        Box box;
+        float fullWallSize = calcSize(numOfCells);
+        float fullWallXPos = calcSize(gridStartCoorX);
+        float fullWallYPos = calcSize(gridStartCoorY);
+
+        float[] carveValues = carveDoor(numOfCells);
+        int doorCellNum = (int)carveValues[0];
+        
+        float leftDownWallSize = carveValues[1];
+        float leftDownXPos;
+        float leftDownYPos;
+        
+        float rightUpWallSize = carveValues[2];
+        float rightUpXPos;
+        float rightUpYPos;
+        
         if(cutIsHorizontal)
         {
-            box = new Box(wallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+            boxes[0] = new Box(leftDownWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+            leftDownXPos = fullWallXPos - (leftDownWallSize);
+            leftDownYPos = fullWallYPos - WALL_THICKNESS * 1.5f;
+            geoms[0] = new Geometry("left" + geomName, boxes[0]);
+            
+            boxes[1] = new Box(rightUpWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+            rightUpXPos = fullWallXPos + (rightUpWallSize/2f);
+            rightUpYPos = fullWallYPos + WALL_THICKNESS * 1.5f;
+            geoms[1] = new Geometry("right" + geomName, boxes[1]);
         }
         else
         {
-            box = new Box(WALL_THICKNESS/2f, wallSize/2f, Z_HEIGHT_OF_ALL/2f);
+            boxes[0] = new Box(WALL_THICKNESS/2f, leftDownWallSize/2f, Z_HEIGHT_OF_ALL/2f);
+            leftDownXPos = fullWallXPos - WALL_THICKNESS * 1.5f;
+            leftDownYPos = fullWallYPos - (leftDownWallSize);
+            geoms[0] = new Geometry("down" + geomName, boxes[0]);
+            
+            boxes[1] = new Box(WALL_THICKNESS/2f, rightUpWallSize/2f, Z_HEIGHT_OF_ALL/2f);
+            rightUpXPos = fullWallXPos + WALL_THICKNESS * 1.5f;
+            rightUpYPos = fullWallYPos + (rightUpWallSize/2f);
+            geoms[1] = new Geometry("up" + geomName, boxes[1]);
         }
+        geoms[0].setMaterial(wallMat);
+        geoms[1].setMaterial(wallMat);
         
-        Geometry geom = new Geometry(geomName, box);
-        geom.setMaterial(wallMat);
+        geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, 0);
+        geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, 0);
         
-        //This won't be exactly right just yet
-        geom.setLocalTranslation(wallXPos, wallYPos, 0);
-        
-        generatedMaze.attachChild(geom);
-    }
-    
-    private void makeCutAt(int cutCoor)
-    {
-        
+        generatedMaze.attachChild(geoms[0]);
+        generatedMaze.attachChild(geoms[1]);
     }
     
     //This will only be called at the start. At the end of the function call the overloaded method. That one will be recursive
@@ -98,15 +132,15 @@ public class RecDivMazeGrid {
         //Carve door
         //Repeat on resulting areas.
         cutIsHorizontal = isCutHorizontal(grid.length, grid[0].length);
-        int randomCoor = generateRandomNum(0, grid.length);
+        int randomCoor = generateRandomNum(1, grid.length-1);
         
         if(cutIsHorizontal)
         {
-            createWall(randomCoor, 0, grid.length, (randomCoor + ", " + 0));
+            createWall(0, randomCoor, grid[randomCoor].length, (0 + ", " + randomCoor));
         }
         else
         {
-            createWall(0, randomCoor, grid[randomCoor].length, (0 + ", " + randomCoor));
+            createWall(randomCoor, 0, grid.length, (randomCoor + ", " + 0));
         }
     }
     
