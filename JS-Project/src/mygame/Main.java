@@ -19,9 +19,9 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() 
     {
-//Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, 
-//                      int numCellsTall, float cellWidth, float cellHeight, float wallThickness, int doorCellSize)
-        maze = new RecDivMazeGrid(assetManager, 20, 20, 0.5f, 0.5f, 0.25f, 1);
+//Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
+//        float wallThickness, int doorCellSize)
+        maze = new RecDivMazeGrid(assetManager, 10, 10, 0.5f, 0.5f, 0.25f, 1);
         rootNode.attachChild(maze.generateMaze());
         //rootNode.attachChild(maze.getNode());
     }

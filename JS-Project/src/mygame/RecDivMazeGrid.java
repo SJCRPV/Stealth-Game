@@ -61,11 +61,12 @@ public class RecDivMazeGrid {
     
     private float[] carveDoor(int numOfCells)
     {
-        int doorCoor = generateRandomNum(0, numOfCells);
-        float leftDownWallSize = calcSize(doorCoor);
-        float rightUpWallSize = calcSize(numOfCells - (doorCoor + DOOR_SIZE));
+        int doorCellNum = generateRandomNum(0, numOfCells - 1);
+        float doorSize = calcSize(DOOR_SIZE);
+        float leftDownWallSize = calcSize(doorCellNum);
+        float rightUpWallSize = calcSize(numOfCells - (doorCellNum + DOOR_SIZE));
         
-        float[] ret = {doorCoor, leftDownWallSize, rightUpWallSize};
+        float[] ret = {doorSize, leftDownWallSize, rightUpWallSize};
         return ret;
     }
     
@@ -74,12 +75,11 @@ public class RecDivMazeGrid {
         Geometry[] geoms = new Geometry[2];
         Box[] boxes = new Box[2];
         
-        float fullWallSize = calcSize(numOfCells);
         float fullWallXPos = calcSize(gridStartCoorX);
         float fullWallYPos = calcSize(gridStartCoorY);
 
         float[] carveValues = carveDoor(numOfCells);
-        int doorCellNum = (int)carveValues[0];
+        float doorSize = carveValues[0];
         
         float leftDownWallSize = carveValues[1];
         float leftDownXPos;
@@ -92,25 +92,25 @@ public class RecDivMazeGrid {
         if(cutIsHorizontal)
         {
             boxes[0] = new Box(leftDownWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = fullWallXPos - (leftDownWallSize);
-            leftDownYPos = fullWallYPos - WALL_THICKNESS * 1.5f;
+            leftDownXPos = leftDownWallSize/2f - WALL_THICKNESS;
+            leftDownYPos = fullWallYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
             
             boxes[1] = new Box(rightUpWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-            rightUpXPos = fullWallXPos + (rightUpWallSize/2f);
-            rightUpYPos = fullWallYPos + WALL_THICKNESS * 1.5f;
+            rightUpXPos = leftDownWallSize + doorSize - WALL_THICKNESS * 2f + rightUpWallSize/2f;
+            rightUpYPos = fullWallYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
         }
         else
         {
             boxes[0] = new Box(WALL_THICKNESS/2f, leftDownWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = fullWallXPos - WALL_THICKNESS * 1.5f;
-            leftDownYPos = fullWallYPos - (leftDownWallSize);
+            leftDownXPos = fullWallXPos + CELL_WIDTH/2f + WALL_THICKNESS * 2.5f;
+            leftDownYPos = leftDownWallSize/2f - WALL_THICKNESS;
             geoms[0] = new Geometry("down" + geomName, boxes[0]);
             
             boxes[1] = new Box(WALL_THICKNESS/2f, rightUpWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            rightUpXPos = fullWallXPos + WALL_THICKNESS * 1.5f;
-            rightUpYPos = fullWallYPos + (rightUpWallSize/2f);
+            rightUpXPos = fullWallXPos + CELL_WIDTH/2f+ WALL_THICKNESS * 2.5f;
+            rightUpYPos = leftDownWallSize + doorSize - WALL_THICKNESS * 2f + rightUpWallSize/2f;
             geoms[1] = new Geometry("up" + geomName, boxes[1]);
         }
         geoms[0].setMaterial(wallMat);
