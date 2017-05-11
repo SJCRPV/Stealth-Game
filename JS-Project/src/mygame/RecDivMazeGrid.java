@@ -12,6 +12,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
@@ -31,6 +32,8 @@ public class RecDivMazeGrid {
     final float CELL_HEIGHT;
     final float WALL_THICKNESS;
     final int DOOR_SIZE;
+    final int MIN_CELLS_WIDE;
+    final int MIN_CELLS_TALL;
     boolean cutIsHorizontal;
     
     //Temp method to test wall placement.
@@ -41,7 +44,7 @@ public class RecDivMazeGrid {
     
     private int generateRandomNum(int lowerBound, int higherBound)
     {
-        return (int)(Math.random() * higherBound + lowerBound);
+        return ThreadLocalRandom.current().nextInt(lowerBound, higherBound + 1);
     }
     
     private boolean isCutHorizontal(int cellsWide, int cellsTall)
@@ -70,13 +73,14 @@ public class RecDivMazeGrid {
         return ret;
     }
     
+    //TODO: Clean this function into smaller pieces
     private void createWall(int gridStartCoorX, int gridStartCoorY, int numOfCells, String geomName)
     {
         Geometry[] geoms = new Geometry[2];
         Box[] boxes = new Box[2];
         
-        float fullWallXPos = calcSize(gridStartCoorX);
-        float fullWallYPos = calcSize(gridStartCoorY);
+        float fullWallStartXPos = calcSize(gridStartCoorX);
+        float fullWallStartYPos = calcSize(gridStartCoorY);
 
         float[] carveValues = carveDoor(numOfCells);
         float doorSize = carveValues[0];
@@ -93,26 +97,27 @@ public class RecDivMazeGrid {
         {
             boxes[0] = new Box(leftDownWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
             leftDownXPos = leftDownWallSize/2f - WALL_THICKNESS;
-            leftDownYPos = fullWallYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
+            leftDownYPos = fullWallStartYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
             
             boxes[1] = new Box(rightUpWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
             rightUpXPos = leftDownWallSize + doorSize - WALL_THICKNESS * 2f + rightUpWallSize/2f;
-            rightUpYPos = fullWallYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
+            rightUpYPos = fullWallStartYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
         }
         else
         {
             boxes[0] = new Box(WALL_THICKNESS/2f, leftDownWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = fullWallXPos + CELL_WIDTH/2f + WALL_THICKNESS * 2.5f;
+            leftDownXPos = fullWallStartXPos + CELL_WIDTH/2f + WALL_THICKNESS * 2.5f;
             leftDownYPos = leftDownWallSize/2f - WALL_THICKNESS;
             geoms[0] = new Geometry("down" + geomName, boxes[0]);
             
             boxes[1] = new Box(WALL_THICKNESS/2f, rightUpWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            rightUpXPos = fullWallXPos + CELL_WIDTH/2f+ WALL_THICKNESS * 2.5f;
+            rightUpXPos = fullWallStartXPos + CELL_WIDTH/2f+ WALL_THICKNESS * 2.5f;
             rightUpYPos = leftDownWallSize + doorSize - WALL_THICKNESS * 2f + rightUpWallSize/2f;
             geoms[1] = new Geometry("up" + geomName, boxes[1]);
         }
+        
         geoms[0].setMaterial(wallMat);
         geoms[1].setMaterial(wallMat);
         
@@ -123,6 +128,36 @@ public class RecDivMazeGrid {
         generatedMaze.attachChild(geoms[1]);
     }
     
+    private void recursiveDivision(int[] minMaxWide, int[] minMaxTall)
+    {
+        int cellsWide = minMaxWide[1] - minMaxWide[0];
+        int cellsTall = minMaxTall[1] - minMaxTall[0];
+        cutIsHorizontal = isCutHorizontal(cellsWide, cellsTall);
+        
+        if(cutIsHorizontal)
+        {
+            if(cellsTall > MIN_CELLS_TALL)
+            {
+                int randomCoor = generateRandomNum(minMaxWide[0] + 1, minMaxWide[1] - 1);
+                createWall(minMaxWide[0], randomCoor, cellsWide, (minMaxWide[0] + ", " + randomCoor));            
+
+                recursiveDivision(minMaxWide, new int[] {minMaxTall[0], randomCoor});
+                recursiveDivision(minMaxWide, new int[] {randomCoor + 1, minMaxTall[1]});
+            }
+        }
+        else
+        {
+            if(cellsWide > MIN_CELLS_WIDE)
+            {
+                int randomCoor = generateRandomNum(minMaxTall[0] + 1, minMaxTall[1] - 1);
+                createWall(randomCoor, minMaxTall[1], cellsTall, (randomCoor + ", " + minMaxTall[0]));
+
+                recursiveDivision(new int[] {minMaxWide[0], randomCoor}, minMaxTall);
+                recursiveDivision(new int[] {randomCoor + 1, minMaxWide[1]}, minMaxTall);
+            }
+        }
+    }
+    
     //This will only be called at the start. At the end of the function call the overloaded method. That one will be recursive
     private void recursiveDivision()
     {
@@ -131,8 +166,8 @@ public class RecDivMazeGrid {
         //Generate random door area
         //Carve door
         //Repeat on resulting areas.
-        cutIsHorizontal = isCutHorizontal(grid.length, grid[0].length);
         int randomCoor = generateRandomNum(1, grid.length-1);
+        cutIsHorizontal = isCutHorizontal(grid.length, grid[randomCoor].length);
         
         if(cutIsHorizontal)
         {
@@ -146,7 +181,8 @@ public class RecDivMazeGrid {
     
     public Node generateMaze()
     {
-        recursiveDivision();
+        recursiveDivision(new int[] {0, grid.length - 1}, new int[] {0, grid[0].length - 1});
+        //recursiveDivision();
         return generatedMaze;
     }
     
@@ -226,7 +262,7 @@ public class RecDivMazeGrid {
     }
     
     public RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight,
-            float wallThickness, int doorCellSize)
+            float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
     {
         generatedMaze = new Node();
         assetManager = newAssetManager;
@@ -235,6 +271,8 @@ public class RecDivMazeGrid {
         CELL_HEIGHT = cellHeight;
         WALL_THICKNESS = wallThickness;
         DOOR_SIZE = doorCellSize;
+        MIN_CELLS_WIDE = minCellsWide;
+        MIN_CELLS_TALL = minCellsTall;
         createMaterials();
         //createBorders(numCellsWide, numCellsTall);
         createBaseMap();
