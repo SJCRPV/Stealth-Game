@@ -12,8 +12,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
@@ -28,7 +29,9 @@ public class RecDivMazeGrid {
     Material floorMat;
     Material cellMat;
     Cell[][] grid;
-    Random random;
+    List<int[]> minMaxWideList;
+    List<int[]> minMaxTallList;
+    List<int[]> waitingRoom;
     final float Z_HEIGHT_OF_ALL = 1f;
     final float CELL_WIDTH;
     final float CELL_HEIGHT;
@@ -46,7 +49,7 @@ public class RecDivMazeGrid {
     
     private int generateRandomNum(int lowerBound, int higherBound)
     {
-        return random.nextInt(higherBound) + lowerBound;
+        return ThreadLocalRandom.current().nextInt(lowerBound, higherBound);
     }
     
     private boolean isCutHorizontal(int cellsWide, int cellsTall)
@@ -66,6 +69,7 @@ public class RecDivMazeGrid {
     
     private float[] carveDoor(int numOfCells)
     {
+        //TODO: Make door, you've only carved the place
         int doorCellNum = generateRandomNum(0, numOfCells);
         float doorSize = calcSize(DOOR_SIZE);
         float leftDownWallSize = calcSize(doorCellNum);
@@ -130,64 +134,54 @@ public class RecDivMazeGrid {
         generatedMaze.attachChild(geoms[1]);
     }
     
-    //This time using lists
-    private void recursiveDivision(List<int[]> minMaxWide, List<int[]> minMaxTall, int counter)
+    //TODO: Disallow random numbers to craete rooms with width or height below minimums
+    private void divideArea()
     {
-        int[] minMaxWideArr = minMaxWide.get(counter);
-        int[] minMaxTallArr = minMaxTall.get(counter);
-        int cellsWide = minMaxWideArr[0] - minMaxWideArr[1];
-        int cellsTall = minMaxTallArr[0] - minMaxTallArr[1];
-        cutIsHorizontal = isCutHorizontal(cellsWide, cellsTall);
-        
-        if(cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL)
-        {
-            return;
-        }
-        
-        if(cutIsHorizontal)
-        {
-            
-        }
-        else
-        {
-            
-        }
-    }
-    
-    private void recursiveDivision(int[] minMaxWide, int[] minMaxTall)
-    {
+        int randomCoor;
+        int[] minMaxWide = minMaxWideList.remove(0);
+        int[] minMaxTall = minMaxTallList.remove(0);
         int cellsWide = minMaxWide[1] - minMaxWide[0];
         int cellsTall = minMaxTall[1] - minMaxTall[0];
         cutIsHorizontal = isCutHorizontal(cellsWide, cellsTall);
-        
+
         if(cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL)
         {
             return;
         }
-        //USE VECTORS, ARRAYS GET OVERWRITTEN
+
         if(cutIsHorizontal)
         {
-                int randomCoor = generateRandomNum(minMaxTall[0], minMaxTall[1]);
-                createWall(minMaxWide[0], randomCoor, cellsWide, (minMaxWide[0] + ", " + randomCoor));            
+            randomCoor = generateRandomNum(minMaxTall[0] + 1, minMaxTall[1] - 1);
+            createWall(minMaxWide[0], randomCoor, cellsWide, (minMaxWide[0] + ", " + randomCoor));
 
-                recursiveDivision(minMaxWide, new int[] {minMaxTall[0], randomCoor});
-                recursiveDivision(minMaxWide, new int[] {randomCoor, minMaxTall[1]});
+            minMaxWideList.add(minMaxWide);
+            minMaxTallList.add(new int[] {minMaxTall[0], randomCoor});
+
+            minMaxWideList.add(minMaxWide);
+            minMaxTallList.add(new int[] {randomCoor, minMaxTall[1]});
         }
         else
         {
-            if(cellsWide > MIN_CELLS_WIDE)
-            {
-                int randomCoor = generateRandomNum(minMaxWide[0], minMaxWide[1]);
-                createWall(randomCoor, minMaxTall[0], cellsTall, (randomCoor + ", " + minMaxTall[0]));
+            randomCoor = generateRandomNum(minMaxWide[0] + 1, minMaxWide[1] - 1);
+            createWall(randomCoor, minMaxTall[0], cellsTall, (randomCoor + ", " + minMaxTall[0]));
 
-                recursiveDivision(new int[] {minMaxWide[0], randomCoor}, minMaxTall);
-                recursiveDivision(new int[] {randomCoor, minMaxWide[1]}, minMaxTall);
-            }
+            minMaxWideList.add(new int[] {minMaxWide[0], randomCoor});
+            minMaxTallList.add(minMaxTall);
+
+            minMaxWideList.add(new int[] {randomCoor, minMaxWide[1]});
+            minMaxTallList.add(minMaxTall);
         }
     }
     
-    //This will only be called at the start. At the end of the function call the overloaded method. That one will be recursive
     private void recursiveDivision()
+    {
+        while(minMaxWideList.size() > 0)
+        {
+            divideArea();
+        }
+    }
+    
+    private void recursiveDivision(int uselessParametre)
     {
         //Pick random spot for cut
         //Make wall
@@ -209,8 +203,9 @@ public class RecDivMazeGrid {
     
     public Node generateMaze()
     {
-        recursiveDivision(new int[] {0, grid.length}, new int[] {0, grid[0].length});
-        //recursiveDivision();
+        minMaxWideList.add(new int[] {0, grid.length});
+        minMaxTallList.add(new int[] {0, grid[0].length});
+        recursiveDivision();
         return generatedMaze;
     }
     
@@ -293,7 +288,9 @@ public class RecDivMazeGrid {
             float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
     {
         generatedMaze = new Node();
-        random = new Random();
+        minMaxWideList = new ArrayList<>();
+        minMaxTallList = new ArrayList<>();
+        waitingRoom = new ArrayList<>();
         assetManager = newAssetManager;
         grid = new Cell[numCellsWide][numCellsTall];
         CELL_WIDTH = cellWidth;
