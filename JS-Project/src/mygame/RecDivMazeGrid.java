@@ -140,8 +140,8 @@ public class RecDivMazeGrid {
         geoms[0].setMaterial(wallMat);
         geoms[1].setMaterial(wallMat);
         
-        geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, 0);
-        geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, 0);
+        geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, Z_HEIGHT_OF_ALL/2f);
+        geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, Z_HEIGHT_OF_ALL/2f);
         
         generatedMaze.attachChild(geoms[0]);
         generatedMaze.attachChild(geoms[1]);
@@ -159,7 +159,6 @@ public class RecDivMazeGrid {
 
         if(cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL)
         {
-            System.out.println("Ignore");
             return;
         }
 
@@ -195,27 +194,8 @@ public class RecDivMazeGrid {
         }
     }
     
-    private void recursiveDivision(int uselessParameter)
-    {
-        //Pick random spot for cut
-        //Make wall
-        //Generate random door area
-        //Carve door
-        //Repeat on resulting areas.
-        int randomCoor = generateRandomNum(0, grid.length);
-        cutIsHorizontal = isCutHorizontal(grid.length, grid[randomCoor].length);
-        
-        if(cutIsHorizontal)
-        {
-            createWall(0, randomCoor, grid[randomCoor].length, (0 + ", " + randomCoor));
-        }
-        else
-        {
-            createWall(randomCoor, 0, grid.length, (randomCoor + ", " + 0));
-        }
-    }
-    
-    public void one()
+    //Temp method to test individual iteration through the algorithm
+      public void one()
     {
         divideArea();
     }
@@ -223,19 +203,20 @@ public class RecDivMazeGrid {
     public Node generateMaze()
     {
         recursiveDivision();
+        generatedMaze.rotateUpTo(new Vector3f(0,0,-1));
         return generatedMaze;
     }
     
-    //TODO: Correct wall positioning
+    //TODO: Clean the box generation code. There are too many WALL_THICKNESS * 1.5f
     private void createBorders(int numOfCellsWide, int numOfCellsTall)
     {
         float maxWidth = calcSize(numOfCellsWide);
         float maxHeight = calcSize(numOfCellsTall);
         
-        Box up = new Box(maxWidth/2f, WALL_THICKNESS, Z_HEIGHT_OF_ALL);
-        Box left = new Box(WALL_THICKNESS, maxHeight/2f, Z_HEIGHT_OF_ALL);
-        Box down = new Box(maxWidth/2f, WALL_THICKNESS, Z_HEIGHT_OF_ALL);
-        Box right = new Box(WALL_THICKNESS, maxHeight/2f, Z_HEIGHT_OF_ALL);
+        Box up = new Box(maxWidth/2f - WALL_THICKNESS/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+        Box left = new Box(WALL_THICKNESS/2f, maxHeight/2f - WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+        Box down = new Box(maxWidth/2f - WALL_THICKNESS/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
+        Box right = new Box(WALL_THICKNESS/2f, maxHeight/2f - WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
         
         Geometry upGeom = new Geometry("UpBorder", up);
         Geometry leftGeom = new Geometry("LeftBorder", left);
@@ -247,11 +228,10 @@ public class RecDivMazeGrid {
         downGeom.setMaterial(wallMat);
         rightGeom.setMaterial(wallMat);
         
-        //Note: This will probably create clipping because all the corners will have 2 walls in them.
-        upGeom.setLocalTranslation(maxWidth/2f, maxHeight, 0);
-        leftGeom.setLocalTranslation(0, maxHeight/2f, 0);
-        downGeom.setLocalTranslation(maxWidth/2f, 0, 0);
-        rightGeom.setLocalTranslation(maxWidth, maxHeight/2f, 0);
+        upGeom.setLocalTranslation(maxWidth/2f - WALL_THICKNESS * 1.5f, maxHeight - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
+        leftGeom.setLocalTranslation(0 - WALL_THICKNESS * 1.5f, maxHeight/2f - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
+        downGeom.setLocalTranslation(maxWidth/2f - WALL_THICKNESS * 1.5f, 0 - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
+        rightGeom.setLocalTranslation(maxWidth - WALL_THICKNESS * 1.5f, maxHeight/2f - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
         
         generatedMaze.attachChild(upGeom);
         generatedMaze.attachChild(leftGeom);
@@ -318,7 +298,7 @@ public class RecDivMazeGrid {
         MIN_CELLS_WIDE = minCellsWide;
         MIN_CELLS_TALL = minCellsTall;
         createMaterials();
-        //createBorders(numCellsWide, numCellsTall);
+        createBorders(numCellsWide, numCellsTall);
         createBaseMap();
         minMaxWideList.add(new int[] {0, grid.length});
         minMaxTallList.add(new int[] {0, grid[0].length});

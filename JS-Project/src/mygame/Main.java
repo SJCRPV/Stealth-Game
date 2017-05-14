@@ -46,9 +46,10 @@ public class Main extends SimpleApplication {
         //initKeys is only here for testing individual wall placement. Just comment the line with the root node and uncomment
         //this one to activate it. Each step is done by pressing the Space key.
         //initKeys();
+        
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
-        maze = new RecDivMazeGrid(assetManager, 20, 20, 0.5f, 0.5f, 0.25f, 1, 2, 2);
+        maze = new RecDivMazeGrid(assetManager, 20, 20, 1f, 1f, 0.5f, 1, 2, 2);
         rootNode.attachChild(maze.generateMaze());
     }
 }
