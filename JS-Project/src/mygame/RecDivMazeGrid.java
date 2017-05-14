@@ -58,7 +58,6 @@ public class RecDivMazeGrid {
         {   
             return generateRandomNum(1, 2) == 1;
         }
-        
         return cellsTall > cellsWide;
     }
     
@@ -67,15 +66,17 @@ public class RecDivMazeGrid {
         return ((WALL_THICKNESS + CELL_WIDTH * 2) * numOfCells);
     }
     
-    private float[] carveDoor(int numOfCells)
+    //TODO: Make door. You've only carved the place
+    private float[] carveDoor(int startCoor, int numOfCells)
     {
-        //TODO: Make door, you've only carved the place
-        int doorCellNum = generateRandomNum(0, numOfCells);
-        float doorSize = calcSize(DOOR_SIZE);
-        float leftDownWallSize = calcSize(doorCellNum);
-        float rightUpWallSize = calcSize(numOfCells - (doorCellNum + DOOR_SIZE));
+        int doorCellNum = generateRandomNum(startCoor, startCoor + numOfCells);
         
-        float[] ret = {doorSize, leftDownWallSize, rightUpWallSize};
+        float doorPosition = calcSize(doorCellNum);
+        float doorSize = calcSize(DOOR_SIZE);
+        float leftDownWallSize = calcSize(doorCellNum - startCoor);
+        float rightUpWallSize = calcSize(numOfCells - ((doorCellNum - startCoor) + DOOR_SIZE));
+        
+        float[] ret = {doorPosition, doorSize, leftDownWallSize, rightUpWallSize};
         return ret;
     }
     
@@ -87,40 +88,52 @@ public class RecDivMazeGrid {
         
         float fullWallStartXPos = calcSize(gridStartCoorX);
         float fullWallStartYPos = calcSize(gridStartCoorY);
-
-        float[] carveValues = carveDoor(numOfCells);
-        float doorSize = carveValues[0];
         
-        float leftDownWallSize = carveValues[1];
+        float[] carveValues;
+        
+        if(cutIsHorizontal)
+        {
+            carveValues = carveDoor(gridStartCoorX, numOfCells);
+        }
+        else
+        {
+            carveValues = carveDoor(gridStartCoorY, numOfCells);
+        }
+        
+        float doorLocation = carveValues[0];
+        
+        float doorSize = carveValues[1];
+        
+        float leftDownWallSize = carveValues[2];
         float leftDownXPos;
         float leftDownYPos;
         
-        float rightUpWallSize = carveValues[2];
+        float rightUpWallSize = carveValues[3];
         float rightUpXPos;
         float rightUpYPos;
         
         if(cutIsHorizontal)
         {
             boxes[0] = new Box(leftDownWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = leftDownWallSize/2f - WALL_THICKNESS;
-            leftDownYPos = fullWallStartYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
+            leftDownXPos = doorLocation - doorSize/2f - leftDownWallSize/2f + WALL_THICKNESS * 1.5f;
+            leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
             
             boxes[1] = new Box(rightUpWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-            rightUpXPos = leftDownWallSize + doorSize - WALL_THICKNESS * 2f + rightUpWallSize/2f;
-            rightUpYPos = fullWallStartYPos + CELL_HEIGHT/2f + WALL_THICKNESS * 2.5f;
+            rightUpXPos = doorLocation + doorSize/2f + rightUpWallSize/2f + WALL_THICKNESS * 0.5f;
+            rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
         }
         else
         {
             boxes[0] = new Box(WALL_THICKNESS/2f, leftDownWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = fullWallStartXPos + CELL_WIDTH/2f + WALL_THICKNESS * 2.5f;
-            leftDownYPos = leftDownWallSize/2f - WALL_THICKNESS;
+            leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
+            leftDownYPos = doorLocation - doorSize/2f - leftDownWallSize/2f + WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("down" + geomName, boxes[0]);
             
             boxes[1] = new Box(WALL_THICKNESS/2f, rightUpWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            rightUpXPos = fullWallStartXPos + CELL_WIDTH/2f+ WALL_THICKNESS * 2.5f;
-            rightUpYPos = leftDownWallSize + doorSize - WALL_THICKNESS * 2f + rightUpWallSize/2f;
+            rightUpXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
+            rightUpYPos = doorLocation + doorSize/2f + rightUpWallSize/2f + WALL_THICKNESS * 0.5f;
             geoms[1] = new Geometry("up" + geomName, boxes[1]);
         }
         
@@ -134,7 +147,7 @@ public class RecDivMazeGrid {
         generatedMaze.attachChild(geoms[1]);
     }
     
-    //TODO: Disallow random numbers to craete rooms with width or height below minimums
+    //TODO: Disallow random numbers to create rooms with width or height below minimums
     private void divideArea()
     {
         int randomCoor;
@@ -146,6 +159,7 @@ public class RecDivMazeGrid {
 
         if(cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL)
         {
+            System.out.println("Ignore");
             return;
         }
 
@@ -181,7 +195,7 @@ public class RecDivMazeGrid {
         }
     }
     
-    private void recursiveDivision(int uselessParametre)
+    private void recursiveDivision(int uselessParameter)
     {
         //Pick random spot for cut
         //Make wall
@@ -201,14 +215,18 @@ public class RecDivMazeGrid {
         }
     }
     
+    public void one()
+    {
+        divideArea();
+    }
+    
     public Node generateMaze()
     {
-        minMaxWideList.add(new int[] {0, grid.length});
-        minMaxTallList.add(new int[] {0, grid[0].length});
         recursiveDivision();
         return generatedMaze;
     }
     
+    //TODO: Correct wall positioning
     private void createBorders(int numOfCellsWide, int numOfCellsTall)
     {
         float maxWidth = calcSize(numOfCellsWide);
@@ -302,5 +320,7 @@ public class RecDivMazeGrid {
         createMaterials();
         //createBorders(numCellsWide, numCellsTall);
         createBaseMap();
+        minMaxWideList.add(new int[] {0, grid.length});
+        minMaxTallList.add(new int[] {0, grid[0].length});
     }
 }

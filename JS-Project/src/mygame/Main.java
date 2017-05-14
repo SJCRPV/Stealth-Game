@@ -1,6 +1,11 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -11,6 +16,25 @@ public class Main extends SimpleApplication {
 
     RecDivMazeGrid maze;
     
+    private void initKeys()
+    {
+        inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addListener(actionListener,"Wall");
+    }
+    
+    private ActionListener actionListener = new ActionListener()
+    {
+        @Override 
+        public void onAction(String name, boolean keyPressed, float tpf)
+        {
+            if(name.equals("Wall") && !keyPressed)
+            {
+                maze.one();
+                rootNode.attachChild(maze.getNode());
+            }
+        }
+    };
+    
     public static void main(String[] args) {
         Main app = new Main();
         app.start();
@@ -19,10 +43,12 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() 
     {
+        //initKeys is only here for testing individual wall placement. Just comment the line with the root node and uncomment
+        //this one to activate it. Each step is done by pressing the Space key.
+        //initKeys();
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
-        maze = new RecDivMazeGrid(assetManager, 10, 10, 0.5f, 0.5f, 0.25f, 1, 2, 2);
+        maze = new RecDivMazeGrid(assetManager, 20, 20, 0.5f, 0.5f, 0.25f, 1, 2, 2);
         rootNode.attachChild(maze.generateMaze());
-        //rootNode.attachChild(maze.getNode());
     }
 }
