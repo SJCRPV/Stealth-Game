@@ -2,7 +2,6 @@ package mygame;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
-import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 
@@ -15,6 +14,7 @@ import com.jme3.input.controls.KeyTrigger;
 public class Main extends SimpleApplication {
 
     RecDivMazeGrid maze;
+    SprinkleObjects sprinkler;
     
     private void initKeys()
     {
@@ -49,7 +49,7 @@ public class Main extends SimpleApplication {
         
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
-        maze = new RecDivMazeGrid(assetManager, 20, 20, 1f, 1f, 0.5f, 1, 2, 2);
+        maze = new RecDivMazeGrid(assetManager, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
         rootNode.attachChild(maze.generateMaze());
     }
 }

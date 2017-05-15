@@ -12,6 +12,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Quad;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,7 +32,6 @@ public class RecDivMazeGrid {
     Cell[][] grid;
     List<int[]> minMaxWideList;
     List<int[]> minMaxTallList;
-    List<int[]> waitingRoom;
     final float Z_HEIGHT_OF_ALL = 1f;
     final float CELL_WIDTH;
     final float CELL_HEIGHT;
@@ -272,6 +272,14 @@ public class RecDivMazeGrid {
         }
     }
     
+    private void createPlane(int numCellsWide, int numCellsTall)
+    {
+        plane = new Geometry("Floor", new Quad(calcSize(numCellsWide), calcSize(numCellsTall)));
+        plane.setMaterial(floorMat);
+        plane.setLocalTranslation(-WALL_THICKNESS, -WALL_THICKNESS, -0.001f);
+        generatedMaze.attachChild(plane);
+    }
+    
     private void createMaterials()
     {
         wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -288,7 +296,6 @@ public class RecDivMazeGrid {
         generatedMaze = new Node();
         minMaxWideList = new ArrayList<>();
         minMaxTallList = new ArrayList<>();
-        waitingRoom = new ArrayList<>();
         assetManager = newAssetManager;
         grid = new Cell[numCellsWide][numCellsTall];
         CELL_WIDTH = cellWidth;
@@ -300,6 +307,7 @@ public class RecDivMazeGrid {
         createMaterials();
         createBorders(numCellsWide, numCellsTall);
         createBaseMap();
+        createPlane(numCellsWide, numCellsTall);
         minMaxWideList.add(new int[] {0, grid.length});
         minMaxTallList.add(new int[] {0, grid[0].length});
     }
