@@ -5,7 +5,9 @@
  */
 package mygame;
 
-import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -13,8 +15,41 @@ import com.jme3.math.Vector3f;
  */
 public class Cell {
     
-    public Cell(Vector3f WCTopLeft, int cellX, int cellY)
+    private final int gridXCoor;
+    private final int gridYCoor;
+    List<Spatial> objectsInSubCells;
+    
+    public int[] getCellCoors()
     {
-        
+        return new int[] {gridXCoor, gridYCoor};
+    }
+    
+    public Object getObjectInSubCell(int index)
+    {
+        return objectsInSubCells.get(index);
+    }
+    
+    public void addObjectToSubCell(int index, Spatial objectToAdd)
+    {
+        if(index < 4 && objectsInSubCells.get(index) == null)
+        {
+            objectsInSubCells.add(index, objectToAdd);
+        }
+    }
+    
+    public boolean doesObjectExistInSubCell(int index)
+    {
+        if(index >= objectsInSubCells.size())
+        {
+            return false;
+        }
+        return objectsInSubCells.get(index) == null;
+    }
+    
+    public Cell(int cellX, int cellY)
+    {
+        gridXCoor = cellX;
+        gridYCoor = cellY;
+        objectsInSubCells = new ArrayList<>(4);
     }
 }

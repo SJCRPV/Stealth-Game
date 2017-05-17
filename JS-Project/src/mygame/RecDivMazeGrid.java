@@ -15,13 +15,12 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
  * @author SJCRPV
  */
-public class RecDivMazeGrid {
+public class RecDivMazeGrid extends Generation {
     
     Node generatedMaze;
     AssetManager assetManager;
@@ -29,14 +28,9 @@ public class RecDivMazeGrid {
     Material wallMat;
     Material floorMat;
     Material cellMat;
-    Cell[][] grid;
     List<int[]> minMaxWideList;
     List<int[]> minMaxTallList;
     final float Z_HEIGHT_OF_ALL = 1f;
-    final float CELL_WIDTH;
-    final float CELL_HEIGHT;
-    final float WALL_THICKNESS;
-    final int DOOR_SIZE;
     final int MIN_CELLS_WIDE;
     final int MIN_CELLS_TALL;
     boolean cutIsHorizontal;
@@ -47,9 +41,9 @@ public class RecDivMazeGrid {
         return generatedMaze;
     }
     
-    private int generateRandomNum(int lowerBound, int higherBound)
+    public List<int[]> getCompletedAreas()
     {
-        return ThreadLocalRandom.current().nextInt(lowerBound, higherBound);
+        return completedAreas;
     }
     
     private boolean isCutHorizontal(int cellsWide, int cellsTall)
@@ -59,11 +53,6 @@ public class RecDivMazeGrid {
             return generateRandomNum(1, 2) == 1;
         }
         return cellsTall > cellsWide;
-    }
-    
-    private float calcSize(int numOfCells)
-    {
-        return ((WALL_THICKNESS + CELL_WIDTH * 2) * numOfCells);
     }
     
     //TODO: Make door. You've only carved the place
@@ -159,6 +148,7 @@ public class RecDivMazeGrid {
 
         if(cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL)
         {
+            completedAreas.add(new int[] {minMaxWide[0], minMaxWide[1], minMaxTall[0], minMaxTall[1]});
             return;
         }
 
@@ -194,20 +184,14 @@ public class RecDivMazeGrid {
         }
     }
     
-    //Temp method to test individual iteration through the algorithm
-      public void one()
-    {
-        divideArea();
-    }
-    
     public Node generateMaze()
     {
         recursiveDivision();
-        generatedMaze.rotateUpTo(new Vector3f(0,0,-1));
         return generatedMaze;
     }
     
-    //TODO: Clean the box generation code. There are too many WALL_THICKNESS * 1.5f
+    //TODO: Clean the box generation code. There are too many WALL_THICKNESS * 1.5f.
+    //It's what's causing the necessity that cellSize and WALL_THICKNESS need to have a proportion of 2:1
     private void createBorders(int numOfCellsWide, int numOfCellsTall)
     {
         float maxWidth = calcSize(numOfCellsWide);
@@ -254,7 +238,7 @@ public class RecDivMazeGrid {
     private void createCell(int x, int y, Vector3f position)
     {
         //Constructor Cell(Vector3f position, int cellX, int cellY)
-        grid[x][y] = new Cell(position, x, y);
+        grid[x][y] = new Cell(x, y);
         representOnMaze(position);
     }
     
@@ -285,7 +269,7 @@ public class RecDivMazeGrid {
         wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         wallMat.setColor("Color", ColorRGBA.Blue);
         floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        floorMat.setColor("Color", ColorRGBA.Red);
+        floorMat.setColor("Color", ColorRGBA.Gray);
         cellMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         cellMat.setColor("Color", ColorRGBA.Green);
     }
@@ -296,6 +280,7 @@ public class RecDivMazeGrid {
         generatedMaze = new Node();
         minMaxWideList = new ArrayList<>();
         minMaxTallList = new ArrayList<>();
+        completedAreas = new ArrayList<>();
         assetManager = newAssetManager;
         grid = new Cell[numCellsWide][numCellsTall];
         CELL_WIDTH = cellWidth;
