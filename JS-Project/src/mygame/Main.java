@@ -20,12 +20,12 @@ public class Main extends SimpleApplication {
     
     private void initKeys()
     {
-        //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
-        //inputManager.addListener(actionListener,"Wall");
+        //inputManager.addMapping("Wall", new KeyTrigger(KeyInput.KEY_SPACE));
+        //inputManager.addListener(actionListener, "Wall");
         
         //Restart maze
-         inputManager.addMapping("Restart",  new KeyTrigger(KeyInput.KEY_R));
-         inputManager.addListener(actionListener,"Restart");
+         inputManager.addMapping("Restart", new KeyTrigger(KeyInput.KEY_R));
+         inputManager.addListener(actionListener, "Restart");
     }
     
     private ActionListener actionListener = new ActionListener()
@@ -38,7 +38,6 @@ public class Main extends SimpleApplication {
                  System.out.println("restart");
                  initGame();
             }
-
         }
     };
     
@@ -50,8 +49,7 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() 
     {
-        //initKeys is only here for testing individual wall placement. Just comment the line with the root node and uncomment
-        //this one to activate it. Each step is done by pressing the Space key.
+        //initKeys is only here for testing individual systems.
         initKeys();
         initGame();
 

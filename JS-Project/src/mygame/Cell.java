@@ -6,8 +6,6 @@
 package mygame;
 
 import com.jme3.scene.Spatial;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -17,7 +15,18 @@ public class Cell {
     
     private final int gridXCoor;
     private final int gridYCoor;
-    List<Spatial> objectsInSubCells;
+    private boolean hasDoorNearby;
+    Spatial[] objectsInSubCells;
+    
+    public boolean isThereADoor()
+    {
+        return hasDoorNearby;
+    }
+    
+    public void doorExistsNow()
+    {
+        hasDoorNearby = true;
+    }
     
     public int[] getCellCoors()
     {
@@ -26,30 +35,27 @@ public class Cell {
     
     public Object getObjectInSubCell(int index)
     {
-        return objectsInSubCells.get(index);
+        return objectsInSubCells[index];
     }
     
     public void addObjectToSubCell(int index, Spatial objectToAdd)
     {
-        if(index < 4 && objectsInSubCells.get(index) == null)
+        if(index < 4 && objectsInSubCells[index] == null)
         {
-            objectsInSubCells.add(index, objectToAdd);
+            objectsInSubCells[index] = objectToAdd;
         }
     }
     
     public boolean doesObjectExistInSubCell(int index)
     {
-        if(index >= objectsInSubCells.size())
-        {
-            return false;
-        }
-        return objectsInSubCells.get(index) == null;
+        return objectsInSubCells[index] != null;
     }
     
     public Cell(int cellX, int cellY)
     {
         gridXCoor = cellX;
         gridYCoor = cellY;
-        objectsInSubCells = new ArrayList<>(4);
+        objectsInSubCells = new Spatial[4];
+        hasDoorNearby = false;
     }
 }

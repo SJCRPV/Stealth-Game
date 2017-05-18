@@ -45,7 +45,7 @@ public class SprinkleObjects extends Generation {
     private boolean isPositionValid(int xCoor, int yCoor, int subCellNum)
     {
         Cell tempCell = grid[xCoor][yCoor];
-        return !tempCell.doesObjectExistInSubCell(subCellNum);
+        return !(tempCell.isThereADoor() || tempCell.doesObjectExistInSubCell(subCellNum));
     }
     
     private Spatial getSpatialToSprinkle()
@@ -73,6 +73,7 @@ public class SprinkleObjects extends Generation {
                 return new Vector3f(xPos + CELL_WIDTH/2f, yPos + CELL_HEIGHT/2f, objectHeight);
                 
             default:
+                System.out.println("Tried to access a subcell that does not exist");
                 return new Vector3f(-1,-1,-1);
         }
     }
@@ -94,7 +95,10 @@ public class SprinkleObjects extends Generation {
             yCoor = generateRandomNum(dimensions[2], dimensions[3]);
             subCellNum = generateRandomNum(0, 3);
             isValid = isPositionValid(xCoor, yCoor, subCellNum);
+            System.out.println("Position is valid: " + isValid);
         } while(!isValid);
+        
+        grid[xCoor][yCoor].addObjectToSubCell(subCellNum, spat);
         
         return assemblePos(xCoor, yCoor, subCellNum, spatHeight.getZExtent());
     }

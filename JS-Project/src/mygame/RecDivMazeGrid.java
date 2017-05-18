@@ -55,7 +55,7 @@ public class RecDivMazeGrid extends Generation {
         return cellsTall > cellsWide;
     }
     
-    //TODO: Make door. You've only carved the place
+    //TODO: Make doorExistsNow. You've only carved the place
     private float[] carveDoor(int startCoor, int numOfCells)
     {
         int doorCellNum = generateRandomNum(startCoor, startCoor + numOfCells);
@@ -65,8 +65,14 @@ public class RecDivMazeGrid extends Generation {
         float leftDownWallSize = calcSize(doorCellNum - startCoor);
         float rightUpWallSize = calcSize(numOfCells - ((doorCellNum - startCoor) + DOOR_SIZE));
         
-        float[] ret = {doorPosition, doorSize, leftDownWallSize, rightUpWallSize};
+        float[] ret = {doorCellNum, doorPosition, doorSize, leftDownWallSize, rightUpWallSize};
         return ret;
+    }
+    
+    private void markDoor(int x, int y)
+    {
+        Cell tempCell = grid[x][y];
+        tempCell.doorExistsNow();
     }
     
     //TODO: Clean this function into smaller pieces
@@ -83,21 +89,25 @@ public class RecDivMazeGrid extends Generation {
         if(cutIsHorizontal)
         {
             carveValues = carveDoor(gridStartCoorX, numOfCells);
+            markDoor((int)carveValues[0], gridStartCoorY);
+            markDoor((int)carveValues[0], gridStartCoorY - 1);
         }
         else
         {
             carveValues = carveDoor(gridStartCoorY, numOfCells);
+            markDoor(gridStartCoorX, (int)carveValues[0]);
+            markDoor(gridStartCoorX - 1, (int)carveValues[0]);
         }
         
-        float doorLocation = carveValues[0];
+        float doorLocation = carveValues[1];
         
-        float doorSize = carveValues[1];
+        float doorSize = carveValues[2];
         
-        float leftDownWallSize = carveValues[2];
+        float leftDownWallSize = carveValues[3];
         float leftDownXPos;
         float leftDownYPos;
         
-        float rightUpWallSize = carveValues[3];
+        float rightUpWallSize = carveValues[4];
         float rightUpXPos;
         float rightUpYPos;
         
@@ -136,7 +146,7 @@ public class RecDivMazeGrid extends Generation {
         generatedMaze.attachChild(geoms[1]);
     }
     
-    //TODO: Disallow random numbers to create rooms with width or height below minimums
+    //TODO? Disallow random numbers to create rooms with width or height below minimums
     private void divideArea()
     {
         int randomCoor;
@@ -190,7 +200,7 @@ public class RecDivMazeGrid extends Generation {
         return generatedMaze;
     }
     
-    //TODO: Clean the box generation code. There are too many WALL_THICKNESS * 1.5f.
+    //TODO: Clean the box generation code. Here and in createWall. There are too many WALL_THICKNESS * 1.5f.
     //It's what's causing the necessity that cellSize and WALL_THICKNESS need to have a proportion of 2:1
     private void createBorders(int numOfCellsWide, int numOfCellsTall)
     {
