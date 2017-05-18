@@ -22,6 +22,10 @@ public class Main extends SimpleApplication {
     {
         //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
         //inputManager.addListener(actionListener,"Wall");
+        
+        //Restart maze
+         inputManager.addMapping("Restart",  new KeyTrigger(KeyInput.KEY_R));
+         inputManager.addListener(actionListener,"Restart");
     }
     
     private ActionListener actionListener = new ActionListener()
@@ -29,6 +33,12 @@ public class Main extends SimpleApplication {
         @Override 
         public void onAction(String name, boolean keyPressed, float tpf)
         {
+             if (name.equals("Restart") && !keyPressed) {
+                 rootNode.detachAllChildren();
+                 System.out.println("restart");
+                 initGame();
+            }
+
         }
     };
     
@@ -42,9 +52,14 @@ public class Main extends SimpleApplication {
     {
         //initKeys is only here for testing individual wall placement. Just comment the line with the root node and uncomment
         //this one to activate it. Each step is done by pressing the Space key.
-        //initKeys();
-        
-//Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
+        initKeys();
+        initGame();
+
+    }
+    
+    private void initGame()
+    {
+        //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
         
