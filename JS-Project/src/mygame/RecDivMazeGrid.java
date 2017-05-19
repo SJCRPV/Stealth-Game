@@ -6,8 +6,11 @@
 package mygame;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -21,7 +24,7 @@ import java.util.List;
  * @author SJCRPV
  */
 public class RecDivMazeGrid extends Generation {
-    
+
     Node generatedMaze;
     AssetManager assetManager;
     Geometry plane;
@@ -34,111 +37,134 @@ public class RecDivMazeGrid extends Generation {
     final int MIN_CELLS_WIDE;
     final int MIN_CELLS_TALL;
     boolean cutIsHorizontal;
-    
+    private RigidBodyControl rbFloor;
+    protected BulletAppState bulletAppState;
+
     //Temp method to test wall placement.
-    public Node getNode()
-    {
+    public Node getNode() {
         return generatedMaze;
     }
-    
-    public List<int[]> getCompletedAreas()
-    {
+
+    public List<int[]> getCompletedAreas() {
         return completedAreas;
     }
-    
-    private boolean isCutHorizontal(int cellsWide, int cellsTall)
-    {
-        if(cellsTall == cellsWide)
-        {   
+
+    private boolean isCutHorizontal(int cellsWide, int cellsTall) {
+        if (cellsTall == cellsWide) {
             return generateRandomNum(1, 2) == 1;
         }
         return cellsTall > cellsWide;
     }
-    
-    //TODO: Make door. You've only carved the place
-    private float[] carveDoor(int startCoor, int numOfCells)
-    {
+
+    //TODO: Make doorExistsNow. You've only carved the place
+    private float[] carveDoor(int startCoor, int numOfCells) {
         int doorCellNum = generateRandomNum(startCoor, startCoor + numOfCells);
-        
+
         float doorPosition = calcSize(doorCellNum);
         float doorSize = calcSize(DOOR_SIZE);
         float leftDownWallSize = calcSize(doorCellNum - startCoor);
         float rightUpWallSize = calcSize(numOfCells - ((doorCellNum - startCoor) + DOOR_SIZE));
-        
-        float[] ret = {doorPosition, doorSize, leftDownWallSize, rightUpWallSize};
+
+        float[] ret = {doorCellNum, doorPosition, doorSize, leftDownWallSize, rightUpWallSize};
         return ret;
     }
-    
+
+    private void markDoor(int x, int y) {
+        Cell tempCell = grid[x][y];
+        tempCell.doorExistsNow();
+    }
+
     //TODO: Clean this function into smaller pieces
-    private void createWall(int gridStartCoorX, int gridStartCoorY, int numOfCells, String geomName)
-    {
+    private void createWall(int gridStartCoorX, int gridStartCoorY, int numOfCells, String geomName) {
         Geometry[] geoms = new Geometry[2];
         Box[] boxes = new Box[2];
-        
+
         float fullWallStartXPos = calcSize(gridStartCoorX);
         float fullWallStartYPos = calcSize(gridStartCoorY);
-        
+
         float[] carveValues;
-        
-        if(cutIsHorizontal)
-        {
+
+        if (cutIsHorizontal) {
             carveValues = carveDoor(gridStartCoorX, numOfCells);
-        }
-        else
-        {
+            markDoor((int) carveValues[0], gridStartCoorY);
+            markDoor((int) carveValues[0], gridStartCoorY - 1);
+        } else {
             carveValues = carveDoor(gridStartCoorY, numOfCells);
+            markDoor(gridStartCoorX, (int) carveValues[0]);
+            markDoor(gridStartCoorX - 1, (int) carveValues[0]);
         }
-        
-        float doorLocation = carveValues[0];
-        
-        float doorSize = carveValues[1];
-        
-        float leftDownWallSize = carveValues[2];
+
+        float doorLocation = carveValues[1];
+
+        float doorSize = carveValues[2];
+
+        float leftDownWallSize = carveValues[3];
         float leftDownXPos;
         float leftDownYPos;
-        
-        float rightUpWallSize = carveValues[3];
+
+        float rightUpWallSize = carveValues[4];
         float rightUpXPos;
         float rightUpYPos;
-        
-        if(cutIsHorizontal)
-        {
-            boxes[0] = new Box(leftDownWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = doorLocation - doorSize/2f - leftDownWallSize/2f + WALL_THICKNESS * 1.5f;
+
+        if (cutIsHorizontal) {
+            boxes[0] = new Box(leftDownWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+            leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
             leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
-            
-            boxes[1] = new Box(rightUpWallSize/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-            rightUpXPos = doorLocation + doorSize/2f + rightUpWallSize/2f + WALL_THICKNESS * 0.5f;
+
+            //Add physics
+            RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
+            geoms[0].addControl(rbwall1);
+            rbwall1.setKinematic(true);
+            bulletAppState.getPhysicsSpace().add(rbwall1);
+
+            boxes[1] = new Box(rightUpWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+            rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
             rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
-        }
-        else
-        {
-            boxes[0] = new Box(WALL_THICKNESS/2f, leftDownWallSize/2f, Z_HEIGHT_OF_ALL/2f);
-            leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
-            leftDownYPos = doorLocation - doorSize/2f - leftDownWallSize/2f + WALL_THICKNESS * 1.5f;
-            geoms[0] = new Geometry("down" + geomName, boxes[0]);
+
+            //Add physics
+            RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
+            geoms[1].addControl(rbwall2);
+            rbwall2.setKinematic(true);
+            bulletAppState.getPhysicsSpace().add(rbwall2);
             
-            boxes[1] = new Box(WALL_THICKNESS/2f, rightUpWallSize/2f, Z_HEIGHT_OF_ALL/2f);
+        } else {
+            boxes[0] = new Box(WALL_THICKNESS / 2f, leftDownWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
+            leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
+            leftDownYPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
+            geoms[0] = new Geometry("down" + geomName, boxes[0]);
+
+            //Add physics
+            RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
+            geoms[0].addControl(rbwall1);
+            rbwall1.setKinematic(true);
+            bulletAppState.getPhysicsSpace().add(rbwall1);
+            
+            boxes[1] = new Box(WALL_THICKNESS / 2f, rightUpWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
             rightUpXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
-            rightUpYPos = doorLocation + doorSize/2f + rightUpWallSize/2f + WALL_THICKNESS * 0.5f;
+            rightUpYPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
             geoms[1] = new Geometry("up" + geomName, boxes[1]);
+            
+            //Add physics
+            RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
+            geoms[1].addControl(rbwall2);
+            rbwall2.setKinematic(true);
+            bulletAppState.getPhysicsSpace().add(rbwall2);
         }
-        
+
         geoms[0].setMaterial(wallMat);
         geoms[1].setMaterial(wallMat);
-        
-        geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, Z_HEIGHT_OF_ALL/2f);
-        geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, Z_HEIGHT_OF_ALL/2f);
-        
+
+        geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, Z_HEIGHT_OF_ALL / 2f);
+        geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, Z_HEIGHT_OF_ALL / 2f);
+
         generatedMaze.attachChild(geoms[0]);
         generatedMaze.attachChild(geoms[1]);
     }
-    
-    //TODO: Disallow random numbers to create rooms with width or height below minimums
-    private void divideArea()
-    {
+
+    //TODO? Disallow random numbers to create rooms with width or height below minimums
+    private void divideArea() {
         int randomCoor;
         int[] minMaxWide = minMaxWideList.remove(0);
         int[] minMaxTall = minMaxTallList.remove(0);
@@ -146,126 +172,130 @@ public class RecDivMazeGrid extends Generation {
         int cellsTall = minMaxTall[1] - minMaxTall[0];
         cutIsHorizontal = isCutHorizontal(cellsWide, cellsTall);
 
-        if(cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL)
-        {
-            completedAreas.add(new int[] {minMaxWide[0], minMaxWide[1], minMaxTall[0], minMaxTall[1]});
+        if (cellsWide <= MIN_CELLS_TALL || cellsTall <= MIN_CELLS_TALL) {
+            completedAreas.add(new int[]{minMaxWide[0], minMaxWide[1], minMaxTall[0], minMaxTall[1]});
             return;
         }
 
-        if(cutIsHorizontal)
-        {
+        if (cutIsHorizontal) {
             randomCoor = generateRandomNum(minMaxTall[0] + 1, minMaxTall[1] - 1);
             createWall(minMaxWide[0], randomCoor, cellsWide, (minMaxWide[0] + ", " + randomCoor));
 
             minMaxWideList.add(minMaxWide);
-            minMaxTallList.add(new int[] {minMaxTall[0], randomCoor});
+            minMaxTallList.add(new int[]{minMaxTall[0], randomCoor});
 
             minMaxWideList.add(minMaxWide);
-            minMaxTallList.add(new int[] {randomCoor, minMaxTall[1]});
-        }
-        else
-        {
+            minMaxTallList.add(new int[]{randomCoor, minMaxTall[1]});
+        } else {
             randomCoor = generateRandomNum(minMaxWide[0] + 1, minMaxWide[1] - 1);
             createWall(randomCoor, minMaxTall[0], cellsTall, (randomCoor + ", " + minMaxTall[0]));
 
-            minMaxWideList.add(new int[] {minMaxWide[0], randomCoor});
+            minMaxWideList.add(new int[]{minMaxWide[0], randomCoor});
             minMaxTallList.add(minMaxTall);
 
-            minMaxWideList.add(new int[] {randomCoor, minMaxWide[1]});
+            minMaxWideList.add(new int[]{randomCoor, minMaxWide[1]});
             minMaxTallList.add(minMaxTall);
         }
     }
-    
-    private void recursiveDivision()
-    {
-        while(minMaxWideList.size() > 0)
-        {
+
+    private void recursiveDivision() {
+        while (minMaxWideList.size() > 0) {
             divideArea();
         }
     }
-    
-    public Node generateMaze()
-    {
+
+    public Node generateMaze() {
         recursiveDivision();
         return generatedMaze;
     }
-    
-    //TODO: Clean the box generation code. There are too many WALL_THICKNESS * 1.5f.
+
+    //TODO: Clean the box generation code. Here and in createWall. There are too many WALL_THICKNESS * 1.5f.
     //It's what's causing the necessity that cellSize and WALL_THICKNESS need to have a proportion of 2:1
-    private void createBorders(int numOfCellsWide, int numOfCellsTall)
-    {
+    private void createBorders(int numOfCellsWide, int numOfCellsTall) {
         float maxWidth = calcSize(numOfCellsWide);
         float maxHeight = calcSize(numOfCellsTall);
-        
-        Box up = new Box(maxWidth/2f - WALL_THICKNESS/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-        Box left = new Box(WALL_THICKNESS/2f, maxHeight/2f - WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-        Box down = new Box(maxWidth/2f - WALL_THICKNESS/2f, WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-        Box right = new Box(WALL_THICKNESS/2f, maxHeight/2f - WALL_THICKNESS/2f, Z_HEIGHT_OF_ALL/2f);
-        
+
+        Box up = new Box(maxWidth / 2f - WALL_THICKNESS / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+        Box left = new Box(WALL_THICKNESS / 2f, maxHeight / 2f - WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+        Box down = new Box(maxWidth / 2f - WALL_THICKNESS / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+        Box right = new Box(WALL_THICKNESS / 2f, maxHeight / 2f - WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+
         Geometry upGeom = new Geometry("UpBorder", up);
         Geometry leftGeom = new Geometry("LeftBorder", left);
         Geometry downGeom = new Geometry("DownBorder", down);
         Geometry rightGeom = new Geometry("RightBorder", right);
-        
+
         upGeom.setMaterial(wallMat);
         leftGeom.setMaterial(wallMat);
         downGeom.setMaterial(wallMat);
         rightGeom.setMaterial(wallMat);
-        
-        upGeom.setLocalTranslation(maxWidth/2f - WALL_THICKNESS * 1.5f, maxHeight - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
-        leftGeom.setLocalTranslation(0 - WALL_THICKNESS * 1.5f, maxHeight/2f - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
-        downGeom.setLocalTranslation(maxWidth/2f - WALL_THICKNESS * 1.5f, 0 - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
-        rightGeom.setLocalTranslation(maxWidth - WALL_THICKNESS * 1.5f, maxHeight/2f - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL/2f);
-        
+
+        upGeom.setLocalTranslation(maxWidth / 2f - WALL_THICKNESS * 1.5f, maxHeight - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL / 2f);
+        leftGeom.setLocalTranslation(0 - WALL_THICKNESS * 1.5f, maxHeight / 2f - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL / 2f);
+        downGeom.setLocalTranslation(maxWidth / 2f - WALL_THICKNESS * 1.5f, 0 - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL / 2f);
+        rightGeom.setLocalTranslation(maxWidth - WALL_THICKNESS * 1.5f, maxHeight / 2f - WALL_THICKNESS * 1.5f, Z_HEIGHT_OF_ALL / 2f);
+
+        //Add rigidbodies to physics space
+        RigidBodyControl rbUWall = new RigidBodyControl(0.0f);
+        upGeom.addControl(rbUWall);
+        rbUWall.setKinematic(true);
+        bulletAppState.getPhysicsSpace().add(rbUWall);
+        RigidBodyControl rbDWall = new RigidBodyControl(0.0f);
+        downGeom.addControl(rbDWall);
+        rbDWall.setKinematic(true);
+        bulletAppState.getPhysicsSpace().add(rbDWall);
+        RigidBodyControl rbLWall = new RigidBodyControl(0.0f);
+        leftGeom.addControl(rbLWall);
+        rbLWall.setKinematic(true);
+        bulletAppState.getPhysicsSpace().add(rbLWall);
+        RigidBodyControl rbRWall = new RigidBodyControl(0.0f);
+        rightGeom.addControl(rbRWall);
+        rbRWall.setKinematic(true);
+        bulletAppState.getPhysicsSpace().add(rbRWall);
+
         generatedMaze.attachChild(upGeom);
         generatedMaze.attachChild(leftGeom);
         generatedMaze.attachChild(downGeom);
         generatedMaze.attachChild(rightGeom);
     }
-    
-    private void representOnMaze(Vector3f position)
-    {
+
+    private void representOnMaze(Vector3f position) {
         Box box = new Box(CELL_WIDTH, CELL_HEIGHT, 0f);
         Geometry geom = new Geometry("Cell", box);
         geom.setMaterial(cellMat);
-        position.x += CELL_WIDTH/2f;
-        position.y += CELL_HEIGHT/2f;
+        position.x += CELL_WIDTH / 2f;
+        position.y += CELL_HEIGHT / 2f;
         geom.setLocalTranslation(position);
-        
+
         generatedMaze.attachChild(geom);
     }
-    
-    private void createCell(int x, int y, Vector3f position)
-    {
+
+    private void createCell(int x, int y, Vector3f position) {
         //Constructor Cell(Vector3f position, int cellX, int cellY)
         grid[x][y] = new Cell(x, y);
         representOnMaze(position);
     }
-    
-    private void createBaseMap()
-    {
-        for(int i = 0; i < grid.length; i++)
-        {
+
+    private void createBaseMap() {
+        for (int i = 0; i < grid.length; i++) {
             float vectorDotY = calcSize(i);
-            for(int j = 0; j < grid[i].length; j++)
-            {
+            for (int j = 0; j < grid[i].length; j++) {
                 float vectorDotX = calcSize(j);
                 Vector3f temp = new Vector3f(vectorDotX, vectorDotY, 0);
                 createCell(i, j, temp);
             }
         }
     }
-    
-    private void createPlane(int numCellsWide, int numCellsTall)
-    {
+
+    private void createPlane(int numCellsWide, int numCellsTall) {
         plane = new Geometry("Floor", new Quad(calcSize(numCellsWide), calcSize(numCellsTall)));
         plane.setMaterial(floorMat);
         plane.setLocalTranslation(-WALL_THICKNESS, -WALL_THICKNESS, -0.001f);
         generatedMaze.attachChild(plane);
+
     }
-    
-    private void createMaterials()
-    {
+
+    private void createMaterials() {
         wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         wallMat.setColor("Color", ColorRGBA.Blue);
         floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -273,10 +303,10 @@ public class RecDivMazeGrid extends Generation {
         cellMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         cellMat.setColor("Color", ColorRGBA.Green);
     }
-    
-    public RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight,
-            float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
-    {
+
+    public RecDivMazeGrid(AssetManager newAssetManager, BulletAppState bulletAppState, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight,
+            float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall) {
+        this.bulletAppState = bulletAppState;
         generatedMaze = new Node();
         minMaxWideList = new ArrayList<>();
         minMaxTallList = new ArrayList<>();
@@ -293,7 +323,13 @@ public class RecDivMazeGrid extends Generation {
         createBorders(numCellsWide, numCellsTall);
         createBaseMap();
         createPlane(numCellsWide, numCellsTall);
-        minMaxWideList.add(new int[] {0, grid.length});
-        minMaxTallList.add(new int[] {0, grid[0].length});
+        minMaxWideList.add(new int[]{0, grid.length});
+        minMaxTallList.add(new int[]{0, grid[0].length});
+
+        //Add rigidbodies to physics space
+        rbFloor = new RigidBodyControl(0.0f);
+        plane.addControl(rbFloor);
+        rbFloor.setKinematic(true);
+        bulletAppState.getPhysicsSpace().add(rbFloor);
     }
 }

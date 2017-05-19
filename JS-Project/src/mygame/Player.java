@@ -26,8 +26,8 @@ import com.jme3.scene.control.CameraControl;
 public class Player {
     
     //Player variables
-    protected static float ROTATIONSPEED = 0.002f;
-    protected static float WALKSPEED = 0.2f;
+    protected static float ROTATIONSPEED = 0.01f;
+    protected static float WALKSPEED = 0.15f;
     
     private final CharacterControl physicsCharacter;
     private final Node characterNode;
@@ -50,6 +50,7 @@ public class Player {
         characterNode = new Node("character node");
         Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.scale(0.25f);
+        //Temp
         Material whitemat = new Material(assetManager,
                 "Common/MatDefs/Misc/Unshaded.j3md");
         whitemat.setColor("Color", ColorRGBA.White);
@@ -145,6 +146,11 @@ public class Player {
             } else if (name.equals("Jump")) {
                 physicsCharacter.jump();
             }
+    }
+    
+    public Vector3f getLocation()
+    {
+        return physicsCharacter.getPhysicsLocation();
     }
 }
 

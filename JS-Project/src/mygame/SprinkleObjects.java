@@ -25,16 +25,25 @@ public class SprinkleObjects extends Generation {
     
     Node sprinkledObjects;
     AssetManager assetManager;
-    Spatial treasure;
+    Spatial player;
+    Spatial objective;
     Spatial flowerPot;
     Spatial computerDesk;
+    Spatial treasure;
+    Spatial enemy;
     List<Spatial> objectList;
+    Material playerMat;
+    Material objectiveMat;
     Material flowerPotMat;
     Material computerDeskMat;
     Material treasureMat;
+    Material enemyMat;
+    int playerSpawnRoomNum;
     final int TREASURE_VALUE;
     final int MAX_POINTS_IN_LEVEL;
     final int NUM_OBJECTS_IN_LEVEL;
+    final float MIN_EUCLIDEAN_DISTANCE_TO_PLAYER;
+    final float ENEMY_TO_ROOM_RATIO;
     
     private void putObjectInPlace(Spatial object, Vector3f location)
     {
@@ -45,7 +54,7 @@ public class SprinkleObjects extends Generation {
     private boolean isPositionValid(int xCoor, int yCoor, int subCellNum)
     {
         Cell tempCell = grid[xCoor][yCoor];
-        return !tempCell.doesObjectExistInSubCell(subCellNum);
+        return !(tempCell.isThereADoor() || tempCell.doesObjectExistInSubCell(subCellNum));
     }
     
     private Spatial getSpatialToSprinkle()
@@ -73,21 +82,30 @@ public class SprinkleObjects extends Generation {
                 return new Vector3f(xPos + CELL_WIDTH/2f, yPos + CELL_HEIGHT/2f, objectHeight);
                 
             default:
+                System.out.println("Tried to access a subcell that does not exist");
                 return new Vector3f(-1,-1,-1);
         }
     }
     
     private Vector3f whereToSprinkle(Spatial spat)
     {
-        boolean isValid;
-        int xCoor;
-        int yCoor;
-        int subCellNum;
+        boolean isValid = false;
+        int xCoor = -1;
+        int yCoor = -1;
+        int subCellNum = -1;
+        int roomNum;
         BoundingBox spatHeight = (BoundingBox)spat.getWorldBound();
         
         do
         {
-            int roomNum = generateRandomNum(0, completedAreas.size());
+            roomNum = generateRandomNum(0, completedAreas.size());
+            if(spat.equals(enemy))
+            {
+                if(roomNum == playerSpawnRoomNum)
+                {
+                    continue;
+                }
+            }
 
             int[] dimensions = completedAreas.get(roomNum);
             xCoor = generateRandomNum(dimensions[0], dimensions[1]);
@@ -96,7 +114,29 @@ public class SprinkleObjects extends Generation {
             isValid = isPositionValid(xCoor, yCoor, subCellNum);
         } while(!isValid);
         
+        grid[xCoor][yCoor].addObjectToSubCell(subCellNum, spat);
         return assemblePos(xCoor, yCoor, subCellNum, spatHeight.getZExtent());
+    }
+    
+    private void sprinkleObjective()
+    {
+        Vector3f location;
+        Vector3f playerLocation = player.getLocalTranslation();
+        do
+        {
+            location = whereToSprinkle(objective);
+        } while(playerLocation.distance(location) <= MIN_EUCLIDEAN_DISTANCE_TO_PLAYER);
+        putObjectInPlace(objective.clone(), location);
+    }
+    
+    private void sprinkleEnemies()
+    {
+        int numOfEnemies = Math.round(completedAreas.size() * ENEMY_TO_ROOM_RATIO);
+        for(int i = 0; i < numOfEnemies; i++)
+        {
+            Vector3f location = whereToSprinkle(enemy);
+            putObjectInPlace(enemy.clone(), location);
+        }
     }
     
     private void sprinkleObjects()
@@ -119,10 +159,22 @@ public class SprinkleObjects extends Generation {
         }
     }
     
+    private void sprinklePlayer()
+    {
+        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+        int[] dimensions = completedAreas.get(playerSpawnRoomNum);
+        BoundingBox spatHeight = (BoundingBox)player.getWorldBound();
+        Vector3f location = assemblePos(dimensions[0], dimensions[2], 0, spatHeight.getZExtent());
+        putObjectInPlace(player.clone(), location);
+    }
+    
     public Node sprinkle()
     {
+        sprinklePlayer();
         sprinkleTreasure();
         sprinkleObjects();
+        sprinkleEnemies();
+        sprinkleObjective();
         
         return sprinkledObjects;
     }
@@ -140,29 +192,56 @@ public class SprinkleObjects extends Generation {
         computerDesk.setMaterial(computerDeskMat);
         objectList.add(computerDesk);
         
-        //Don't add the treasures to the objectList. They're seperate.
+        //Don't add anything past this point to the objectList. They're seperate.
         Box treasureBox = new Box(0.25f, 0.25f, 0.25f);
         treasure = new Geometry("Treasure", treasureBox);
         treasure.setMaterial(treasureMat);
+        
+        Box enemyBox = new Box(0.25f, 0.25f, 0.5f);
+        enemy = new Geometry("Enemy", enemyBox);
+        enemy.setMaterial(enemyMat);
+        
+        Box playerBox = enemyBox;
+        player = new Geometry("Player", playerBox);
+        player.setMaterial(playerMat);
+        
+        Box objectiveBox = treasureBox;
+        objective = new Geometry("Objective", objectiveBox);
+        objective.setMaterial(objectiveMat);
     }
     
     private void createMaterials()
     {
         flowerPotMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         flowerPotMat.setColor("Color", ColorRGBA.Magenta);
+        
         computerDeskMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         computerDeskMat.setColor("Color", ColorRGBA.Orange);
+        
         treasureMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         treasureMat.setColor("Color", ColorRGBA.Yellow);
+        
+        enemyMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        enemyMat.setColor("Color", ColorRGBA.Brown);
+        
+        playerMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        playerMat.setColor("Color", ColorRGBA.Cyan);
+        
+        objectiveMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        objectiveMat.setColor("Color", ColorRGBA.White);
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue, int maxPointsInArea)
+    public SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue, int maxPointsInArea,
+            int minCellsDistanceToPlayer, float enemyToRoomRatio)
     {
         sprinkledObjects = new Node();
         assetManager = newAssetManager;
         NUM_OBJECTS_IN_LEVEL = numOfObjectsToSprinkle;
         TREASURE_VALUE = treasurePointValue;
         MAX_POINTS_IN_LEVEL = maxPointsInArea;
+        MIN_EUCLIDEAN_DISTANCE_TO_PLAYER = new Vector3f(Vector3f.ZERO).distance(new Vector3f(CELL_WIDTH * minCellsDistanceToPlayer,
+                0, 0));
+        ENEMY_TO_ROOM_RATIO = enemyToRoomRatio;
         objectList = new ArrayList<>();
         createMaterials();
         loadModels();

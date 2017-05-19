@@ -14,19 +14,13 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import java.util.List;
-
 /**
  * This is the Main Class of your Game. You should only do initialization here.
  * Move your Logic into AppStates or Controls
@@ -40,11 +34,11 @@ public class Main extends SimpleApplication {
 
     private BulletAppState bulletAppState;
 
-    private RigidBodyControl floor_phy;
-
     private boolean freeCam = false;
-    
+    private RigidBodyControl floor_phy;
     private Player player;
+    
+    private Node physicsNode;
 
     private void initKeys() {
         //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
@@ -83,6 +77,7 @@ public class Main extends SimpleApplication {
         inputManager.addListener(actionListener, "Rotate Left", "Rotate Right");
         inputManager.addListener(actionListener, "Walk Forward", "Walk Backward");
         inputManager.addListener(actionListener, "Jump", "Shoot");
+
     }
 
     private ActionListener actionListener = new ActionListener() {
@@ -92,6 +87,7 @@ public class Main extends SimpleApplication {
             //Restart maze (temp)
             if (name.equals("Restart") && !keyPressed) {
                 rootNode.detachAllChildren();
+                bulletAppState.getPhysicsSpace().removeAll(rootNode);
                 System.out.println("Restart");
                 initGame();
             }
@@ -102,8 +98,9 @@ public class Main extends SimpleApplication {
                     //Detach chase camera
                     player.detachCamera();
                     //Set location of flycam
-                    cam.setLocation(new Vector3f(0, 10, 0));
-                    cam.lookAt(new Vector3f(0, 0, 8), new Vector3f(0, 0, 0));
+                    Vector3f camLocation = new Vector3f(0,6,6);
+                    cam.setLocation(camLocation.add(player.getLocation()));
+                    cam.lookAt(player.getLocation(), new Vector3f(0, 0, 0));
                     //Enable flycam
                     flyCam.setEnabled(true);
                     freeCam = true;
@@ -119,7 +116,6 @@ public class Main extends SimpleApplication {
 
             //Player controls
             player.controls(name,keyPressed);
-
         }
     };
 
@@ -137,6 +133,8 @@ public class Main extends SimpleApplication {
 
         //initKeys is only here for testing individual wall placement. Just comment the line with the root node and uncomment
         //this one to activate it. Each step is done by pressing the Space key.
+        //initKeys is only here for testing individual systems.
+
         initKeys();
         initGame();
     }
@@ -151,39 +149,25 @@ public class Main extends SimpleApplication {
     private void initGame() {
         //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
-        maze = new RecDivMazeGrid(assetManager, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
-
+        maze = new RecDivMazeGrid(assetManager, bulletAppState,20, 20, 1f, 1f, 0.5f, 1, 4, 4);
 //Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue,
 //        int maxPointsInArea)
-        sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000);
-
+//Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue, int maxPointsInArea,
+//            int minCellsDistanceToPlayer, float enemyToRoomRatio)
+        sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000, 5, 0.9f);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
         sceneNode.attachChild(sprinkler.sprinkle());
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
-        
-        // Create a floor (temp)
-        Material floor_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        TextureKey key3 = new TextureKey("stone_floor.jpg");
-        key3.setGenerateMips(true);
-        Texture tex3 = assetManager.loadTexture(key3);
-        tex3.setWrap(WrapMode.Repeat);
-        floor_mat.setTexture("ColorMap", tex3);
-        Box floor = new Box(30f, 0.1f, 30f);
-        floor.scaleTextureCoordinates(new Vector2f(3, 6));
-        Geometry floor_geo = new Geometry("Floor", floor);
-        floor_geo.setMaterial(floor_mat);
-        floor_geo.setLocalTranslation(0, 0, 8);
-        this.rootNode.attachChild(floor_geo);
-        floor_phy = new RigidBodyControl(0.0f);
-        floor_geo.addControl(floor_phy);
-        bulletAppState.getPhysicsSpace().add(floor_phy);
-        
+
+        //Create player 
         player = new Player(assetManager,rootNode,cam,new Vector3f(0,50,0));
 
-        //Flycam speed and disable
-        flyCam.setMoveSpeed(40);
+        System.out.println(rootNode.getChildren());
+        //More confortable flycam and disable
+        flyCam.setMoveSpeed(20);
+        flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
     }
 }
