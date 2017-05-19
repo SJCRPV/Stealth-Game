@@ -16,17 +16,10 @@ public class Player {
         
     }
     
-    public void move()
-    {
-
+    public void simpleUpdate(float tpf) {
+    
+    
     }
-    
-    public void rotate()
-    {
-            
-    }
-    
-    
 }
 
 
