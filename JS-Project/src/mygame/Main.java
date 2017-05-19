@@ -86,8 +86,8 @@ public class Main extends SimpleApplication {
 
             //Restart maze (temp)
             if (name.equals("Restart") && !keyPressed) {
-                rootNode.detachAllChildren();
                 bulletAppState.getPhysicsSpace().removeAll(rootNode);
+                rootNode.detachAllChildren();
                 System.out.println("Restart");
                 initGame();
             }
@@ -162,7 +162,7 @@ public class Main extends SimpleApplication {
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
         //Create player 
-        player = new Player(assetManager,rootNode,cam,new Vector3f(0,50,0));
+        player = new Player(assetManager,rootNode,cam,new Vector3f(0,2,0));
 
         System.out.println(rootNode.getChildren());
         //More confortable flycam and disable
