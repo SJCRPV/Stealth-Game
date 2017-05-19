@@ -41,21 +41,10 @@ public class Main extends SimpleApplication {
     private BulletAppState bulletAppState;
 
     private RigidBodyControl floor_phy;
-    private RigidBodyControl p_phy;
 
     private boolean freeCam = false;
-
-    //Player variables
-    private final float rotationSpeed = 0.002f;
-    private final float walkSpeed = 0.2f;
-    private CharacterControl physicsCharacter;
-    private Node characterNode;
-    private CameraNode camNode;
-    boolean rotate = false;
-    private Vector3f walkDirection = new Vector3f(0, 0, 0);
-    private Vector3f viewDirection = new Vector3f(0, 0, 0);
-    boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
-            leftRotate = false, rightRotate = false;
+    
+    private Player player;
 
     private void initKeys() {
         //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
@@ -103,7 +92,7 @@ public class Main extends SimpleApplication {
             //Restart maze (temp)
             if (name.equals("Restart") && !keyPressed) {
                 rootNode.detachAllChildren();
-                System.out.println("restart");
+                System.out.println("Restart");
                 initGame();
             }
 
@@ -111,7 +100,7 @@ public class Main extends SimpleApplication {
             if (name.equals("Camera") && !keyPressed) {
                 if (!freeCam) {
                     //Detach chase camera
-                    characterNode.detachChild(camNode);
+                    player.detachCamera();
                     //Set location of flycam
                     cam.setLocation(new Vector3f(0, 10, 0));
                     cam.lookAt(new Vector3f(0, 0, 8), new Vector3f(0, 0, 0));
@@ -122,52 +111,14 @@ public class Main extends SimpleApplication {
                     //Disable flycam
                     flyCam.setEnabled(false);
                     //Attach chase camera
-                    characterNode.attachChild(camNode);
+                    player.attachCamera();
                     freeCam = false;
                 }
 
             }
 
             //Player controls
-            if (name.equals("Strafe Left")) {
-                if (keyPressed) {
-                    leftStrafe = true;
-                } else {
-                    leftStrafe = false;
-                }
-            } else if (name.equals("Strafe Right")) {
-                if (keyPressed) {
-                    rightStrafe = true;
-                } else {
-                    rightStrafe = false;
-                }
-            } else if (name.equals("Rotate Left")) {
-                if (keyPressed) {
-                    leftRotate = true;
-                } else {
-                    leftRotate = false;
-                }
-            } else if (name.equals("Rotate Right")) {
-                if (keyPressed) {
-                    rightRotate = true;
-                } else {
-                    rightRotate = false;
-                }
-            } else if (name.equals("Walk Forward")) {
-                if (keyPressed) {
-                    forward = true;
-                } else {
-                    forward = false;
-                }
-            } else if (name.equals("Walk Backward")) {
-                if (keyPressed) {
-                    backward = true;
-                } else {
-                    backward = false;
-                }
-            } else if (name.equals("Jump")) {
-                physicsCharacter.jump();
-            }
+            player.controls(name,keyPressed);
 
         }
     };
@@ -193,29 +144,7 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         if (!freeCam) {
-            Vector3f camDir = cam.getDirection().mult(walkSpeed);
-            Vector3f camLeft = cam.getLeft().mult(walkSpeed);
-            camDir.y = 0;
-            camLeft.y = 0;
-            viewDirection.set(camDir);
-            walkDirection.set(0, 0, 0);
-            if (leftStrafe) {
-                walkDirection.addLocal(camLeft);
-            } else if (rightStrafe) {
-                walkDirection.addLocal(camLeft.negate());
-            }
-            if (leftRotate) {
-                viewDirection.addLocal(camLeft.mult(rotationSpeed));
-            } else if (rightRotate) {
-                viewDirection.addLocal(camLeft.mult(rotationSpeed).negate());
-            }
-            if (forward) {
-                walkDirection.addLocal(camDir);
-            } else if (backward) {
-                walkDirection.addLocal(camDir.negate());
-            }
-            physicsCharacter.setWalkDirection(walkDirection);
-            physicsCharacter.setViewDirection(viewDirection);
+            player.move();
         }
     }
 
@@ -234,7 +163,6 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
         
-        //temp v
         // Create a floor (temp)
         Material floor_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key3 = new TextureKey("stone_floor.jpg");
@@ -251,29 +179,8 @@ public class Main extends SimpleApplication {
         floor_phy = new RigidBodyControl(0.0f);
         floor_geo.addControl(floor_phy);
         bulletAppState.getPhysicsSpace().add(floor_phy);
-
-        // Add a physics character to the world
-        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
-        physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-        characterNode = new Node("character node");
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        model.scale(0.25f);
-        Material whitemat = new Material(assetManager,
-                "Common/MatDefs/Misc/Unshaded.j3md");
-        whitemat.setColor("Color", ColorRGBA.White);
-        model.setMaterial(whitemat);
-        characterNode.addControl(physicsCharacter);
-        getPhysicsSpace().add(physicsCharacter);
-        physicsCharacter.setPhysicsLocation(new Vector3f(0, 100, 0)); //tem de vir depois de por controlos *facepalm*
-        rootNode.attachChild(characterNode);
-        characterNode.attachChild(model);
-
-        // set forward camera node that follows the character
-        camNode = new CameraNode("CamNode", cam);
-        camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
-        camNode.setLocalTranslation(new Vector3f(0, 1, -5));
-        camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
-        characterNode.attachChild(camNode);
+        
+        player = new Player(assetManager,rootNode,cam,new Vector3f(0,50,0));
 
         //Flycam speed and disable
         flyCam.setMoveSpeed(40);
