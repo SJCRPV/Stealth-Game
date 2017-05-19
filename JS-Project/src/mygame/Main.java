@@ -5,7 +5,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.Vector3f;
-import java.util.List;
 
 
 /**
@@ -61,9 +60,9 @@ public class Main extends SimpleApplication {
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
         
-//Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue,
-//        int maxPointsInArea)
-        sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000);
+//Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue, int maxPointsInArea,
+//            int minCellsDistanceToPlayer, float enemyToRoomRatio)
+        sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000, 5, 0.9f);
         
         rootNode.attachChild(maze.generateMaze());
         rootNode.attachChild(sprinkler.sprinkle());
