@@ -9,8 +9,10 @@ package mygame;
  *
  * @author Castanheira
  */
-
-import com.jme3.app.state.AppState;
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
+import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
@@ -24,13 +26,13 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
-public class Player{
-    
+public class Player implements AnimEventListener {
+
     //Player variables
     protected static float ROTATIONSPEED = 0.002f;
-    protected static float WALKSPEED = 0.15f;
+    protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
-    
+
     private CharacterControl physicsCharacter;
     private Node characterNode;
     private CameraNode camNode;
@@ -39,141 +41,179 @@ public class Player{
     private final Vector3f viewDirection = new Vector3f(0, 0, 0);
     boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
             leftRotate = false, rightRotate = false;
-    
+
     private final Camera cam;
     private Spatial model;
     private AssetManager assetManager;
-    
-    private void setFollowingCameraNode()
-    {
+
+    private AnimChannel channel;
+    private AnimControl control;
+
+    private void setFollowingCameraNode() {
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
-        camNode.setLocalTranslation(new Vector3f(0, 0.7f, -2.5f)); //Best 0,0.5,-2
+        camNode.setLocalTranslation(new Vector3f(0, 0.5f, -2f)); //Best 0,0.5,-2
         camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
         characterNode.attachChild(camNode);
     }
-    
-    private void placeCharacter(Node rootNode, Vector3f startPos)
-    {
+
+    private void placeCharacter(Node rootNode, Vector3f startPos) {
         characterNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
         physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
         rootNode.attachChild(characterNode);
         characterNode.attachChild(model);
     }
-    
-    private void setCharacterMaterial()
-    {
-        //Temp
-        Material whitemat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        whitemat.setColor("Color", ColorRGBA.White);
-        model.setMaterial(whitemat);
+
+    private void setCharacterMaterial() {
+        /**
+         * Temp Material whitemat = new Material(assetManager,
+         * "Common/MatDefs/Misc/Unshaded.j3md"); whitemat.setColor("Color",
+         * ColorRGBA.White); model.setMaterial(whitemat);*
+         */
     }
-    
-    private void addPhysicsCharacterToWorld()
-    {
+
+    private void addPhysicsCharacterToWorld() {
         //Character model is temporary. Replace with Sinbad
-        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
+        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
         characterNode = new Node("character node");
+        //model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        model.scale(0.25f);
+        model.scale(0.1f);
     }
-    
-    public Player(AssetManager assetManager, Node rootNode, Camera cam, Vector3f startPos)
-    {
+
+    private void setAnimationControl() {
+        control = model.getControl(AnimControl.class);
+        control.addListener(this);
+        channel = control.createChannel();
+        channel.setAnim("stand");
+
+    }
+
+    public Player(AssetManager assetManager, Node rootNode, Camera cam, Vector3f startPos) {
         this.cam = cam;
         this.assetManager = assetManager;
-        
+
         addPhysicsCharacterToWorld();
         setCharacterMaterial();
         placeCharacter(rootNode, startPos);
         setFollowingCameraNode();
+        setAnimationControl();
     }
-    
-    public void detachCamera()
-    {
+
+    public void detachCamera() {
         characterNode.detachChild(camNode);
     }
-    
-    public void attachCamera()
-    {
+
+    public void attachCamera() {
         characterNode.attachChild(camNode);
     }
-    
-    public void move()
-    {
+
+    public void move() {
         Vector3f camDir = cam.getDirection().mult(WALKSPEED);
-            Vector3f camLeft = cam.getLeft().mult(WALKSPEED);
-            camDir.y = 0;
-            camLeft.y = 0;
-            viewDirection.set(camDir);
-            walkDirection.set(0, 0, 0);
-            if (leftStrafe) {
-                walkDirection.addLocal(camLeft);
-            } else if (rightStrafe) {
-                walkDirection.addLocal(camLeft.negate());
+        Vector3f camLeft = cam.getLeft().mult(WALKSPEED);
+        camDir.y = 0;
+        camLeft.y = 0;
+        viewDirection.set(camDir);
+        walkDirection.set(0, 0, 0);
+        if (leftStrafe) {
+            walkDirection.addLocal(camLeft);
+        } else if (rightStrafe) {
+            walkDirection.addLocal(camLeft.negate());
+        }
+        if (leftRotate) {
+            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED));
+        } else if (rightRotate) {
+            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED).negate());
+        }
+        if (forward) {
+            walkDirection.addLocal(camDir);
+        } else if (backward) {
+            walkDirection.addLocal(camDir.negate());
+        }
+
+        if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) {
+            if (!channel.getAnimationName().equals("Walk")) {
+                channel.setAnim("Walk", 0.10f);
+                channel.setSpeed(2);
+
             }
-            if (leftRotate) {
-                viewDirection.addLocal(camLeft.mult(ROTATIONSPEED));
-            } else if (rightRotate) {
-                viewDirection.addLocal(camLeft.mult(ROTATIONSPEED).negate());
-            }
-            if (forward) {
-                walkDirection.addLocal(camDir);
-            } else if (backward) {
-                walkDirection.addLocal(camDir.negate());
-            }
-            physicsCharacter.setWalkDirection(walkDirection);
-            physicsCharacter.setViewDirection(viewDirection);
+        } else {
+            channel.setAnim("stand", 0.50f);
+        }
+
+        physicsCharacter.setWalkDirection(walkDirection);
+        physicsCharacter.setViewDirection(viewDirection);
     }
-    public void controls(String name, boolean keyPressed)
-    {
+
+    public void controls(String name, boolean keyPressed) {
         if (name.equals("Strafe Left")) {
-                if (keyPressed) {
-                    leftStrafe = true;
-                } else {
-                    leftStrafe = false;
-                }
-            } else if (name.equals("Strafe Right")) {
-                if (keyPressed) {
-                    rightStrafe = true;
-                } else {
-                    rightStrafe = false;
-                }
-            } else if (name.equals("Rotate Left")) {
-                if (keyPressed) {
-                    leftRotate = true;
-                } else {
-                    leftRotate = false;
-                }
-            } else if (name.equals("Rotate Right")) {
-                if (keyPressed) {
-                    rightRotate = true;
-                } else {
-                    rightRotate = false;
-                }
-            } else if (name.equals("Walk Forward")) {
-                if (keyPressed) {
-                    forward = true;
-                } else {
-                    forward = false;
-                }
-            } else if (name.equals("Walk Backward")) {
-                if (keyPressed) {
-                    backward = true;
-                } else {
-                    backward = false;
-                }
-            } else if (name.equals("Jump")) {
-                physicsCharacter.jump();
+            if (keyPressed) {
+                leftStrafe = true;
+            } else {
+                leftStrafe = false;
             }
+        } else if (name.equals("Strafe Right")) {
+            if (keyPressed) {
+                rightStrafe = true;
+            } else {
+                rightStrafe = false;
+            }
+        } else if (name.equals("Rotate Left")) {
+            if (keyPressed) {
+                leftRotate = true;
+            } else {
+                leftRotate = false;
+            }
+        } else if (name.equals("Rotate Right")) {
+            if (keyPressed) {
+                rightRotate = true;
+            } else {
+                rightRotate = false;
+            }
+        } else if (name.equals("Walk Forward")) {
+            if (keyPressed) {
+                forward = true;
+            } else {
+                forward = false;
+            }
+        } else if (name.equals("Walk Backward")) {
+            if (keyPressed) {
+                backward = true;
+            } else {
+                backward = false;
+            }
+        } else if (name.equals("Jump")) {
+            physicsCharacter.jump();
+        }
     }
-    
-    public Vector3f getLocation()
-    {
+
+    public Vector3f getLocation() {
         return physicsCharacter.getPhysicsLocation();
     }
+
+    @Override
+    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+    }
+
+    @Override
+    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+
+    }
+
+    public void stop() {
+        leftStrafe = false;
+        rightStrafe = false;
+        leftRotate = false;
+        rightRotate = false;
+        forward = false;
+        backward = false;
+        walkDirection.set(0, 0, 0);
+        viewDirection.set(0, 0, 0);
+        physicsCharacter.setWalkDirection(walkDirection);
+        physicsCharacter.setViewDirection(viewDirection);
+        channel.setAnim("stand", 0.50f);
+        channel.setLoopMode(LoopMode.Cycle);
+    }
 }
-
-

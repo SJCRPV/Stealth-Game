@@ -7,6 +7,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 /**
@@ -82,6 +83,7 @@ public class Main extends SimpleApplication {
                 if (!freeCam) {
                     //Detach chase camera
                     player.detachCamera();
+                    player.stop();
                     //Set location of flycam
                     Vector3f camLocation = new Vector3f(0,6,6);
                     cam.setLocation(camLocation.add(player.getLocation()));
@@ -112,6 +114,11 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
+        //Testlight
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
+        rootNode.addLight(dl);
+    
         //Activate physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
