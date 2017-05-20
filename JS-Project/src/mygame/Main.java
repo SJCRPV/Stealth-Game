@@ -130,7 +130,7 @@ public class Main extends SimpleApplication {
     }
 
     private void initGame() {
-        //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
+//Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState,20, 20, 1f, 1f, 0.5f, 1, 4, 4);
 
@@ -153,7 +153,5 @@ public class Main extends SimpleApplication {
         //Create player 
         Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
         player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
-        
-        
     }
 }
