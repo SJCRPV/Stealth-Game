@@ -10,6 +10,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -159,12 +160,14 @@ public class SprinkleObjects extends Generation {
         }
     }
     
-    private void sprinklePlayer()
+    public void sprinklePlayer()
     {
+        //Node rootNode, Camera cam
         playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
         int[] dimensions = completedAreas.get(playerSpawnRoomNum);
         BoundingBox spatHeight = (BoundingBox)player.getWorldBound();
         Vector3f location = assemblePos(dimensions[0], dimensions[2], 0, spatHeight.getZExtent());
+        //return new Player(assetManager,rootNode,cam,location);
         putObjectInPlace(player.clone(), location);
     }
     

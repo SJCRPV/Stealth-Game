@@ -33,7 +33,7 @@ public class RecDivMazeGrid extends Generation {
     Material cellMat;
     List<int[]> minMaxWideList;
     List<int[]> minMaxTallList;
-    final float Z_HEIGHT_OF_ALL = 1f;
+    final float Z_HEIGHT_OF_ALL = 2f;
     final int MIN_CELLS_WIDE;
     final int MIN_CELLS_TALL;
     boolean cutIsHorizontal;

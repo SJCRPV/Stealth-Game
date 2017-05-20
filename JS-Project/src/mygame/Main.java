@@ -18,6 +18,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -144,6 +145,10 @@ public class Main extends SimpleApplication {
         if (!freeCam) {
             player.move();
         }
+        
+        
+        
+        
     }
 
     private void initGame() {
@@ -157,17 +162,21 @@ public class Main extends SimpleApplication {
         sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000, 5, 0.9f);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-        sceneNode.attachChild(sprinkler.sprinkle());
+        Node sp = sprinkler.sprinkle();
+  
+        sceneNode.attachChild(sp);
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
-        //Create player 
-        player = new Player(assetManager,rootNode,cam,new Vector3f(0,2,0));
-
-        System.out.println(rootNode.getChildren());
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
+
+        //Create player 
+        Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
+        player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
+        
+        
     }
 }

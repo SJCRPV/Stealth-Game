@@ -10,6 +10,7 @@ package mygame;
  * @author Castanheira
  */
 
+import com.jme3.app.state.AppState;
 import com.jme3.asset.AssetManager;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
@@ -23,11 +24,12 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
-public class Player {
+public class Player{
     
     //Player variables
-    protected static float ROTATIONSPEED = 0.01f;
+    protected static float ROTATIONSPEED = 0.002f;
     protected static float WALKSPEED = 0.15f;
+    protected static float JUMPSPEED = 8;
     
     private final CharacterControl physicsCharacter;
     private final Node characterNode;
@@ -40,16 +42,17 @@ public class Player {
     
     private final Camera cam;
     
-    public Player(AssetManager assetManager, Node rootNode, Camera cam,Vector3f startPos)
+    public Player(AssetManager assetManager, Node rootNode, Camera cam,Vector3f startPos) 
     {
         this.cam = cam;
         
         // Add a physics character to the world
-        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.4f, 0.6f), .1f);
+        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.3f, 0.4f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
+        physicsCharacter.setJumpSpeed(JUMPSPEED);
         characterNode = new Node("character node");
         Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        model.scale(0.15f);
+        model.scale(0.1f);
         //Temp
         Material whitemat = new Material(assetManager,
                 "Common/MatDefs/Misc/Unshaded.j3md");
@@ -64,7 +67,7 @@ public class Player {
         // set forward camera node that follows the character
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
-        camNode.setLocalTranslation(new Vector3f(0, 1, -5));
+        camNode.setLocalTranslation(new Vector3f(0, 0.7f, -2.5f)); //Best 0,0.5,-2
         camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
         characterNode.attachChild(camNode);
     }
