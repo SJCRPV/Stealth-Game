@@ -1,26 +1,15 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
-import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.material.Material;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
 /**
  * This is the Main Class of your Game. You should only do initialization here.
  * Move your Logic into AppStates or Controls
@@ -35,10 +24,7 @@ public class Main extends SimpleApplication {
     private BulletAppState bulletAppState;
 
     private boolean freeCam = false;
-    private RigidBodyControl floor_phy;
     private Player player;
-    
-    private Node physicsNode;
 
     private void initKeys() {
         //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
@@ -131,8 +117,6 @@ public class Main extends SimpleApplication {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-        //initKeys is only here for testing individual wall placement. Just comment the line with the root node and uncomment
-        //this one to activate it. Each step is done by pressing the Space key.
         //initKeys is only here for testing individual systems.
 
         initKeys();
@@ -150,8 +134,7 @@ public class Main extends SimpleApplication {
         //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState,20, 20, 1f, 1f, 0.5f, 1, 4, 4);
-//Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue,
-//        int maxPointsInArea)
+
 //Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue, int maxPointsInArea,
 //            int minCellsDistanceToPlayer, float enemyToRoomRatio)
         sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000, 5, 0.9f);

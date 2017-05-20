@@ -29,9 +29,9 @@ public class Player {
     protected static float ROTATIONSPEED = 0.01f;
     protected static float WALKSPEED = 0.15f;
     
-    private final CharacterControl physicsCharacter;
-    private final Node characterNode;
-    private final CameraNode camNode;
+    private CharacterControl physicsCharacter;
+    private Node characterNode;
+    private CameraNode camNode;
     boolean rotate = false;
     private final Vector3f walkDirection = new Vector3f(0, 0, 0);
     private final Vector3f viewDirection = new Vector3f(0, 0, 0);
@@ -39,34 +39,54 @@ public class Player {
             leftRotate = false, rightRotate = false;
     
     private final Camera cam;
+    private Spatial model;
+    private AssetManager assetManager;
     
-    public Player(AssetManager assetManager, Node rootNode, Camera cam,Vector3f startPos)
+    private void setFollowingCameraNode()
     {
-        this.cam = cam;
-        
-        // Add a physics character to the world
-        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
-        physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-        characterNode = new Node("character node");
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        model.scale(0.25f);
-        //Temp
-        Material whitemat = new Material(assetManager,
-                "Common/MatDefs/Misc/Unshaded.j3md");
-        whitemat.setColor("Color", ColorRGBA.White);
-        model.setMaterial(whitemat);
-        characterNode.addControl(physicsCharacter);
-        getPhysicsSpace().add(physicsCharacter);
-        physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
-        rootNode.attachChild(characterNode);
-        characterNode.attachChild(model);
-
-        // set forward camera node that follows the character
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
         camNode.setLocalTranslation(new Vector3f(0, 1, -5));
         camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
         characterNode.attachChild(camNode);
+    }
+    
+    private void placeCharacter(Node rootNode, Vector3f startPos)
+    {
+        characterNode.addControl(physicsCharacter);
+        getPhysicsSpace().add(physicsCharacter);
+        physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
+        rootNode.attachChild(characterNode);
+        characterNode.attachChild(model);
+    }
+    
+    private void setCharacterMaterial()
+    {
+        //Temp
+        Material whitemat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        whitemat.setColor("Color", ColorRGBA.White);
+        model.setMaterial(whitemat);
+    }
+    
+    private void addPhysicsCharacterToWorld()
+    {
+        //Character model is temporary. Replace with Sinbad
+        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
+        physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
+        characterNode = new Node("character node");
+        model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model.scale(0.25f);
+    }
+    
+    public Player(AssetManager assetManager, Node rootNode, Camera cam, Vector3f startPos)
+    {
+        this.cam = cam;
+        this.assetManager = assetManager;
+        
+        addPhysicsCharacterToWorld();
+        setCharacterMaterial();
+        placeCharacter(rootNode, startPos);
+        setFollowingCameraNode();
     }
     
     public void detachCamera()
