@@ -2,7 +2,6 @@ package mygame;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -72,8 +71,8 @@ public class Main extends SimpleApplication {
 
             //Restart maze (temp)
             if (name.equals("Restart") && !keyPressed) {
-                rootNode.detachAllChildren();
                 bulletAppState.getPhysicsSpace().removeAll(rootNode);
+                rootNode.detachAllChildren();
                 System.out.println("Restart");
                 initGame();
             }
@@ -140,17 +139,21 @@ public class Main extends SimpleApplication {
         sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000, 5, 0.9f);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-        sceneNode.attachChild(sprinkler.sprinkle());
+        Node sp = sprinkler.sprinkle();
+  
+        sceneNode.attachChild(sp);
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
-        //Create player 
-        player = new Player(assetManager,rootNode,cam,new Vector3f(0,50,0));
-
-        System.out.println(rootNode.getChildren());
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
+
+        //Create player 
+        Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
+        player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
+        
+        
     }
 }

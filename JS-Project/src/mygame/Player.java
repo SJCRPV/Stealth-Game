@@ -10,6 +10,7 @@ package mygame;
  * @author Castanheira
  */
 
+import com.jme3.app.state.AppState;
 import com.jme3.asset.AssetManager;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
@@ -23,11 +24,12 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
-public class Player {
+public class Player{
     
     //Player variables
-    protected static float ROTATIONSPEED = 0.01f;
+    protected static float ROTATIONSPEED = 0.002f;
     protected static float WALKSPEED = 0.15f;
+    protected static float JUMPSPEED = 8;
     
     private CharacterControl physicsCharacter;
     private Node characterNode;
@@ -46,7 +48,7 @@ public class Player {
     {
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
-        camNode.setLocalTranslation(new Vector3f(0, 1, -5));
+        camNode.setLocalTranslation(new Vector3f(0, 0.7f, -2.5f)); //Best 0,0.5,-2
         camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
         characterNode.attachChild(camNode);
     }
