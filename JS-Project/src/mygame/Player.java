@@ -14,6 +14,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -26,10 +27,10 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
-public class Player implements AnimEventListener {
+public class Player extends GameObject implements AnimEventListener {
 
     //Player variables
-    protected static float ROTATIONSPEED = 0.002f;
+    protected static float ROTATIONSPEED = 0.03f;
     protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
     protected static String JUMPS = "JumpStart";
@@ -49,9 +50,9 @@ public class Player implements AnimEventListener {
     boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
             leftRotate = false, rightRotate = false;
 
-    private final Camera cam;
-    private Spatial model;
-    private AssetManager assetManager;
+    private Camera cam;
+    //private Spatial object;
+    //private AssetManager assetManager;
 
     private AnimChannel topChannel;
     private AnimChannel botChannel;
@@ -61,7 +62,7 @@ public class Player implements AnimEventListener {
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
         camNode.setLocalTranslation(new Vector3f(0, 0.5f, -2f)); //Best 0,0.5,-2
-        camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
+        camNode.lookAt(object.getLocalTranslation(), Vector3f.UNIT_Y);
         characterNode.attachChild(camNode);
     }
 
@@ -70,10 +71,11 @@ public class Player implements AnimEventListener {
         getPhysicsSpace().add(physicsCharacter);
         physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
         rootNode.attachChild(characterNode);
-        characterNode.attachChild(model);
+        characterNode.attachChild(object);
     }
 
-    private void setCharacterMaterial() {
+    @Override
+    protected void createMaterial() {
         /**
          * Temp Material whitemat = new Material(assetManager,
          * "Common/MatDefs/Misc/Unshaded.j3md"); whitemat.setColor("Color",
@@ -81,18 +83,20 @@ public class Player implements AnimEventListener {
          */
     }
 
-    private void addPhysicsCharacterToWorld() {
-        //Character model is temporary. Replace with Sinbad
+    @Override
+    protected void loadPhysicsModel() 
+    {
+        
         physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
         characterNode = new Node("character node");
-        model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         //model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        model.scale(0.1f);
+        object.scale(0.1f);
     }
 
     private void setAnimationControl() {
-        control = model.getControl(AnimControl.class);
+        control = object.getControl(AnimControl.class);
         control.addListener(this);
         botChannel = control.createChannel();
         topChannel = control.createChannel();
@@ -107,12 +111,28 @@ public class Player implements AnimEventListener {
         this.cam = cam;
         this.assetManager = assetManager;
 
-        addPhysicsCharacterToWorld();
-        setCharacterMaterial();
+        createMaterial();
+        loadPhysicsModel();
         placeCharacter(rootNode, startPos);
         setFollowingCameraNode();
         setAnimationControl();
 
+    }
+    
+    @Override
+    protected void defineObjectBounds() 
+    {
+        BoundingBox bb = (BoundingBox)object.getWorldBound();
+        bb.getExtent(objectDimensions);
+    }
+    
+    public Player(AssetManager assetManager)
+    {
+        this.assetManager = assetManager;
+        createMaterial();
+        loadPhysicsModel();
+        defineObjectBounds();
+        objectDimensions = new Vector3f(0.4f, 1f, 1f);
     }
 
     public void detachCamera() {
@@ -270,5 +290,10 @@ public class Player implements AnimEventListener {
         physicsCharacter.setViewDirection(viewDirection);
         botChannel.setAnim(IDLEB, 0.5f);
         topChannel.setAnim(IDLET, 0.5f);
+    }
+
+    @Override
+    protected GameObject getGObjectClone() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

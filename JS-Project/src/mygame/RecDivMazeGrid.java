@@ -322,8 +322,8 @@ TangentBinormalGenerator.generate(boxes[1]);
         cellMat.setColor("Color", ColorRGBA.Green);
     }
 
-    public RecDivMazeGrid(AssetManager newAssetManager, BulletAppState bulletAppState, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight,
-            float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall) {
+    public RecDivMazeGrid(AssetManager newAssetManager, BulletAppState bulletAppState, int numCellsWide, int numCellsTall, 
+            float cellWidth, float cellHeight, float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall) {
         this.bulletAppState = bulletAppState;
         generatedMaze = new Node();
         minMaxWideList = new ArrayList<>();

@@ -16,7 +16,7 @@ public class Cell {
     private final int gridXCoor;
     private final int gridYCoor;
     private boolean hasDoorNearby;
-    Spatial[] objectsInSubCells;
+    GameObject[] objectsInSubCells;
     
     public boolean isThereADoor()
     {
@@ -38,7 +38,7 @@ public class Cell {
         return objectsInSubCells[index];
     }
     
-    public void addObjectToSubCell(int index, Spatial objectToAdd)
+    public void addObjectToSubCell(int index, GameObject objectToAdd)
     {
         if(index < 4 && objectsInSubCells[index] == null)
         {
@@ -55,7 +55,7 @@ public class Cell {
     {
         gridXCoor = cellX;
         gridYCoor = cellY;
-        objectsInSubCells = new Spatial[4];
+        objectsInSubCells = new GameObject[4];
         hasDoorNearby = false;
     }
 }

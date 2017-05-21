@@ -5,8 +5,6 @@
  */
 package mygame;
 
-import com.jme3.app.Application;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -16,20 +14,20 @@ import com.jme3.scene.shape.Box;
 
 /**
  *
- * @author José Castanheira
+ * @author SJCRPV
  */
-public final class Gem extends GameObject {
-    
+public final class Objective extends GameObject {
+
     @Override
     protected void createMaterial() {
-        objectMat = new Material(assetManager,"Common/MatDefs/Misc/Unshaded.j3md"); 
-        objectMat.setColor("Color",ColorRGBA.Yellow); 
+        objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        objectMat.setColor("Color", ColorRGBA.White);
     }
 
     @Override
     protected void loadPhysicsModel() {
-        Box treasureBox = new Box(0.25f, 0.25f, 0.25f);
-        object = new Geometry("Treasure", treasureBox);
+        Box objectiveBox = new Box(0.25f, 0.25f, 0.25f);
+        object = new Geometry("Objective", objectiveBox);
         object.setMaterial(objectMat);
     }
 
@@ -42,13 +40,13 @@ public final class Gem extends GameObject {
     protected GameObject getGObjectClone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    public Gem(AssetManager assetManager)
+    
+    public Objective(AssetManager assetManager)
     {
         this.assetManager = assetManager;
         createMaterial();
         loadPhysicsModel();
+        
         objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f);
     }
-    
 }

@@ -5,20 +5,64 @@
  */
 package mygame;
 
-import com.jme3.app.Application;
-import com.jme3.app.state.AppState;
-import com.jme3.app.state.AppStateManager;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.RenderManager;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 
 /**
  *
  * @author SJCRPV
  */
-public abstract class GameObject implements AppState {
+public abstract class GameObject extends AbstractAppState {
+    
+    protected Spatial object;
+    protected AssetManager assetManager;
+    protected Material objectMat;
+    protected Vector3f objectDimensions;
+    protected int placedAtX;
+    protected int placedAtY;
+    protected int numOfSubCellsItOccupies;
     
     protected abstract void createMaterial();
-    protected abstract void loadModel();
+    protected abstract void loadPhysicsModel();
+    protected abstract void defineObjectBounds();
+    protected abstract GameObject getGObjectClone();
+    
+    public Spatial placeObject(Vector3f location)
+    {
+        object.setLocalTranslation(location);
+        return object;
+    }
+    
+    public int[] getCellCoordinates()
+    {
+        return new int[] {placedAtX, placedAtY};
+    }
+    public void setCellCoordinates(int x, int y)
+    {
+        placedAtX = x;
+        placedAtY = y;
+    }
+    
+    public Vector3f getLocalTranslation()
+    {
+        return object.getLocalTranslation();
+    }
+    public void setLocalTranslation(Vector3f location)
+    {
+        object.setLocalTranslation(location);
+    }
+    
+    public Vector3f getObjectDimensions()
+    {
+        return objectDimensions;
+    }
+    
+    public Spatial getSpatialClone()
+    {
+        return object.clone();
+    }
     
 }

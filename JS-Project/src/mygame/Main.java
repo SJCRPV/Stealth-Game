@@ -140,12 +140,13 @@ public class Main extends SimpleApplication {
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState,20, 20, 1f, 1f, 0.5f, 1, 4, 4);
-
-//Constructor SprinkleObjects(AssetManager newAssetManager, int numOfObjectsToSprinkle, int treasurePointValue, int maxPointsInArea,
-//            int minCellsDistanceToPlayer, float enemyToRoomRatio)
-        sprinkler = new SprinkleObjects(assetManager, 50, 100, 1000, 5, 0.9f);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
+        
+//Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
+//            int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
+//Note: Chances are in a range of 1-100
+        sprinkler = new SprinkleObjects(assetManager, 50, 1000, 10, 5, 65, 75, 40);
         Node sp = sprinkler.sprinkle();
   
         sceneNode.attachChild(sp);
@@ -158,7 +159,8 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(false);
 
         //Create player 
-        Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
-        player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
+        //Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
+        //player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
+        player = new Player(assetManager,rootNode,cam,new Vector3f(0,4,0));
     }
 }
