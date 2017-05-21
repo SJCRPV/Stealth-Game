@@ -21,4 +21,5 @@ public abstract class GameObject implements AppState {
     protected abstract void createMaterial();
     protected abstract void loadModel();
     
+    
 }

@@ -10,6 +10,7 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -112,7 +113,8 @@ public class RecDivMazeGrid extends Generation {
             leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
             TangentBinormalGenerator.generate(boxes[0]);
-
+            //boxes[0].scaleTextureCoordinates(new Vector2f(0.01f,0.01f));
+            
             //Add physics
             RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
             geoms[0].addControl(rbwall1);
@@ -124,6 +126,7 @@ public class RecDivMazeGrid extends Generation {
             rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
             TangentBinormalGenerator.generate(boxes[1]);
+            
             //Add physics
             RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
             geoms[1].addControl(rbwall2);
