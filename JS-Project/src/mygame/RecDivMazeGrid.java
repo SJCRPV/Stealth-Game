@@ -15,6 +15,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
+import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,6 +111,7 @@ public class RecDivMazeGrid extends Generation {
             leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
             leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
+            TangentBinormalGenerator.generate(boxes[0]);
 
             //Add physics
             RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
@@ -121,30 +123,30 @@ public class RecDivMazeGrid extends Generation {
             rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
             rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
-
+            TangentBinormalGenerator.generate(boxes[1]);
             //Add physics
             RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
             geoms[1].addControl(rbwall2);
             rbwall2.setKinematic(true);
             bulletAppState.getPhysicsSpace().add(rbwall2);
-            
+
         } else {
             boxes[0] = new Box(WALL_THICKNESS / 2f, leftDownWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
             leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
             leftDownYPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("down" + geomName, boxes[0]);
-
+            TangentBinormalGenerator.generate(boxes[0]);
             //Add physics
             RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
             geoms[0].addControl(rbwall1);
             rbwall1.setKinematic(true);
             bulletAppState.getPhysicsSpace().add(rbwall1);
-            
+
             boxes[1] = new Box(WALL_THICKNESS / 2f, rightUpWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
             rightUpXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
             rightUpYPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
             geoms[1] = new Geometry("up" + geomName, boxes[1]);
-            
+TangentBinormalGenerator.generate(boxes[1]);
             //Add physics
             RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
             geoms[1].addControl(rbwall2);
@@ -224,6 +226,11 @@ public class RecDivMazeGrid extends Generation {
         Geometry downGeom = new Geometry("DownBorder", down);
         Geometry rightGeom = new Geometry("RightBorder", right);
 
+        TangentBinormalGenerator.generate(up);
+        TangentBinormalGenerator.generate(down);
+        TangentBinormalGenerator.generate(left);
+        TangentBinormalGenerator.generate(right);
+        
         upGeom.setMaterial(wallMat);
         leftGeom.setMaterial(wallMat);
         downGeom.setMaterial(wallMat);
@@ -272,7 +279,8 @@ public class RecDivMazeGrid extends Generation {
     private void createCell(int x, int y, Vector3f position) {
         //Constructor Cell(Vector3f position, int cellX, int cellY)
         grid[x][y] = new Cell(x, y);
-        representOnMaze(position);
+        //Remove comment to see cells
+        //representOnMaze(position);
     }
 
     private void createBaseMap() {
@@ -295,10 +303,21 @@ public class RecDivMazeGrid extends Generation {
     }
 
     private void createMaterials() {
-        wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        wallMat.setColor("Color", ColorRGBA.Blue);
-        floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        floorMat.setColor("Color", ColorRGBA.Gray);
+        //wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        //wallMat.setColor("Color", ColorRGBA.Blue);
+        wallMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        wallMat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
+        wallMat.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png"));
+        wallMat.setBoolean("UseMaterialColors", true);
+        wallMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
+        wallMat.setColor("Specular", ColorRGBA.White); // for shininess
+        wallMat.setFloat("Shininess", 64f); // [1,128] for shininess
+
+        //floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        //floorMat.setColor("Color", ColorRGBA.Gray);
+        floorMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        floorMat.setTexture("DiffuseMap", assetManager.loadTexture("stone_floor.jpg"));
+        
         cellMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         cellMat.setColor("Color", ColorRGBA.Green);
     }
