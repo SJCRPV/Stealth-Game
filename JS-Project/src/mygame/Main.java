@@ -143,10 +143,11 @@ public class Main extends SimpleApplication {
             player.move();
         }
         
+        /*
         for(Gem gem: gems)
         {
             gem.update(tpf);
-        }
+        }*/
     }
 
     private void initGame() {
