@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mygame;
+package mygame.GameObjects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public abstract class StandardObject extends GameObject {
     
     protected int NUM_SUBCELLS_IT_OCCUPIES;
     
-    protected static void addToObjectList(StandardObject obj)
+    public static void addToObjectList(StandardObject obj)
     {
         objectList.add(obj);
     }

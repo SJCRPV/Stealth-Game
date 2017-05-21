@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mygame;
+package mygame.GameObjects;
 
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 
 /**
@@ -27,8 +29,13 @@ public abstract class GameObject extends AbstractAppState {
     
     protected abstract void createMaterial();
     protected abstract void loadPhysicsModel();
-    protected abstract void defineObjectBounds();
     protected abstract GameObject getGObjectClone();
+    
+    protected void defineObjectBounds() 
+    {
+        BoundingBox bb = (BoundingBox)object.getWorldBound();
+        bb.getExtent(objectDimensions);
+    }
     
     public Spatial placeObject(Vector3f location)
     {
@@ -65,4 +72,8 @@ public abstract class GameObject extends AbstractAppState {
         return object.clone();
     }
     
+    public Geometry getGeom()
+    {
+        return (Geometry)object;
+    }
 }

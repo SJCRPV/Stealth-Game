@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mygame;
+package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
@@ -16,24 +16,19 @@ import com.jme3.scene.shape.Box;
  *
  * @author SJCRPV
  */
-public final class FlowerPot extends StandardObject {
+public final class Desk extends StandardObject {
 
     @Override
     protected void createMaterial() {
         objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        objectMat.setColor("Color", ColorRGBA.Magenta);
+        objectMat.setColor("Color", ColorRGBA.Orange);
     }
 
     @Override
     protected void loadPhysicsModel() {
-        Box flowerPotBox = new Box(0.125f, 0.125f, 0.5f);
-        object = new Geometry("Flower Pot", flowerPotBox);
+        Box computerDeskBox = new Box(0.75f, 0.125f, 0.25f);
+        object = new Geometry("Computer Desk", computerDeskBox);
         object.setMaterial(objectMat);
-    }
-
-    @Override
-    protected void defineObjectBounds() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -41,13 +36,15 @@ public final class FlowerPot extends StandardObject {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public FlowerPot(AssetManager assetManager)
+    public Desk(AssetManager assetManager)
     {
         this.assetManager = assetManager;
         createMaterial();
         loadPhysicsModel();
+        defineObjectBounds();
         
-        objectDimensions = new Vector3f(0.125f, 0.125f, 0.5f);
+        //Temp
+        objectDimensions = new Vector3f(0.75f, 0.125f, 0.25f);
     }
     
 }

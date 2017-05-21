@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mygame;
+package mygame.GameObjects;
 
 /**
  *
@@ -18,16 +18,13 @@ import com.jme3.bounding.BoundingBox;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
-public class Player extends GameObject implements AnimEventListener {
+public final class Player extends GameObject implements AnimEventListener {
 
     //Player variables
     protected static float ROTATIONSPEED = 0.03f;

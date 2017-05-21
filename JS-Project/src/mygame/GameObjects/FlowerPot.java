@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mygame;
+package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -17,44 +16,35 @@ import com.jme3.scene.shape.Box;
  *
  * @author SJCRPV
  */
-public final class Enemy extends GameObject {
+public final class FlowerPot extends StandardObject {
 
     @Override
-    protected final void createMaterial()
-    {
+    protected void createMaterial() {
         objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        objectMat.setColor("Color", ColorRGBA.Brown);
+        objectMat.setColor("Color", ColorRGBA.Magenta);
     }
 
     @Override
-    protected final void loadPhysicsModel()
-    {
-        Box enemyBox = new Box(0.25f, 0.25f, 0.5f);
-        object = new Geometry("Enemy", enemyBox);
+    protected void loadPhysicsModel() {
+        Box flowerPotBox = new Box(0.125f, 0.125f, 0.5f);
+        object = new Geometry("Flower Pot", flowerPotBox);
         object.setMaterial(objectMat);
     }
 
-    @Override
-    protected void defineObjectBounds() 
-    {
-        BoundingBox bb = (BoundingBox)object.getWorldBound();
-        bb.getExtent(objectDimensions);
-    }
-    
     @Override
     protected GameObject getGObjectClone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public Enemy(AssetManager assetManager)
+    public FlowerPot(AssetManager assetManager)
     {
         this.assetManager = assetManager;
         createMaterial();
         loadPhysicsModel();
         defineObjectBounds();
         
-        objectDimensions = new Vector3f(0.25f, 0.25f, 0.5f);
+        //Temp
+        objectDimensions = new Vector3f(0.125f, 0.125f, 0.5f);
     }
-
-
+    
 }
