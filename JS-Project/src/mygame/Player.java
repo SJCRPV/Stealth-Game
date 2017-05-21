@@ -32,6 +32,13 @@ public class Player implements AnimEventListener {
     protected static float ROTATIONSPEED = 0.002f;
     protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
+    protected static String JUMPS = "JumpStart";
+    protected static String JUMPE = "JumpEnd";
+    protected static String JUMP = "JumpLoop";
+    protected static String IDLET = "IdleTop";
+    protected static String IDLEB = "IdleBase";
+    protected static String RUNT = "RunTop";
+    protected static String RUNB = "RunBase";
 
     private CharacterControl physicsCharacter;
     private Node characterNode;
@@ -46,7 +53,8 @@ public class Player implements AnimEventListener {
     private Spatial model;
     private AssetManager assetManager;
 
-    private AnimChannel channel;
+    private AnimChannel topChannel;
+    private AnimChannel botChannel;
     private AnimControl control;
 
     private void setFollowingCameraNode() {
@@ -78,16 +86,20 @@ public class Player implements AnimEventListener {
         physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
         characterNode = new Node("character node");
-        //model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        //model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.scale(0.1f);
     }
 
     private void setAnimationControl() {
         control = model.getControl(AnimControl.class);
         control.addListener(this);
-        channel = control.createChannel();
-        channel.setAnim("stand");
+        botChannel = control.createChannel();
+        topChannel = control.createChannel();
+        botChannel.setAnim(IDLEB, 0.5f);
+        topChannel.setAnim(IDLET, 0.5f);
+        topChannel.setLoopMode(LoopMode.Cycle);
+        botChannel.setLoopMode(LoopMode.Cycle);
 
     }
 
@@ -100,6 +112,7 @@ public class Player implements AnimEventListener {
         placeCharacter(rootNode, startPos);
         setFollowingCameraNode();
         setAnimationControl();
+
     }
 
     public void detachCamera() {
@@ -133,14 +146,46 @@ public class Player implements AnimEventListener {
             walkDirection.addLocal(camDir.negate());
         }
 
-        if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) {
-            if (!channel.getAnimationName().equals("Walk")) {
-                channel.setAnim("Walk", 0.10f);
-                channel.setSpeed(2);
+        if (physicsCharacter.onGround()) {
 
+            if (botChannel.getAnimationName().equals(JUMP)) {
+                botChannel.setAnim(JUMPE, 0); //second parameter important for character feel
+                botChannel.setLoopMode(LoopMode.DontLoop);
+            }
+
+            //Buttons
+            if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) {
+                if (!botChannel.getAnimationName().equals(RUNB)) {
+                    botChannel.setAnim(RUNB, 0.1f); //second parameter important for character feel
+                }
+
+                //Turn on and off top part for more natural animations
+                if (!topChannel.getAnimationName().equals(RUNT) && (backward || forward || leftStrafe || rightStrafe)) {
+                    topChannel.setAnim(RUNT, 0.5f);
+                }
+
+                if (topChannel.getAnimationName().equals(RUNT) && (!backward && !forward && !leftStrafe && !rightStrafe)) {
+                    topChannel.setAnim(IDLET, 0.4f);
+                }
+
+                if (!backward && !forward && !leftStrafe && !rightStrafe) //Animation speed
+                {
+                    botChannel.setSpeed(0.6f);
+                } else {
+                    botChannel.setSpeed(1);
+                }
+
+            } else {
+                if (botChannel.getAnimationName().equals(RUNB)) {
+                    botChannel.setAnim(IDLEB, 0.1f);
+                    topChannel.setAnim(IDLET, 0.4f);
+                }
             }
         } else {
-            channel.setAnim("stand", 0.50f);
+            if (!botChannel.getAnimationName().equals(JUMPS) && !botChannel.getAnimationName().equals(JUMP) && !botChannel.getAnimationName().equals(JUMPE)) {
+                botChannel.setAnim(JUMPS, 0.1f); //second parameter important for character feel
+                botChannel.setLoopMode(LoopMode.DontLoop);
+            }
         }
 
         physicsCharacter.setWalkDirection(walkDirection);
@@ -195,6 +240,16 @@ public class Player implements AnimEventListener {
 
     @Override
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+        if (botChannel.getAnimationName().equals(JUMPE)) {
+            botChannel.setAnim(IDLEB, 0.5f); //second parameter important for character feel
+            topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
+             botChannel.setLoopMode(LoopMode.Cycle);
+        }
+        
+        if (botChannel.getAnimationName().equals(JUMPS)) {
+            botChannel.setAnim(JUMP, 0.1f); //second parameter important for character feel
+             botChannel.setLoopMode(LoopMode.Cycle);
+        }
     }
 
     @Override
@@ -213,7 +268,7 @@ public class Player implements AnimEventListener {
         viewDirection.set(0, 0, 0);
         physicsCharacter.setWalkDirection(walkDirection);
         physicsCharacter.setViewDirection(viewDirection);
-        channel.setAnim("stand", 0.50f);
-        channel.setLoopMode(LoopMode.Cycle);
+        botChannel.setAnim(IDLEB, 0.5f);
+        topChannel.setAnim(IDLET, 0.5f);
     }
 }
