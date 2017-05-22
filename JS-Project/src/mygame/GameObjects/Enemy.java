@@ -6,7 +6,6 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -50,5 +49,8 @@ public final class Enemy extends GameObject {
         objectDimensions = new Vector3f(0.25f, 0.25f, 0.5f);
     }
 
-
+    @Override
+    public void update(float tpf)
+    {
+    }
 }

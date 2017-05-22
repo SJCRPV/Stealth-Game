@@ -2,7 +2,6 @@ package mygame;
 
 import mygame.MapGeneration.RecDivMazeGrid;
 import mygame.MapGeneration.SprinkleObjects;
-import mygame.GameObjects.Gem;
 import mygame.GameObjects.Player;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
@@ -14,9 +13,8 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import java.util.ArrayList;
 import java.util.List;
+import mygame.GameObjects.GameObject;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -33,7 +31,7 @@ public class Main extends SimpleApplication {
 
     private boolean freeCam = false;
     private Player player;
-    private List<Gem> gems;
+    private List<GameObject> gObjectsList;
 
     private void initKeys() {
         //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
@@ -137,20 +135,8 @@ public class Main extends SimpleApplication {
         initGame();
     }
 
-    @Override
-    public void simpleUpdate(float tpf) {
-        if (!freeCam) {
-            player.move();
-        }
-        
-        /*
-        for(Gem gem: gems)
-        {
-            gem.update(tpf);
-        }*/
-    }
-
     private void initGame() {
+        
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
@@ -160,9 +146,9 @@ public class Main extends SimpleApplication {
 //Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
 //            int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, 50, 1000, 10, 5, 65, 75, 40);
+        sprinkler = new SprinkleObjects(assetManager, 50, 1000, 10, 5, 60, 65, 40);
         Node sp = sprinkler.sprinkle();
-
+        gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sp);
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
@@ -180,36 +166,18 @@ public class Main extends SimpleApplication {
         //player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
         player = new Player(assetManager, rootNode, cam, new Vector3f(0,4,0));
     }
-
-    /*private void placeObjects(Node objects) {
-        gems = new ArrayList();
-
-        for (Spatial child : objects.getChildren()) {
-            Vector3f location = child.getWorldTranslation();
-            switch (child.getName()) {
-                case "Treasure":
-                    Gem gem = new Gem(assetManager,location);
-                    gems.add(gem);
-                    rootNode.attachChild(gem.getGeom());
-                    objects.detachChild(child);
-                    break;
-
-                case "Flower Pot":
-
-                    break;
-
-                case "Computer Desk":
-
-                    break;
-
-                case "Enemy":
-
-                    break;
-
-                case "Player":
-                    player = new Player(assetManager, rootNode, cam, location.add(new Vector3f(0, 4, 0)));
-                    break;
-            }
+    
+    @Override
+    public void simpleUpdate(float tpf) 
+    {
+        if (!freeCam) 
+        {
+            player.move();
         }
-    }*/
+        
+        for(GameObject gObject: gObjectsList)
+        {
+            gObject.update(tpf);
+        }
+    }
 }

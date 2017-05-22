@@ -46,4 +46,9 @@ public final class Objective extends GameObject {
         //Temp
         objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f);
     }
+    
+    @Override
+    public void update(float tpf)
+    {
+    }
 }
