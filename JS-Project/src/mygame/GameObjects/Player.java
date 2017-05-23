@@ -27,7 +27,7 @@ import com.jme3.scene.control.CameraControl;
 public final class Player extends GameObject implements AnimEventListener {
 
     //Player variables
-    protected static float ROTATIONSPEED = 0.03f;
+    protected static float ROTATIONSPEED = 1.5f;
     protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
     protected static String JUMPS = "JumpStart";
@@ -140,7 +140,7 @@ public final class Player extends GameObject implements AnimEventListener {
         characterNode.attachChild(camNode);
     }
 
-    public void move() {
+    public void move(float tpf) {
         Vector3f camDir = cam.getDirection().mult(WALKSPEED);
         Vector3f camLeft = cam.getLeft().mult(WALKSPEED);
         camDir.y = 0;
@@ -153,9 +153,9 @@ public final class Player extends GameObject implements AnimEventListener {
             walkDirection.addLocal(camLeft.negate());
         }
         if (leftRotate) {
-            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED));
+            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED*tpf));
         } else if (rightRotate) {
-            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED).negate());
+            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED*tpf).negate());
         }
         if (forward) {
             walkDirection.addLocal(camDir);

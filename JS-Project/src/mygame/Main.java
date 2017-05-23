@@ -140,7 +140,7 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         if (!freeCam) {
-            player.move();
+            player.move(tpf);
         }
         
         /*
