@@ -39,6 +39,7 @@ public class SprinkleObjects extends Generation {
     FlowerPot flowerPot;
     Desk desk;
     
+    private final Vector3f rootNodeWC;
     private final int TREASURE_VALUE;
     private final int MAX_POINTS_IN_LEVEL;
     private final int MIN_CELL_DISTANCE_TO_PLAYER;
@@ -60,7 +61,7 @@ public class SprinkleObjects extends Generation {
     
     private void putObjectInPlace(GameObject object, Vector3f location)
     {
-        object.setLocalTranslation(location);
+        object.setLocation(location);
         listOfGObjects.add(object);
         sprinkledObjects.attachChild(object.getSpatial());
     }
@@ -170,13 +171,20 @@ public class SprinkleObjects extends Generation {
         putObjectInPlace(objective, location);
     }
 
+    private Vector3f transformToWorldCoor(Vector3f localVector)
+    {
+        return rootNodeWC.add(sprinkledObjects.getWorldTranslation().add(localVector));
+    }
+    
     private void sprinklePlayer()
     {
         playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
-        player = new Player(assetManager);
-        Vector3f location = whereToSprinkle(player);
-        putObjectInPlace(player, location);
-        //player.defineCamera(cam);
+//        player = new Player(assetManager);
+//        Vector3f location = whereToSprinkle(player);
+//        location = transformToWorldCoor(location);
+//        putObjectInPlace(player, location);
+//        player.placeObject(location);
+//        player.setFollowingCameraNode(cam);
     }
 	
     private void tryToSprinkleObject()
@@ -234,11 +242,12 @@ public class SprinkleObjects extends Generation {
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
-            int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, Vector3f rootWC, int treasurePointValue, int maxPointsInArea,
+            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
     {
         sprinkledObjects = new Node();
         this.cam = cam;
+        rootNodeWC = rootWC;
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
         MAX_POINTS_IN_LEVEL = maxPointsInArea;
