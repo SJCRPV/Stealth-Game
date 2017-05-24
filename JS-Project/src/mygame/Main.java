@@ -13,6 +13,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -30,8 +31,8 @@ import mygame.GameObjects.GameObject;
 public class Main extends SimpleApplication {
 
     
-    protected static int GEMVALUE = 50;
-    protected static int MAXSCORE = 1000;
+    private static final int GEMVALUE = 50;
+    private static final int MAXSCORE = 1000;
     
     
     RecDivMazeGrid maze;
@@ -128,10 +129,12 @@ public class Main extends SimpleApplication {
     public void simpleInitApp() {
 
         //Testlight
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
-        rootNode.addLight(dl);
+        //DirectionalLight dl = new DirectionalLight();
+        //dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
+        //rootNode.addLight(dl);
 
+        
+        
         //To avoid not showing objects behind player. Does not work well with flycam
         cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
 
@@ -181,11 +184,13 @@ public class Main extends SimpleApplication {
                 player.getSpatial().collideWith(bv, results);
 
                 if (results.size() > 0) {
+                    sprinkleNode.detachChild(gObject.getSpatial());
                     score+=GEMVALUE;
                     System.out.println(score);
-                   sprinkleNode.detachChild(gObject.getSpatial());
                 }
             }
+            
+           
         }
     }
 
@@ -226,6 +231,13 @@ public class Main extends SimpleApplication {
         //player = new Player(assetManager);
         player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
         score = 0;
+        
+        /**
+        PointLight lamp_light = new PointLight();
+        lamp_light.setColor(ColorRGBA.Red);
+        lamp_light.setRadius(20f);
+        lamp_light.setPosition(new Vector3f(new Vector3f(4,4,4)));
+        rootNode.addLight(lamp_light);**/
     }
 
     private void restartGame() {
