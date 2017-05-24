@@ -51,6 +51,8 @@ public final class FlowerPot extends StandardObject {
         
         //Temp
         objectDimensions = new Vector3f(0.125f, 0.125f, 0.5f);
+        
+        gameObjectNode.attachChild(object);
     }
     
     @Override

@@ -51,6 +51,8 @@ public final class Objective extends GameObject {
         
         //Temp
         objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f);
+        
+        gameObjectNode.attachChild(object);
     }
     
     @Override

@@ -20,7 +20,7 @@ import com.jme3.scene.Spatial;
  */
 public abstract class GameObject extends AbstractAppState {
     
-    protected static Node gameObjectNode;
+    protected Node gameObjectNode = new Node();
     
     protected Spatial object;
     protected AssetManager assetManager;
@@ -74,6 +74,11 @@ public abstract class GameObject extends AbstractAppState {
     public Spatial getSpatial()
     {
         return object;
+    }
+    
+     public Node getNode()
+    {
+        return gameObjectNode;
     }
     
     public Geometry getGeom()

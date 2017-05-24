@@ -63,7 +63,7 @@ public class SprinkleObjects extends Generation {
     {
         object.setLocation(location);
         listOfGObjects.add(object);
-        sprinkledObjects.attachChild(object.getSpatial());
+        sprinkledObjects.attachChild(object.getNode());
     }
 	
     private boolean isItFarEnough(int[] obCellCoor, int[] playCellCoor)

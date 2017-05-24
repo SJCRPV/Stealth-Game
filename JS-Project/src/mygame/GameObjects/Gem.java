@@ -53,6 +53,7 @@ public final class Gem extends GameObject {
     }
 
     public Gem(AssetManager assetManager) {
+       
         this.assetManager = assetManager;
         createMaterial();
         loadPhysicsModel();
@@ -61,10 +62,12 @@ public final class Gem extends GameObject {
         objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f);
         
         PointLight lamp_light = new PointLight();
-        lamp_light.setColor(ColorRGBA.White);
-        lamp_light.setRadius(4f);
-        lamp_light.setPosition(new Vector3f(object.getLocalTranslation()));
-        object.addLight(lamp_light);
+        lamp_light.setColor(ColorRGBA.Red);
+        lamp_light.setRadius(200f);
+        lamp_light.setPosition(new Vector3f(object.getLocalTranslation().add(new Vector3f(0,10,0))));
+        gameObjectNode.addLight(lamp_light);
+        
+        gameObjectNode.attachChild(object);
     }
 
     @Override

@@ -51,6 +51,8 @@ public final class Desk extends StandardObject {
         
         //Temp
         objectDimensions = new Vector3f(0.75f, 0.125f, 0.25f);
+        
+        gameObjectNode.attachChild(object);
     }
     
     @Override

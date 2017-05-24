@@ -12,6 +12,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
@@ -19,6 +20,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.LightControl;
 import java.util.List;
 import mygame.GameObjects.GameObject;
 
@@ -30,17 +32,14 @@ import mygame.GameObjects.GameObject;
  */
 public class Main extends SimpleApplication {
 
-    
     private static final int GEMVALUE = 50;
     private static final int MAXSCORE = 1000;
-    
-    
+
     RecDivMazeGrid maze;
     SprinkleObjects sprinkler;
     Player player;
     int score;
-    
-    
+
     Node sprinkleNode;
 
     private BulletAppState bulletAppState;
@@ -128,13 +127,21 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(0.3f));
+        rootNode.addLight(al);
+
         //Testlight
-        //DirectionalLight dl = new DirectionalLight();
-        //dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
         //rootNode.addLight(dl);
 
-        
-        
+        PointLight lamp_light = new PointLight();
+        lamp_light.setColor(ColorRGBA.White);
+        lamp_light.setRadius(20f);
+        lamp_light.setPosition(new Vector3f(new Vector3f(4, 4, 4)));
+        //rootNode.addLight(lamp_light);
+
         //To avoid not showing objects behind player. Does not work well with flycam
         cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
 
@@ -166,7 +173,7 @@ public class Main extends SimpleApplication {
 
         for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
-            
+
             //Handle collisions
             if (gObject.getCName().equals("Objective")) {
                 CollisionResults results = new CollisionResults();
@@ -177,20 +184,19 @@ public class Main extends SimpleApplication {
                     restartGame();
                 }
             }
-            
+
             if (gObject.getCName().equals("Gem")) {
                 CollisionResults results = new CollisionResults();
                 BoundingVolume bv = gObject.getGeom().getWorldBound();
                 player.getSpatial().collideWith(bv, results);
 
                 if (results.size() > 0) {
-                    sprinkleNode.detachChild(gObject.getSpatial());
-                    score+=GEMVALUE;
+                    sprinkleNode.detachChild(gObject.getNode());
+                    score += GEMVALUE;
                     System.out.println(score);
                 }
             }
-            
-           
+
         }
     }
 
@@ -209,28 +215,20 @@ public class Main extends SimpleApplication {
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-<<<<<<< HEAD
-        
-//Constructor public SprinkleObjects(AssetManager newAssetManager, Camera cam, Vector3f rootWC, int treasurePointValue,
-//        int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, 
-//        float treasureChance)
-//Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, rootNode.getWorldTranslation(), 50, 1000, 10, 5, 60, 65, 40);
-        Node sp = sprinkler.sprinkle();
-=======
 
 //Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
 //        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
+        sprinkler = new SprinkleObjects(assetManager, cam, new Vector3f(0, 0, 0), GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
         sprinkleNode = sprinkler.sprinkle();
->>>>>>> c6a0e20d232fcb10f267d756cb26e0b36e7b608d
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
 
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
+        //temp add lights
+        addLights();
         player = findPlayer();
         //rootNode.attachChild(player.getCharNode());
         //More confortable flycam and disable
@@ -238,16 +236,8 @@ public class Main extends SimpleApplication {
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
 
-        //player = new Player(assetManager);
         player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
         score = 0;
-        
-        /**
-        PointLight lamp_light = new PointLight();
-        lamp_light.setColor(ColorRGBA.Red);
-        lamp_light.setRadius(20f);
-        lamp_light.setPosition(new Vector3f(new Vector3f(4,4,4)));
-        rootNode.addLight(lamp_light);**/
     }
 
     private void restartGame() {
@@ -255,6 +245,20 @@ public class Main extends SimpleApplication {
         rootNode.detachAllChildren();
         System.out.println("Restart");
         initGame();
+    }
+
+    private void addLights() {
+        for (GameObject gObject : gObjectsList) {
+
+            if (gObject.getCName().equals("Flower pot")) {
+                System.out.println("light");
+                PointLight lamp_light = new PointLight();
+                lamp_light.setColor(ColorRGBA.Red);
+                lamp_light.setRadius(4f);
+                lamp_light.setPosition(gObject.getLocation());
+                rootNode.addLight(lamp_light);
+            }
+        }
     }
 
 }
