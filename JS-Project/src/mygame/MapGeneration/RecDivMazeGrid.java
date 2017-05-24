@@ -363,10 +363,10 @@ public class RecDivMazeGrid extends Generation {
        
 
         floorMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Texture floorText = assetManager.loadTexture("202.jpg");
+        Texture floorText = assetManager.loadTexture("195.JPG");
         floorText.setWrap(Texture.WrapMode.Repeat);
         floorMat.setTexture("DiffuseMap",floorText );
-        Texture floorNormal = assetManager.loadTexture("202_norm.jpg");
+        Texture floorNormal = assetManager.loadTexture("195_norm.JPG");
         floorNormal.setWrap(Texture.WrapMode.Repeat);
         floorMat.setTexture("NormalMap",floorNormal);
         
