@@ -4,7 +4,9 @@ import mygame.MapGeneration.RecDivMazeGrid;
 import mygame.MapGeneration.SprinkleObjects;
 import mygame.GameObjects.Player;
 import com.jme3.app.SimpleApplication;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.collision.CollisionResults;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -27,17 +29,25 @@ import mygame.GameObjects.GameObject;
  */
 public class Main extends SimpleApplication {
 
+    
+    protected static int GEMVALUE = 50;
+    protected static int MAXSCORE = 1000;
+    
+    
     RecDivMazeGrid maze;
     SprinkleObjects sprinkler;
     Player player;
+    int score;
+    
+    
+    Node sprinkleNode;
 
     private BulletAppState bulletAppState;
 
     private boolean freeCam = false;
     private List<GameObject> gObjectsList;
 
-    private void initKeys() 
-    {
+    private void initKeys() {
         //Restart maze and change camera
         inputManager.addMapping("Restart", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addMapping("Camera", new KeyTrigger(KeyInput.KEY_C));
@@ -79,15 +89,11 @@ public class Main extends SimpleApplication {
 
             //Restart maze (temp)
             if (name.equals("Restart") && !keyPressed && !freeCam) {
-                bulletAppState.getPhysicsSpace().removeAll(rootNode);
-                rootNode.detachAllChildren();
-                System.out.println("Restart");
-                initGame();
+                restartGame();
             }
 
             //Switch camera
-            if (name.equals("Camera") && !keyPressed) 
-            {
+            if (name.equals("Camera") && !keyPressed) {
                 if (!freeCam) {
                     //Detach chase camera
                     player.detachCamera();
@@ -125,21 +131,21 @@ public class Main extends SimpleApplication {
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
         rootNode.addLight(dl);
-        
+
         //To avoid not showing objects behind player. Does not work well with flycam
         cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
-        
 
         //Second test light
-        /**SpotLight spot = new SpotLight();
-        spot.setSpotRange(100f);                           // distance
-        spot.setSpotInnerAngle(15f * FastMath.DEG_TO_RAD); // inner light cone (central beam)
-        spot.setSpotOuterAngle(35f * FastMath.DEG_TO_RAD); // outer light cone (edge of the light)
-        spot.setColor(ColorRGBA.Red.mult(1.3f));         // light color
-        spot.setPosition(cam.getLocation());               // shine from camera loc
-        spot.setDirection(cam.getDirection());             // shine forward from camera loc
-        rootNode.addLight(spot);**/
-        
+        /**
+         * SpotLight spot = new SpotLight(); spot.setSpotRange(100f); //
+         * distance spot.setSpotInnerAngle(15f * FastMath.DEG_TO_RAD); // inner
+         * light cone (central beam) spot.setSpotOuterAngle(35f *
+         * FastMath.DEG_TO_RAD); // outer light cone (edge of the light)
+         * spot.setColor(ColorRGBA.Red.mult(1.3f)); // light color
+         * spot.setPosition(cam.getLocation()); // shine from camera loc
+         * spot.setDirection(cam.getDirection()); // shine forward from camera
+         * loc rootNode.addLight(spot);*
+         */
         //Activate physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
@@ -148,50 +154,65 @@ public class Main extends SimpleApplication {
         initKeys();
         initGame();
     }
-    
+
     @Override
-    public void simpleUpdate(float tpf) 
-    {
-        if (!freeCam) 
-        {
+    public void simpleUpdate(float tpf) {
+        if (!freeCam) {
             player.move(tpf);
         }
-        
-        for(GameObject gObject: gObjectsList)
-        {
+
+        for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
+            
+            //Handle collisions
+            if (gObject.getCName().equals("Objective")) {
+                CollisionResults results = new CollisionResults();
+                BoundingVolume bv = gObject.getGeom().getWorldBound();
+                player.getSpatial().collideWith(bv, results);
+
+                if (results.size() > 0) {
+                    restartGame();
+                }
+            }
+            
+            if (gObject.getCName().equals("Gem")) {
+                CollisionResults results = new CollisionResults();
+                BoundingVolume bv = gObject.getGeom().getWorldBound();
+                player.getSpatial().collideWith(bv, results);
+
+                if (results.size() > 0) {
+                    score+=GEMVALUE;
+                    System.out.println(score);
+                   sprinkleNode.detachChild(gObject.getSpatial());
+                }
+            }
         }
     }
 
-    private Player findPlayer()
-    {
-        for(int i = 0; i < gObjectsList.size(); i++)
-        {
-            if(gObjectsList.get(i).getCName().equalsIgnoreCase("Player"))
-            {
-                return (Player)gObjectsList.get(i);
+    private Player findPlayer() {
+        for (int i = 0; i < gObjectsList.size(); i++) {
+            if (gObjectsList.get(i).getCName().equalsIgnoreCase("Player")) {
+                return (Player) gObjectsList.get(i);
             }
         }
         return null;
     }
 
-    private void initGame() 
-    {    
+    private void initGame() {
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-        
+
 //Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
 //        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-
-        sprinkler = new SprinkleObjects(assetManager, cam, 50, 1000, 10, 5, 80, 90, 90);
-        Node sp = sprinkler.sprinkle();
+        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
+        sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
-        sceneNode.attachChild(sp);
-        
+        sceneNode.attachChild(sprinkleNode);
+
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
@@ -203,7 +224,15 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(false);
 
         //player = new Player(assetManager);
-        player = new Player(assetManager, rootNode, cam, new Vector3f(0,4,0));
+        player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
+        score = 0;
+    }
+
+    private void restartGame() {
+        bulletAppState.getPhysicsSpace().removeAll(rootNode);
+        rootNode.detachAllChildren();
+        System.out.println("Restart");
+        initGame();
     }
 
 }

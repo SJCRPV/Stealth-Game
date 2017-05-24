@@ -11,8 +11,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+
 
 /**
  *
@@ -36,10 +35,9 @@ public final class Enemy extends GameObject {
     @Override
     protected final void loadPhysicsModel()
     {
-        //model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        Box enemyBox = new Box(0.25f, 0.25f, 0.5f);
-        object = new Geometry("Enemy", enemyBox);
-        object.setMaterial(objectMat);
+        object = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        object.rotateUpTo(new Vector3f(0,0,1));
+        object.scale(0.15f);
     }
     
     private void defineLighting()
