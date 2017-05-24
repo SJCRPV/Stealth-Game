@@ -162,10 +162,11 @@ public class Main extends SimpleApplication {
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
         
-//Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
-//        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
+//Constructor public SprinkleObjects(AssetManager newAssetManager, Camera cam, Vector3f rootWC, int treasurePointValue,
+//        int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, 
+//        float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, 50, 1000, 10, 5, 60, 65, 40);
+        sprinkler = new SprinkleObjects(assetManager, cam, rootNode.getWorldTranslation(), 50, 1000, 10, 5, 60, 65, 40);
         Node sp = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sp);

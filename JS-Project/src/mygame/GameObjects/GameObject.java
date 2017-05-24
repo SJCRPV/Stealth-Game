@@ -11,6 +11,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
@@ -18,6 +19,8 @@ import com.jme3.scene.Spatial;
  * @author SJCRPV
  */
 public abstract class GameObject extends AbstractAppState {
+    
+    protected static Node gameObjectNode;
     
     protected Spatial object;
     protected AssetManager assetManager;
@@ -40,7 +43,7 @@ public abstract class GameObject extends AbstractAppState {
     
     /*public Spatial placeObject(Vector3f location)
     {
-        object.setLocalTranslation(location);
+        object.setLocation(location);
         return object;
     }*/
     
@@ -54,11 +57,11 @@ public abstract class GameObject extends AbstractAppState {
         placedAtY = y;
     }
     
-    public Vector3f getLocalTranslation()
+    public Vector3f getLocation()
     {
         return object.getLocalTranslation();
     }
-    public void setLocalTranslation(Vector3f location)
+    public void setLocation(Vector3f location)
     {
         object.setLocalTranslation(location);
     }
