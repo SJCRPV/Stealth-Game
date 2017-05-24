@@ -19,6 +19,12 @@ import com.jme3.scene.shape.Box;
 public final class Objective extends GameObject {
 
     @Override
+    public String getCName()
+    {
+        return "Objective";
+    }
+    
+    @Override
     protected void createMaterial() {
         objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         objectMat.setColor("Color", ColorRGBA.White);

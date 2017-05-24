@@ -16,6 +16,7 @@ import mygame.GameObjects.StandardObject;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -31,8 +32,14 @@ public class SprinkleObjects extends Generation {
     Node sprinkledObjects;
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
+<<<<<<< HEAD
     
     GameObject player;
+=======
+    Camera cam;
+    
+    Player player;
+>>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
     FlowerPot flowerPot;
     Desk desk;
     
@@ -47,10 +54,14 @@ public class SprinkleObjects extends Generation {
     private int playerSpawnRoomNum;
     private int currentRoomNum;
     private int numOfEnemies;
+    private int numOfTreasures;
 	
     public List<GameObject> getGOList()
     {
+<<<<<<< HEAD
         System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
+=======
+>>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
         return listOfGObjects;
     }
     
@@ -144,13 +155,9 @@ public class SprinkleObjects extends Generation {
 
     private void sprinkleEnemy()
     {
-        if(numOfEnemies > 0 && currentRoomNum != playerSpawnRoomNum)
-        {
-            GameObject enemy = new Enemy(assetManager);
-            Vector3f location = whereToSprinkle(enemy);
-            putObjectInPlace(enemy, location);
-            numOfEnemies--;
-        }
+        GameObject enemy = new Enemy(assetManager);
+        Vector3f location = whereToSprinkle(enemy);
+        putObjectInPlace(enemy, location);
     }
 
     private void sprinkleObjective()
@@ -176,6 +183,7 @@ public class SprinkleObjects extends Generation {
         player = new Player(assetManager);
         Vector3f location = whereToSprinkle(player);
         putObjectInPlace(player, location);
+        //player.defineCamera(cam);
     }
 	
     private void tryToSprinkleObject()
@@ -206,6 +214,7 @@ public class SprinkleObjects extends Generation {
                     tryToSprinkleObject();
                     i++;
                 }
+<<<<<<< HEAD
                 if(currentChance < TREASURE_CHANCE)
                 {
                     sprinkleTreasure();
@@ -215,17 +224,30 @@ public class SprinkleObjects extends Generation {
                 {
                     sprinkleEnemy();
                     i++;
+=======
+                if(currentChance < TREASURE_CHANCE && numOfTreasures > 0)
+                {
+                    sprinkleTreasure();
+                    i++;
+                    numOfTreasures--;
+                }
+                if(currentChance < ENEMY_CHANCE && numOfEnemies > 0 && currentRoomNum != playerSpawnRoomNum)
+                {
+                    sprinkleEnemy();
+                    i++;
+                    numOfEnemies--;
+>>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
                 }
             }
         }
-        
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
             int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
     {
         sprinkledObjects = new Node();
+        this.cam = cam;
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
         MAX_POINTS_IN_LEVEL = maxPointsInArea;
@@ -235,6 +257,10 @@ public class SprinkleObjects extends Generation {
         OBJECT_CHANCE = objectChance;
         TREASURE_CHANCE = treasureChance;
         numOfEnemies = Math.round(completedAreas.size() * 0.9f);
+<<<<<<< HEAD
+=======
+        numOfTreasures = Math.round(MAX_POINTS_IN_LEVEL/TREASURE_VALUE);
+>>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
         listOfGObjects = new ArrayList();
         
         flowerPot = new FlowerPot(assetManager);

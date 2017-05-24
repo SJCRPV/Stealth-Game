@@ -335,6 +335,7 @@ public class RecDivMazeGrid extends Generation {
         plane = new Geometry("Floor", planeMesh);
         plane.setMaterial(floorMat);
         plane.setLocalTranslation(-WALL_THICKNESS, -WALL_THICKNESS, -0.001f);
+        TangentBinormalGenerator.generate(planeMesh);
         generatedMaze.attachChild(plane);
         
         ceil = new Geometry("Ceil", planeMesh);
@@ -349,24 +350,28 @@ public class RecDivMazeGrid extends Generation {
         //wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         //wallMat.setColor("Color", ColorRGBA.Blue);
         wallMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Texture wallText = assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg");
+        Texture wallText = assetManager.loadTexture("178.JPG");
         wallText.setWrap(Texture.WrapMode.Repeat);
         wallMat.setTexture("DiffuseMap",wallText );
-        Texture wallNormal = assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png");
+        Texture wallNormal = assetManager.loadTexture("178_norm.JPG");
         wallNormal.setWrap(Texture.WrapMode.Repeat);
         wallMat.setTexture("NormalMap",wallNormal);
         wallMat.setBoolean("UseMaterialColors", true);
         wallMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
         wallMat.setColor("Specular", ColorRGBA.White); // for shininess
-        wallMat.setFloat("Shininess", 64f); // [1,128] for shininess
+         wallMat.setFloat("Shininess",128f); // [1,128] for shininess
+       
 
-        //floorMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        //floorMat.setColor("Color", ColorRGBA.Gray);
-        Texture floorText = assetManager.loadTexture("243.jpg");
-        floorText.setWrap(Texture.WrapMode.Repeat);
         floorMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        floorMat.setTexture("DiffuseMap", floorText);
+        Texture floorText = assetManager.loadTexture("202.jpg");
+        floorText.setWrap(Texture.WrapMode.Repeat);
+        floorMat.setTexture("DiffuseMap",floorText );
+        Texture floorNormal = assetManager.loadTexture("202_norm.jpg");
+        floorNormal.setWrap(Texture.WrapMode.Repeat);
+        floorMat.setTexture("NormalMap",floorNormal);
         
+       
+       
         cellMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         cellMat.setColor("Color", ColorRGBA.Green);
     }
