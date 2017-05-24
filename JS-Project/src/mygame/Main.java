@@ -26,17 +26,15 @@ public class Main extends SimpleApplication {
 
     RecDivMazeGrid maze;
     SprinkleObjects sprinkler;
+    Player player;
 
     private BulletAppState bulletAppState;
 
     private boolean freeCam = false;
-    private Player player;
     private List<GameObject> gObjectsList;
 
-    private void initKeys() {
-        //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
-        //inputManager.addListener(actionListener,"Wall");
-
+    private void initKeys() 
+    {
         //Restart maze and change camera
         inputManager.addMapping("Restart", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addMapping("Camera", new KeyTrigger(KeyInput.KEY_C));
@@ -70,7 +68,6 @@ public class Main extends SimpleApplication {
         inputManager.addListener(actionListener, "Rotate Left", "Rotate Right");
         inputManager.addListener(actionListener, "Walk Forward", "Walk Backward");
         inputManager.addListener(actionListener, "Jump", "Shoot");
-
     }
 
     private ActionListener actionListener = new ActionListener() {
@@ -86,7 +83,8 @@ public class Main extends SimpleApplication {
             }
 
             //Switch camera
-            if (name.equals("Camera") && !keyPressed) {
+            if (name.equals("Camera") && !keyPressed) 
+            {
                 if (!freeCam) {
                     //Detach chase camera
                     player.detachCamera();
@@ -105,7 +103,6 @@ public class Main extends SimpleApplication {
                     player.attachCamera();
                     freeCam = false;
                 }
-
             }
 
             //Player controls
@@ -126,6 +123,16 @@ public class Main extends SimpleApplication {
         dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
         rootNode.addLight(dl);
 
+        //Second test light
+        /*SpotLight spot = new SpotLight();
+        spot.setSpotRange(100f);                           // distance
+        spot.setSpotInnerAngle(15f * FastMath.DEG_TO_RAD); // inner light cone (central beam)
+        spot.setSpotOuterAngle(35f * FastMath.DEG_TO_RAD); // outer light cone (edge of the light)
+        spot.setColor(ColorRGBA.Red.mult(1.3f));         // light color
+        spot.setPosition(cam.getLocation());               // shine from camera loc
+        spot.setDirection(cam.getDirection());             // shine forward from camera loc
+        rootNode.addLight(spot);*/
+        
         //Activate physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
@@ -134,9 +141,21 @@ public class Main extends SimpleApplication {
         initKeys();
         initGame();
     }
+    
+    private Player findPlayer()
+    {
+        for(int i = 0; i < gObjectsList.size(); i++)
+        {
+            if(gObjectsList.get(i).getCName().equalsIgnoreCase("Player"))
+            {
+                return (Player)gObjectsList.get(i);
+            }
+        }
+        return null;
+    }
 
-    private void initGame() {
-        
+    private void initGame() 
+    {    
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
@@ -144,26 +163,24 @@ public class Main extends SimpleApplication {
         sceneNode.attachChild(maze.generateMaze());
         
 //Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
-//            int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
+//        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, 50, 1000, 10, 5, 60, 65, 40);
+        sprinkler = new SprinkleObjects(assetManager, cam, 50, 1000, 10, 5, 60, 65, 40);
         Node sp = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sp);
+        
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
-        //System.out.println(sp.getChildren());
-        //placeObjects(sp);
-
+        player = findPlayer();
+        //rootNode.attachChild(player.getCharNode());
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
 
-        //Create player 
-        //Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
-        //player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
+        //player = new Player(assetManager);
         player = new Player(assetManager, rootNode, cam, new Vector3f(0,4,0));
     }
     

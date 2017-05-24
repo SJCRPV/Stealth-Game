@@ -19,6 +19,12 @@ import com.jme3.scene.shape.Box;
 public final class Gem extends GameObject {
 
     @Override
+    public String getCName()
+    {
+        return "Gem";
+    }
+    
+    @Override
     protected GameObject getGObjectClone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

@@ -55,6 +55,12 @@ public final class Player extends GameObject implements AnimEventListener {
     private AnimChannel botChannel;
     private AnimControl control;
 
+    @Override
+    public String getCName()
+    {
+        return "Player";
+    }
+    
     private void setFollowingCameraNode() {
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
