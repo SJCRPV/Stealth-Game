@@ -2,7 +2,6 @@ package mygame;
 
 import mygame.MapGeneration.RecDivMazeGrid;
 import mygame.MapGeneration.SprinkleObjects;
-import mygame.GameObjects.Gem;
 import mygame.GameObjects.Player;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
@@ -14,9 +13,8 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import java.util.ArrayList;
 import java.util.List;
+import mygame.GameObjects.GameObject;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -33,7 +31,7 @@ public class Main extends SimpleApplication {
 
     private boolean freeCam = false;
     private Player player;
-    private List<Gem> gems;
+    private List<GameObject> gObjectsList;
 
     private void initKeys() {
         //inputManager.addMapping("Wall",  new KeyTrigger(KeyInput.KEY_SPACE));
@@ -80,7 +78,7 @@ public class Main extends SimpleApplication {
         public void onAction(String name, boolean keyPressed, float tpf) {
 
             //Restart maze (temp)
-            if (name.equals("Restart") && !keyPressed) {
+            if (name.equals("Restart") && !keyPressed && !freeCam) {
                 bulletAppState.getPhysicsSpace().removeAll(rootNode);
                 rootNode.detachAllChildren();
                 System.out.println("Restart");
@@ -127,7 +125,9 @@ public class Main extends SimpleApplication {
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
         rootNode.addLight(dl);
-
+        
+        cam.setFrustumPerspective(45, this.settings.getWidth() / this.settings.getHeight(), 0.0001f, 1000f);
+        
         //Activate physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
@@ -136,33 +136,37 @@ public class Main extends SimpleApplication {
         initKeys();
         initGame();
     }
-
+    
+   
     @Override
-    public void simpleUpdate(float tpf) {
-        if (!freeCam) {
+    public void simpleUpdate(float tpf) 
+    {
+        if (!freeCam) 
+        {
             player.move(tpf);
         }
         
-        /*
-        for(Gem gem: gems)
+        for(GameObject gObject: gObjectsList)
         {
-            gem.update(tpf);
-        }*/
+            gObject.update(tpf);
+        }
     }
-
+    
     private void initGame() {
+        
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
-        maze = new RecDivMazeGrid(assetManager, bulletAppState, 20, 20, 1f, 1f, 0.5f, 1, 4, 4);
+        maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
         
 //Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
 //            int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, 50, 1000, 10, 5, 65, 75, 40);
+        sprinkler = new SprinkleObjects(assetManager, 10, 1000, 10, 10, 60, 65, 60);
         Node sp = sprinkler.sprinkle();
-
+        gObjectsList = sprinkler.getGOList();
+    
         sceneNode.attachChild(sp);
         rootNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
@@ -178,38 +182,8 @@ public class Main extends SimpleApplication {
         //Create player 
         //Vector3f playerLocation = sp.getChild("Player").getWorldTranslation();
         //player = new Player(assetManager,rootNode,cam,playerLocation.add(new Vector3f(0,4,0)));
+        
         player = new Player(assetManager, rootNode, cam, new Vector3f(0,4,0));
     }
-
-    /*private void placeObjects(Node objects) {
-        gems = new ArrayList();
-
-        for (Spatial child : objects.getChildren()) {
-            Vector3f location = child.getWorldTranslation();
-            switch (child.getName()) {
-                case "Treasure":
-                    Gem gem = new Gem(assetManager,location);
-                    gems.add(gem);
-                    rootNode.attachChild(gem.getGeom());
-                    objects.detachChild(child);
-                    break;
-
-                case "Flower Pot":
-
-                    break;
-
-                case "Computer Desk":
-
-                    break;
-
-                case "Enemy":
-
-                    break;
-
-                case "Player":
-                    player = new Player(assetManager, rootNode, cam, location.add(new Vector3f(0, 4, 0)));
-                    break;
-            }
-        }
-    }*/
+    
 }

@@ -129,6 +129,8 @@ public final class Player extends GameObject implements AnimEventListener {
         createMaterial();
         loadPhysicsModel();
         defineObjectBounds();
+        setFollowingCameraNode();
+        setAnimationControl();
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
     }
 

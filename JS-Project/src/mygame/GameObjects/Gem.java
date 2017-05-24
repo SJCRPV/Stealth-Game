@@ -48,7 +48,8 @@ public final class Gem extends GameObject {
     }
 
     @Override
-    public void update(float tpf) {
+    public void update(float tpf) 
+    {
         object.rotate(0, 2*tpf, 0);
     }
 }

@@ -18,6 +18,8 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -28,8 +30,9 @@ public class SprinkleObjects extends Generation {
     
     Node sprinkledObjects;
     AssetManager assetManager;
-    GameObject player;
+    List<GameObject> listOfGObjects;
     
+    GameObject player;
     FlowerPot flowerPot;
     Desk desk;
     
@@ -45,10 +48,17 @@ public class SprinkleObjects extends Generation {
     private int currentRoomNum;
     private int numOfEnemies;
 	
+    public List<GameObject> getGOList()
+    {
+        System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
+        return listOfGObjects;
+    }
+    
     private void putObjectInPlace(GameObject object, Vector3f location)
     {
         object.setLocalTranslation(location);
-        sprinkledObjects.attachChild(object.getSpatialClone());
+        listOfGObjects.add(object);
+        sprinkledObjects.attachChild(object.getSpatial());
     }
 	
     private boolean isItFarEnough(int[] obCellCoor, int[] playCellCoor)
@@ -182,30 +192,30 @@ public class SprinkleObjects extends Generation {
     
     public Node sprinkle()
     {
-        sprinklePlayer();
+        //sprinklePlayer();
         sprinkleObjective();
         
         for(currentRoomNum = 0; currentRoomNum < completedAreas.size(); currentRoomNum++)
         {
-            int gObjectsInRoom = generateRandomNum(0, MAX_GAMEOBJECTS_PER_ROOM);
+            //int gObjectsInRoom = generateRandomNum(0, MAX_GAMEOBJECTS_PER_ROOM);
             int currentChance = generateRandomNum(1, 100);
-            for(int i = 0; i < gObjectsInRoom; i++)
-            {
-               if(currentChance < OBJECT_CHANCE)
-               {
-                   tryToSprinkleObject();
-                   i++;
-               }
-               if(currentChance < TREASURE_CHANCE)
-               {
-                   sprinkleTreasure();
-                   i++;
-               }
-               if(currentChance < ENEMY_CHANCE)
-               {
-                   sprinkleEnemy();
-                   i++;
-               }
+            for(int i = 0; i < MAX_GAMEOBJECTS_PER_ROOM; i++)
+            {   
+                if(currentChance < OBJECT_CHANCE)
+                {
+                    tryToSprinkleObject();
+                    i++;
+                }
+                if(currentChance < TREASURE_CHANCE)
+                {
+                    sprinkleTreasure();
+                    i++;
+                }
+                if(currentChance < ENEMY_CHANCE)
+                {
+                    sprinkleEnemy();
+                    i++;
+                }
             }
         }
         
@@ -225,7 +235,7 @@ public class SprinkleObjects extends Generation {
         OBJECT_CHANCE = objectChance;
         TREASURE_CHANCE = treasureChance;
         numOfEnemies = Math.round(completedAreas.size() * 0.9f);
-        System.out.println("NumOfEnemies " + numOfEnemies);
+        listOfGObjects = new ArrayList();
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);

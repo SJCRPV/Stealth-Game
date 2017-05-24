@@ -67,9 +67,9 @@ public abstract class GameObject extends AbstractAppState {
         return objectDimensions;
     }
     
-    public Spatial getSpatialClone()
+    public Spatial getSpatial()
     {
-        return object.clone();
+        return object;
     }
     
     public Geometry getGeom()

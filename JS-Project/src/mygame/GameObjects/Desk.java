@@ -47,4 +47,8 @@ public final class Desk extends StandardObject {
         objectDimensions = new Vector3f(0.75f, 0.125f, 0.25f);
     }
     
+    @Override
+    public void update(float tpf)
+    {
+    }
 }

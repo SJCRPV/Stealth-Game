@@ -47,4 +47,8 @@ public final class FlowerPot extends StandardObject {
         objectDimensions = new Vector3f(0.125f, 0.125f, 0.5f);
     }
     
+    @Override
+    public void update(float tpf)
+    {
+    }
 }
