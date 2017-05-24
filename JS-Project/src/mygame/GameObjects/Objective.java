@@ -57,4 +57,5 @@ public final class Objective extends GameObject {
     public void update(float tpf)
     {
     }
+
 }

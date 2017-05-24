@@ -32,14 +32,10 @@ public class SprinkleObjects extends Generation {
     Node sprinkledObjects;
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
-<<<<<<< HEAD
     
     GameObject player;
-=======
     Camera cam;
     
-    Player player;
->>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
     FlowerPot flowerPot;
     Desk desk;
     
@@ -58,10 +54,7 @@ public class SprinkleObjects extends Generation {
 	
     public List<GameObject> getGOList()
     {
-<<<<<<< HEAD
         System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
-=======
->>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
         return listOfGObjects;
     }
     
@@ -214,7 +207,6 @@ public class SprinkleObjects extends Generation {
                     tryToSprinkleObject();
                     i++;
                 }
-<<<<<<< HEAD
                 if(currentChance < TREASURE_CHANCE)
                 {
                     sprinkleTreasure();
@@ -224,7 +216,7 @@ public class SprinkleObjects extends Generation {
                 {
                     sprinkleEnemy();
                     i++;
-=======
+                }
                 if(currentChance < TREASURE_CHANCE && numOfTreasures > 0)
                 {
                     sprinkleTreasure();
@@ -236,7 +228,6 @@ public class SprinkleObjects extends Generation {
                     sprinkleEnemy();
                     i++;
                     numOfEnemies--;
->>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
                 }
             }
         }
@@ -257,11 +248,10 @@ public class SprinkleObjects extends Generation {
         OBJECT_CHANCE = objectChance;
         TREASURE_CHANCE = treasureChance;
         numOfEnemies = Math.round(completedAreas.size() * 0.9f);
-<<<<<<< HEAD
-=======
+
         numOfTreasures = Math.round(MAX_POINTS_IN_LEVEL/TREASURE_VALUE);
->>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
         listOfGObjects = new ArrayList();
+        
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);

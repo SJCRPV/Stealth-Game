@@ -6,10 +6,7 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
-<<<<<<< HEAD
-=======
 import com.jme3.light.SpotLight;
->>>>>>> 5023e103c68dfb22a6ad978dc078dd57c57ce615
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -78,4 +75,5 @@ public final class Enemy extends GameObject {
     public void update(float tpf)
     {
     }
+
 }

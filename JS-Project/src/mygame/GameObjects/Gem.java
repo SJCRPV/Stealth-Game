@@ -6,6 +6,7 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -57,5 +58,6 @@ public final class Gem extends GameObject {
     public void update(float tpf) 
     {
         object.rotate(0, 2*tpf, 0);
+        
     }
 }
