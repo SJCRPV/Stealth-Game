@@ -19,12 +19,6 @@ import com.jme3.scene.shape.Box;
 public final class Desk extends StandardObject {
 
     @Override
-    public String getCName()
-    {
-        return "Desk";
-    }
-    
-    @Override
     protected void createMaterial() {
         objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         objectMat.setColor("Color", ColorRGBA.Orange);

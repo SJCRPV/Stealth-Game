@@ -27,7 +27,7 @@ import com.jme3.scene.control.CameraControl;
 public final class Player extends GameObject implements AnimEventListener {
 
     //Player variables
-    protected static float ROTATIONSPEED = 3f;
+    protected static float ROTATIONSPEED = 1.5f;
     protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
     protected static String JUMPS = "JumpStart";
@@ -55,12 +55,6 @@ public final class Player extends GameObject implements AnimEventListener {
     private AnimChannel botChannel;
     private AnimControl control;
 
-    @Override
-    public String getCName()
-    {
-        return "Player";
-    }
-    
     private void setFollowingCameraNode() {
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
@@ -301,5 +295,4 @@ public final class Player extends GameObject implements AnimEventListener {
     protected GameObject getGObjectClone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 }

@@ -30,7 +30,6 @@ public abstract class GameObject extends AbstractAppState {
     protected abstract void createMaterial();
     protected abstract void loadPhysicsModel();
     protected abstract GameObject getGObjectClone();
-    public abstract String getCName();
     
     protected void defineObjectBounds() 
     {
@@ -38,11 +37,11 @@ public abstract class GameObject extends AbstractAppState {
         bb.getExtent(objectDimensions);
     }
     
-    /*public Spatial placeObject(Vector3f location)
+    public Spatial placeObject(Vector3f location)
     {
         object.setLocalTranslation(location);
         return object;
-    }*/
+    }
     
     public int[] getCellCoordinates()
     {
