@@ -32,9 +32,10 @@ public class SprinkleObjects extends Generation {
     Node sprinkledObjects;
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
+    
+    GameObject player;
     Camera cam;
     
-    Player player;
     FlowerPot flowerPot;
     Desk desk;
     
@@ -54,6 +55,7 @@ public class SprinkleObjects extends Generation {
 	
     public List<GameObject> getGOList()
     {
+        System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
         return listOfGObjects;
     }
     
@@ -199,7 +201,7 @@ public class SprinkleObjects extends Generation {
     
     public Node sprinkle()
     {
-        sprinklePlayer();
+        //sprinklePlayer();
         sprinkleObjective();
         
         for(currentRoomNum = 0; currentRoomNum < completedAreas.size(); currentRoomNum++)
@@ -211,6 +213,16 @@ public class SprinkleObjects extends Generation {
                 if(currentChance < OBJECT_CHANCE)
                 {
                     tryToSprinkleObject();
+                    i++;
+                }
+                if(currentChance < TREASURE_CHANCE)
+                {
+                    sprinkleTreasure();
+                    i++;
+                }
+                if(currentChance < ENEMY_CHANCE)
+                {
+                    sprinkleEnemy();
                     i++;
                 }
                 if(currentChance < TREASURE_CHANCE && numOfTreasures > 0)
@@ -245,8 +257,10 @@ public class SprinkleObjects extends Generation {
         OBJECT_CHANCE = objectChance;
         TREASURE_CHANCE = treasureChance;
         numOfEnemies = Math.round(completedAreas.size() * 0.9f);
+
         numOfTreasures = Math.round(MAX_POINTS_IN_LEVEL/TREASURE_VALUE);
         listOfGObjects = new ArrayList();
+        
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);
