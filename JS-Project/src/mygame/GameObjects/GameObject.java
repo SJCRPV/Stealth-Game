@@ -61,11 +61,11 @@ public abstract class GameObject extends AbstractAppState {
     
     public Vector3f getLocation()
     {
-        return object.getLocalTranslation();
+        return gameObjectNode.getLocalTranslation();
     }
     public void setLocation(Vector3f location)
     {
-        object.setLocalTranslation(location);
+        gameObjectNode.setLocalTranslation(location);
     }
     
     public Vector3f getObjectDimensions()

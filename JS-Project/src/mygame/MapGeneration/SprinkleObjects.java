@@ -180,7 +180,7 @@ public class SprinkleObjects extends Generation {
     private void sprinklePlayer()
     {
         playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
-//        player = new Player(assetManager);
+//       player = new Player(assetManager);
 //        Vector3f location = whereToSprinkle(player);
 //        location = transformToWorldCoor(location);
 //        putObjectInPlace(player, location);
@@ -265,7 +265,7 @@ public class SprinkleObjects extends Generation {
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);
-        desk = new Desk(assetManager,bulletAppState);
+        desk = new Desk(assetManager);
         StandardObject.addToObjectList(desk);
     }
 }
