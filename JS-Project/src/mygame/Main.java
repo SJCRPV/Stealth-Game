@@ -17,7 +17,11 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.util.SkyFactory;
 import java.util.List;
 import mygame.GameObjects.GameObject;
@@ -38,6 +42,7 @@ public class Main extends SimpleApplication {
     Player player;
     int score;
 
+    private DirectionalLight dl;
     Node sprinkleNode;
 
     private BulletAppState bulletAppState;
@@ -131,7 +136,7 @@ public class Main extends SimpleApplication {
         //rootNode.addLight(al);
 
         //Testlight
-        DirectionalLight dl = new DirectionalLight();
+        dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
         rootNode.addLight(dl);
 
@@ -231,12 +236,28 @@ public class Main extends SimpleApplication {
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
 
-        player = new Player(assetManager, bulletAppState, rootNode, cam, new Vector3f(0, 4, 0));
+        player = new Player(assetManager, bulletAppState, rootNode, cam, sprinkler.getPlayer().getWorldTranslation());
     
         score = 0;
         
         //Set a skybox
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        
+        /**
+        final int SHADOWMAP_SIZE=1024;
+        DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
+        dlsr.setLight(dl);
+        viewPort.addProcessor(dlsr);
+
+        DirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE, 3);
+        dlsf.setLight(dl);
+        dlsf.setEnabled(true);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        fpp.addFilter(dlsf);
+        viewPort.addProcessor(fpp);
+        
+        rootNode.setShadowMode(ShadowMode.CastAndReceive);
+**/
     }
 
     private void restartGame() {
@@ -259,7 +280,7 @@ public class Main extends SimpleApplication {
              */
             if (gObject.getCName().equals("Desk")) {
                 //gObject.setLocation(gObject.getLocation().add(new Vector3f(0,100,0)));
-                RigidBodyControl cratePhy = new RigidBodyControl(0f);
+                RigidBodyControl cratePhy = new RigidBodyControl(2f);
                 gObject.getGeom().addControl(cratePhy);
                 bulletAppState.getPhysicsSpace().add(cratePhy);
 

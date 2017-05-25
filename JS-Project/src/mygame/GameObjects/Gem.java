@@ -63,7 +63,7 @@ public final class Gem extends GameObject {
         
         PointLight lamp_light = new PointLight();
         lamp_light.setColor(ColorRGBA.Red);
-        lamp_light.setRadius(200f);
+        lamp_light.setRadius(4f);
         lamp_light.setPosition(new Vector3f(object.getLocalTranslation().add(new Vector3f(0,10,0))));
         gameObjectNode.addLight(lamp_light);
         

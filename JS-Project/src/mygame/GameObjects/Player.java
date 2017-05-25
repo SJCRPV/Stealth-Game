@@ -290,14 +290,15 @@ public final class Player extends GameObject implements AnimEventListener {
         gameObjectNode = characterNode;
     }
 
-    public Player(AssetManager assetManager, BulletAppState bulletAppState) {
+    public Player(AssetManager assetManager) {
         this.assetManager = assetManager;
-        this.bulletAppState = bulletAppState;
         createMaterial();
         loadPhysicsModel();
         defineObjectBounds();
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
 
+        
+        
         gameObjectNode = characterNode;
     }
 }
