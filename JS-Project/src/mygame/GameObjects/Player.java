@@ -166,12 +166,8 @@ public final class Player extends GameObject implements AnimEventListener {
         topChannel.setAnim(IDLET, 0.5f);
     }
 
-<<<<<<< HEAD
-    public void move() 
+    public void move(float tpf)
     {
-=======
-    public void move(float tpf) {
->>>>>>> c6a0e20d232fcb10f267d756cb26e0b36e7b608d
         Vector3f camDir = cam.getDirection().mult(WALKSPEED);
         Vector3f camLeft = cam.getLeft().mult(WALKSPEED);
         camDir.y = 0;

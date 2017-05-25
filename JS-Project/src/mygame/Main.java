@@ -204,22 +204,13 @@ public class Main extends SimpleApplication {
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-<<<<<<< HEAD
         
 //Constructor public SprinkleObjects(AssetManager newAssetManager, Camera cam, Vector3f rootWC, int treasurePointValue,
 //        int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, 
 //        float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, rootNode.getWorldTranslation(), 50, 1000, 10, 5, 60, 65, 40);
-        Node sp = sprinkler.sprinkle();
-=======
-
-//Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
-//        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
-//Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
+        sprinkler = new SprinkleObjects(assetManager, cam, rootNode.getWorldTranslation(), GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
         sprinkleNode = sprinkler.sprinkle();
->>>>>>> c6a0e20d232fcb10f267d756cb26e0b36e7b608d
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
 
