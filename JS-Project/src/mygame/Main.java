@@ -15,21 +15,11 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.control.LightControl;
-import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
-import com.jme3.util.TangentBinormalGenerator;
 import java.util.List;
-import mygame.GameObjects.Desk;
 import mygame.GameObjects.GameObject;
 
 /**
@@ -145,12 +135,6 @@ public class Main extends SimpleApplication {
         dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
         rootNode.addLight(dl);
 
-        PointLight lamp_light = new PointLight();
-        lamp_light.setColor(ColorRGBA.White);
-        lamp_light.setRadius(20f);
-        lamp_light.setPosition(new Vector3f(new Vector3f(4, 4, 4)));
-        //rootNode.addLight(lamp_light);
-
         //To avoid not showing objects behind player. Does not work well with flycam
         cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
 
@@ -165,6 +149,7 @@ public class Main extends SimpleApplication {
          * spot.setDirection(cam.getDirection()); // shine forward from camera
          * loc rootNode.addLight(spot);*
          */
+        
         //Activate physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
@@ -237,30 +222,20 @@ public class Main extends SimpleApplication {
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
         addToWorld();
-                
-        //temp add lights
-        //addLights();
+
         player = findPlayer();
         //rootNode.attachChild(player.getCharNode());
+        
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
 
-        player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
+        player = new Player(assetManager, bulletAppState, rootNode, cam, new Vector3f(0, 4, 0));
     
-        //Desk d = new Desk(assetManager, bulletAppState);
-        //rootNode.attachChild(d.getNode());
-        PointLight myLight = new PointLight();
-        myLight.setColor(ColorRGBA.White);
-        myLight.setRadius(10f);
-        myLight.setPosition(new Vector3f(player.getLocation().add(new Vector3f(0, 2, 0))));
-        //rootNode.addLight(myLight);
-        LightControl lightControl = new LightControl(myLight);
-        //player.getSpatial().addControl(lightControl);
-
         score = 0;
         
+        //Set a skybox
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
     }
 
