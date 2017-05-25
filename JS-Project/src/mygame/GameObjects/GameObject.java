@@ -8,6 +8,7 @@ package mygame.GameObjects;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -20,9 +21,10 @@ import com.jme3.scene.Spatial;
  */
 public abstract class GameObject extends AbstractAppState {
     
-    protected static Node gameObjectNode;
+    protected Node gameObjectNode = new Node();
     
     protected Spatial object;
+    protected RigidBodyControl objectPhy;
     protected AssetManager assetManager;
     protected Material objectMat;
     protected Vector3f objectDimensions;
@@ -76,8 +78,18 @@ public abstract class GameObject extends AbstractAppState {
         return object;
     }
     
+     public Node getNode()
+    {
+        return gameObjectNode;
+    }
+    
     public Geometry getGeom()
     {
         return (Geometry)object;
+    }
+    
+    public RigidBodyControl getRb()
+    {
+        return objectPhy;
     }
 }

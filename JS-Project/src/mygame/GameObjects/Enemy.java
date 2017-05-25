@@ -11,6 +11,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 
 
 /**
@@ -67,6 +68,19 @@ public final class Enemy extends GameObject {
         
         //Temp
         objectDimensions = new Vector3f(0.25f, 0.25f, 0.5f);
+        
+        SpotLight spot = new SpotLight();
+spot.setSpotRange(100f);                           // distance
+spot.setSpotInnerAngle(15f * FastMath.DEG_TO_RAD); // inner light cone (central beam)
+spot.setSpotOuterAngle(35f * FastMath.DEG_TO_RAD); // outer light cone (edge of the light)
+spot.setColor(ColorRGBA.White.mult(1.3f));         // light color
+spot.setPosition(object.getLocalTranslation());               // shine from camera loc
+spot.setDirection(new Vector3f(0,-1,0));             // shine forward from camera loc
+gameObjectNode.addLight(spot);
+        
+        
+        
+        gameObjectNode.attachChild(object);
     }
 
     @Override

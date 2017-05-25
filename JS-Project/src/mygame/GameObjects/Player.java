@@ -20,6 +20,7 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
 
@@ -38,7 +39,7 @@ public final class Player extends GameObject implements AnimEventListener {
     protected static String RUNB = "RunBase";
 
     private CharacterControl physicsCharacter;
-    private Node characterNode;
+    private Node gameObjectNode;
     private CameraNode camNode;
     boolean rotate = false;
     private final Vector3f walkDirection = new Vector3f(0, 0, 0);
@@ -60,12 +61,12 @@ public final class Player extends GameObject implements AnimEventListener {
     
     public void detachCamera() 
     {
-        characterNode.detachChild(camNode);
+        gameObjectNode.detachChild(camNode);
     }
 
     public void attachCamera() 
     {
-        characterNode.attachChild(camNode);
+        gameObjectNode.attachChild(camNode);
     }
     
     @Override
@@ -85,16 +86,16 @@ public final class Player extends GameObject implements AnimEventListener {
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
         camNode.setLocalTranslation(new Vector3f(0, 0.5f, -2f)); //Best 0,0.5,-2
         camNode.lookAt(object.getLocalTranslation(), Vector3f.UNIT_Y);
-        characterNode.attachChild(camNode);
+        gameObjectNode.attachChild(camNode);
     }
 
     private void placeCharacter(Node rootNode, Vector3f startPos)
     {
-        characterNode.addControl(physicsCharacter);
+        gameObjectNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
         physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
-        rootNode.attachChild(characterNode);
-        characterNode.attachChild(object);
+        rootNode.attachChild(gameObjectNode);
+        gameObjectNode.attachChild(object);
     }
 
     @Override
@@ -112,9 +113,10 @@ public final class Player extends GameObject implements AnimEventListener {
     {
         physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-        characterNode = new Node("character node");
+        gameObjectNode = new Node("Character");
         object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         object.scale(0.1f);
+        gameObjectNode.attachChild(object);
     }
 
     private void setAnimationControl() 
@@ -166,7 +168,7 @@ public final class Player extends GameObject implements AnimEventListener {
         topChannel.setAnim(IDLET, 0.5f);
     }
 
-    public void move(float tpf)
+    public void move(float tpf) 
     {
         Vector3f camDir = cam.getDirection().mult(WALKSPEED);
         Vector3f camLeft = cam.getLeft().mult(WALKSPEED);
@@ -294,14 +296,10 @@ public final class Player extends GameObject implements AnimEventListener {
         placeCharacter(rootNode, startPos);
         setFollowingCameraNode();
         setAnimationControl();
-    }
-    
-    public Player(AssetManager assetManager)
-    {
-        this.assetManager = assetManager;
-        createMaterial();
-        loadPhysicsModel();
-        defineObjectBounds();
+        
+        //Temp
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
+        
+        //GameObject.this.gameObjectNode = gameObjectNode;
     }
 }
