@@ -14,6 +14,7 @@ import mygame.GameObjects.Player;
 import mygame.GameObjects.Enemy;
 import mygame.GameObjects.StandardObject;
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -242,7 +243,7 @@ public class SprinkleObjects extends Generation {
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, Camera cam, Vector3f rootWC, int treasurePointValue, int maxPointsInArea,
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, BulletAppState bulletAppState, Vector3f rootWC, int treasurePointValue, int maxPointsInArea,
             int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
     {
         sprinkledObjects = new Node();
@@ -264,7 +265,7 @@ public class SprinkleObjects extends Generation {
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);
-        desk = new Desk(assetManager);
+        desk = new Desk(assetManager,bulletAppState);
         StandardObject.addToObjectList(desk);
     }
 }

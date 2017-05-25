@@ -129,7 +129,7 @@ public class Main extends SimpleApplication {
 
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(0.3f));
-        rootNode.addLight(al);
+        //rootNode.addLight(al);
 
         //Testlight
         DirectionalLight dl = new DirectionalLight();
@@ -219,7 +219,7 @@ public class Main extends SimpleApplication {
 //Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
 //        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, new Vector3f(0, 0, 0), GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
+        sprinkler = new SprinkleObjects(assetManager, cam, bulletAppState, new Vector3f(0, 0, 0), GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
         sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
@@ -228,7 +228,7 @@ public class Main extends SimpleApplication {
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
         //temp add lights
-        addLights();
+        //addLights();
         player = findPlayer();
         //rootNode.attachChild(player.getCharNode());
         //More confortable flycam and disable
@@ -237,6 +237,16 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(false);
 
         player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
+
+        
+        PointLight myLight = new PointLight();
+        myLight.setColor(ColorRGBA.White);
+        myLight.setRadius(10f);
+        myLight.setPosition(new Vector3f(player.getLocation().add(new Vector3f(0,2,0))));
+        rootNode.addLight(myLight);
+        LightControl lightControl = new LightControl(myLight);
+        player.getSpatial().addControl(lightControl);
+        
         score = 0;
     }
 
@@ -250,14 +260,19 @@ public class Main extends SimpleApplication {
     private void addLights() {
         for (GameObject gObject : gObjectsList) {
 
-            if (gObject.getCName().equals("Flower pot")) {
-                System.out.println("light");
-                PointLight lamp_light = new PointLight();
-                lamp_light.setColor(ColorRGBA.Red);
-                lamp_light.setRadius(4f);
-                lamp_light.setPosition(gObject.getLocation());
-                rootNode.addLight(lamp_light);
+            /**
+             * if (gObject.getCName().equals("Flower pot")) {
+             * System.out.println("light"); PointLight lamp_light = new
+             * PointLight(); lamp_light.setColor(ColorRGBA.Red);
+             * lamp_light.setRadius(4f);
+             * lamp_light.setPosition(gObject.getLocation());
+             * rootNode.addLight(lamp_light);
+            }*
+             */
+            if (gObject.getCName().equals("Computer desk")) {
+                bulletAppState.getPhysicsSpace().add(gObject.getRb());
             }
+
         }
     }
 

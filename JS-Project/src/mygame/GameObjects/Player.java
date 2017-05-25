@@ -113,9 +113,10 @@ public final class Player extends GameObject implements AnimEventListener {
     {
         physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-        characterNode = new Node("character node");
+        characterNode = new Node("Character");
         object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         object.scale(0.1f);
+        characterNode.attachChild(object);
     }
 
     private void setAnimationControl() 
