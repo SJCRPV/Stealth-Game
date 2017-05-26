@@ -6,8 +6,6 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -22,7 +20,6 @@ import com.jme3.util.TangentBinormalGenerator;
  */
 public final class Desk extends StandardObject {
 
-    private BulletAppState bulletAppState;
     
     @Override
     public String getCName() {
@@ -45,16 +42,16 @@ public final class Desk extends StandardObject {
     }
 
     @Override
-    protected void loadPhysicsModel() {
+    public void loadPhysics()
+    {
+    }
+    
+    @Override
+    protected void loadModel() {
         Box computerDeskBox = new Box(0.25f, 0.25f, 0.25f);
         object = new Geometry("Computer Desk", computerDeskBox);
         TangentBinormalGenerator.generate(computerDeskBox);
         object.setMaterial(objectMat);
-
-        objectPhy = new RigidBodyControl(2f);
-        object.addControl(objectPhy);
-        bulletAppState.getPhysicsSpace().add(objectPhy);
-
     }
 
     @Override
@@ -62,15 +59,14 @@ public final class Desk extends StandardObject {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public Desk(AssetManager assetManager, BulletAppState bulletAppState) {
+    public Desk(AssetManager assetManager) {
         this.assetManager = assetManager;
-        this.bulletAppState = bulletAppState;
         createMaterial();
-        loadPhysicsModel();
+        loadModel();
         defineObjectBounds();
 
         //Temp
-        objectDimensions = new Vector3f(0.75f, 0.125f, 0.25f);
+        objectDimensions = new Vector3f(0.25f, 0.25f, 0.25f);
 
         gameObjectNode.attachChild(object);
     }

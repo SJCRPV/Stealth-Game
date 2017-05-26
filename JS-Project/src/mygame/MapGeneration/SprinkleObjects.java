@@ -14,15 +14,17 @@ import mygame.GameObjects.Player;
 import mygame.GameObjects.Enemy;
 import mygame.GameObjects.StandardObject;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  *
@@ -52,6 +54,7 @@ public class SprinkleObjects extends Generation {
     private int currentRoomNum;
     private int numOfEnemies;
     private int numOfTreasures;
+    private Geometry playerGeo;
 	
     public List<GameObject> getGOList()
     {
@@ -61,7 +64,7 @@ public class SprinkleObjects extends Generation {
     
     private void putObjectInPlace(GameObject object, Vector3f location)
     {
-        object.setLocation(location);
+        object.setLocalTranslation(location);
         listOfGObjects.add(object);
         sprinkledObjects.attachChild(object.getNode());
     }
@@ -159,8 +162,7 @@ public class SprinkleObjects extends Generation {
         int objectiveSpawnRoomNum;
         GameObject objective = new Objective(assetManager);
         Vector3f location;
-        //int[] playCellCoor = player.getCellCoordinates();
-        int[] playCellCoor = new int[] {1, 1};
+        int[] playCellCoor = player.getCellCoordinates();
         int[] objCellCoor;
         do
         {
@@ -176,11 +178,39 @@ public class SprinkleObjects extends Generation {
 //        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
 //        player = new Player(assetManager);
 //        Vector3f location = whereToSprinkle(player);
+//        location = transformToWorldCoor(location);
 //        putObjectInPlace(player, location);
 //        player.placeCharacter(location);
 //        player.setFollowingCameraNode(cam);
+//     }
+//    private void sprinklePlayer()
+//    {
+//        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+//        player = new Player(assetManager);
+//        Vector3f location = whereToSprinkle(player);
+//        Box p = new Box(0.25f,0.25f,0.25f);
+//        Geometry pg = new Geometry("Player",p);
+//        Material pm = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        pm.setColor("Color", ColorRGBA.White);
+//        pg.setMaterial(pm);
+//        pg.setLocalTranslation(location);
+//        sprinkledObjects.attachChild(pg);
+//        playerGeo = pg;
 //    }
+    
+    private void sprinklePlayer()
+    {
+        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+        player = new Player(assetManager);
+        Vector3f location = whereToSprinkle(player);
+        putObjectInPlace(player, location);
+    }
 	
+    public Geometry getPlayer()
+    {
+        return playerGeo;
+    }
+    
     private void tryToSprinkleObject()
     {
         try
@@ -195,7 +225,7 @@ public class SprinkleObjects extends Generation {
     
     public Node sprinkle()
     {
-        //sprinklePlayer();
+        sprinklePlayer();
         sprinkleObjective();
         
         for(currentRoomNum = 0; currentRoomNum < completedAreas.size(); currentRoomNum++)
@@ -236,9 +266,8 @@ public class SprinkleObjects extends Generation {
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(Node rootNode, AssetManager newAssetManager, Camera cam, BulletAppState bulletAppState, int treasurePointValue, 
-            int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, 
-            float treasureChance)
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
+            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
     {
         this.cam = cam;
         sprinkledObjects = new Node();
@@ -257,7 +286,7 @@ public class SprinkleObjects extends Generation {
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);
-        desk = new Desk(assetManager,bulletAppState);
+        desk = new Desk(assetManager);
         StandardObject.addToObjectList(desk);
     }
 }

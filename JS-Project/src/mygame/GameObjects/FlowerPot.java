@@ -31,7 +31,12 @@ public final class FlowerPot extends StandardObject {
     }
 
     @Override
-    protected void loadPhysicsModel() {
+    public void loadPhysics()
+    {
+    }
+    
+    @Override
+    protected void loadModel() {
         Box flowerPotBox = new Box(0.125f, 0.125f, 0.5f);
         object = new Geometry("Flower Pot", flowerPotBox);
         object.setMaterial(objectMat);
@@ -46,7 +51,7 @@ public final class FlowerPot extends StandardObject {
     {
         this.assetManager = assetManager;
         createMaterial();
-        loadPhysicsModel();
+        loadModel();
         defineObjectBounds();
         
         //Temp

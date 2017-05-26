@@ -6,6 +6,7 @@ import mygame.GameObjects.Player;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
@@ -20,12 +21,19 @@ import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.LightControl;
+import com.jme3.scene.shape.Box;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.util.SkyFactory;
 import java.util.List;
 import mygame.GameObjects.GameObject;
+import mygame.GameObjects.Gem;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -103,8 +111,8 @@ public class Main extends SimpleApplication {
                     player.stop();
                     //Set location of flycam
                     Vector3f camLocation = new Vector3f(0, 6, 6);
-                    cam.setLocation(camLocation.add(player.getLocation()));
-                    cam.lookAt(player.getLocation(), new Vector3f(0, 0, 0));
+                    cam.setLocation(camLocation.add(player.getWorldTranslation()));
+                    cam.lookAt(player.getWorldTranslation(), new Vector3f(0, 0, 0));
                     //Enable flycam
                     flyCam.setEnabled(true);
                     freeCam = true;
@@ -130,35 +138,19 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(0.3f));
-        //rootNode.addLight(al);
-
         //Testlight
         DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
-        //rootNode.addLight(dl);
-
-        PointLight lamp_light = new PointLight();
-        lamp_light.setColor(ColorRGBA.White);
-        lamp_light.setRadius(20f);
-        lamp_light.setPosition(new Vector3f(new Vector3f(4, 4, 4)));
-        //rootNode.addLight(lamp_light);
+        dl.setColor(ColorRGBA.White.mult(0.1f));
+        dl.setDirection(new Vector3f(-1f, -1f, -1).normalizeLocal());
+        rootNode.addLight(dl);
+        DirectionalLight dl2 = new DirectionalLight();
+        dl2.setColor(ColorRGBA.White.mult(0.1f));
+        dl2.setDirection(new Vector3f(-1f, 1f, -1).normalizeLocal());
+        rootNode.addLight(dl2);
 
         //To avoid not showing objects behind player. Does not work well with flycam
         cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
 
-        //Second test light
-        /**
-         * SpotLight spot = new SpotLight(); spot.setSpotRange(100f); //
-         * distance spot.setSpotInnerAngle(15f * FastMath.DEG_TO_RAD); // inner
-         * light cone (central beam) spot.setSpotOuterAngle(35f *
-         * FastMath.DEG_TO_RAD); // outer light cone (edge of the light)
-         * spot.setColor(ColorRGBA.Red.mult(1.3f)); // light color
-         * spot.setPosition(cam.getLocation()); // shine from camera loc
-         * spot.setDirection(cam.getDirection()); // shine forward from camera
-         * loc rootNode.addLight(spot);*
-         */
         //Activate physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
@@ -203,6 +195,18 @@ public class Main extends SimpleApplication {
         }
     }
 
+    private Player findPlayer()
+    {
+        for(int i = 0; i < gObjectsList.size(); i++)
+        {
+            if(gObjectsList.get(i).getCName().equalsIgnoreCase("Player"))
+            {
+                return (Player)gObjectsList.get(i);
+            }
+        }
+        return null;
+    }
+    
     private void initGame() {
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
@@ -214,7 +218,7 @@ public class Main extends SimpleApplication {
 //          int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, 
 //          float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(rootNode, assetManager, cam, bulletAppState, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
+        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
         sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
@@ -224,6 +228,7 @@ public class Main extends SimpleApplication {
 
         //temp add lights
         //addLights();
+        //addToWorld();
         
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
@@ -231,16 +236,22 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(false);
 
         //TODO: Figure out how to get the *fucking* position out of SprinkleObjects
-        player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
+        //player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
+        //player = new Player(assetManager, bulletAppState, rootNode, cam, sprinkler.getPlayer().getWorldTranslation());
+        player = findPlayer();
+        player.loadPhysics();
+        player.setFollowingCameraNode(cam);
         
         PointLight myLight = new PointLight();
         myLight.setColor(ColorRGBA.White);
         myLight.setRadius(10f);
-        myLight.setPosition(new Vector3f(player.getLocation().add(new Vector3f(0,2,0))));
+        myLight.setPosition(new Vector3f(player.getWorldTranslation().add(new Vector3f(0,2,0))));
         rootNode.addLight(myLight);
         LightControl lightControl = new LightControl(myLight);
         player.getSpatial().addControl(lightControl);
         
+        
+    
         score = 0;
     }
 
@@ -251,23 +262,41 @@ public class Main extends SimpleApplication {
         initGame();
     }
 
-    private void addLights() {
+    private void addToWorld() {
         for (GameObject gObject : gObjectsList) {
 
-            /**
-             * if (gObject.getCName().equals("Flower pot")) {
-             * System.out.println("light"); PointLight lamp_light = new
-             * PointLight(); lamp_light.setColor(ColorRGBA.Red);
-             * lamp_light.setRadius(4f);
-             * lamp_light.setPosition(gObject.getLocation());
-             * rootNode.addLight(lamp_light);
-            }*
-             */
-            if (gObject.getCName().equals("Computer desk")) {
-                bulletAppState.getPhysicsSpace().add(gObject.getRb());
+            if (gObject.getCName().equals("Flower pot")) {
+            PointLight lamp_light = new
+            PointLight(); lamp_light.setColor(ColorRGBA.Orange.mult(0.8f));
+            lamp_light.setRadius(4f);
+            lamp_light.setPosition(gObject.getWorldTranslation().add(0,0.25f,0));
+            makeCube(gObject.getWorldTranslation().add(0,0.25f,0));
+            rootNode.addLight(lamp_light); 
+            }
+           
+            if (gObject.getCName().equals("Desk")) {
+                RigidBodyControl cratePhy = new RigidBodyControl(0f);
+                gObject.getGeom().addControl(cratePhy);
+                bulletAppState.getPhysicsSpace().add(cratePhy);
+            }
+           
+            if (gObject.getCName().equals("Gem")){
+                Gem g = (Gem) gObject;
+                g.turnLight();
             }
 
         }
     }
 
+    
+    private void makeCube(Vector3f loc)
+    {
+        Material objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        objectMat.setColor("Color", ColorRGBA.White);
+        Box objectiveBox = new Box(0.3f, 0.3f, 0.3f);
+        Geometry object = new Geometry("Objective", objectiveBox);
+        object.setMaterial(objectMat);
+        object.setLocalTranslation(loc);
+        rootNode.attachChild(object);
+    }
 }

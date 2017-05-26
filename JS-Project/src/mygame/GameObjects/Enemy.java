@@ -32,9 +32,14 @@ public final class Enemy extends GameObject {
         objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         objectMat.setColor("Color", ColorRGBA.Brown);
     }
+    
+    @Override
+    public void loadPhysics()
+    {
+    }
 
     @Override
-    protected final void loadPhysicsModel()
+    protected final void loadModel()
     {
         object = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         object.rotateUpTo(new Vector3f(0,0,1));
@@ -62,7 +67,7 @@ public final class Enemy extends GameObject {
     {
         this.assetManager = assetManager;
         createMaterial();
-        loadPhysicsModel();
+        loadModel();
         defineObjectBounds();
         defineLighting();
         

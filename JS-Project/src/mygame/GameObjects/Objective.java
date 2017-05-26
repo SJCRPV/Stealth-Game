@@ -31,7 +31,12 @@ public final class Objective extends GameObject {
     }
 
     @Override
-    protected void loadPhysicsModel() {
+    public void loadPhysics()
+    {
+    }
+    
+    @Override
+    protected void loadModel() {
         Box objectiveBox = new Box(0.25f, 0.25f, 0.25f);
         object = new Geometry("Objective", objectiveBox);
         object.setMaterial(objectMat);
@@ -46,7 +51,7 @@ public final class Objective extends GameObject {
     {
         this.assetManager = assetManager;
         createMaterial();
-        loadPhysicsModel();
+        loadModel();
         defineObjectBounds();
         
         //Temp

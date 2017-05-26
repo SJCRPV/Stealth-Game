@@ -14,13 +14,13 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.BulletAppState;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
 
@@ -38,8 +38,8 @@ public final class Player extends GameObject implements AnimEventListener {
     protected static String RUNT = "RunTop";
     protected static String RUNB = "RunBase";
 
+    private BulletAppState bulletAppState;
     private CharacterControl physicsCharacter;
-    private Node gameObjectNode;
     private CameraNode camNode;
     boolean rotate = false;
     private final Vector3f walkDirection = new Vector3f(0, 0, 0);
@@ -54,8 +54,7 @@ public final class Player extends GameObject implements AnimEventListener {
     private AnimControl control;
 
     @Override
-    public String getCName()
-    {
+    public String getCName() {
         return "Player";
     }
     
@@ -68,20 +67,20 @@ public final class Player extends GameObject implements AnimEventListener {
     {
         gameObjectNode.attachChild(camNode);
     }
-    
-    @Override
-    public void setLocation(Vector3f location)
+
+    public void setPhysicsLocation(Vector3f location)
     {
         physicsCharacter.setPhysicsLocation(location);
     }
-    @Override
-    public Vector3f getLocation() 
+
+    public Vector3f getPhysicsLocationLocation() 
     {
         return physicsCharacter.getPhysicsLocation();
     }
-    
-    private void setFollowingCameraNode() 
+
+    public void setFollowingCameraNode(Camera cam) 
     {
+        this.cam = cam;
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
         camNode.setLocalTranslation(new Vector3f(0, 0.5f, -2f)); //Best 0,0.5,-2
@@ -89,18 +88,26 @@ public final class Player extends GameObject implements AnimEventListener {
         gameObjectNode.attachChild(camNode);
     }
 
-    private void placeCharacter(Node rootNode, Vector3f startPos)
+    @Override
+    public void loadPhysics()
     {
+        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
+        physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
         gameObjectNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
-        physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
-        rootNode.attachChild(gameObjectNode);
+    }
+
+    @Override
+    protected void loadModel()
+    {
+        object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        object.scale(0.1f);
+
         gameObjectNode.attachChild(object);
     }
 
     @Override
-    protected void createMaterial() 
-    {
+    protected void createMaterial() {
         /**
          * Temp Material whitemat = new Material(assetManager,
          * "Common/MatDefs/Misc/Unshaded.j3md"); whitemat.setColor("Color",
@@ -108,19 +115,7 @@ public final class Player extends GameObject implements AnimEventListener {
          */
     }
 
-    @Override
-    protected void loadPhysicsModel() 
-    {
-        physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
-        physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
-        gameObjectNode = new Node("Character");
-        object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        object.scale(0.1f);
-        gameObjectNode.attachChild(object);
-    }
-
-    private void setAnimationControl() 
-    {
+    private void setAnimationControl() {
         control = object.getControl(AnimControl.class);
         control.addListener(this);
         botChannel = control.createChannel();
@@ -130,30 +125,27 @@ public final class Player extends GameObject implements AnimEventListener {
         topChannel.setLoopMode(LoopMode.Cycle);
         botChannel.setLoopMode(LoopMode.Cycle);
     }
-    
+
     @Override
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) 
-    {
+    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
         if (botChannel.getAnimationName().equals(JUMPE)) {
             botChannel.setAnim(IDLEB, 0.5f); //second parameter important for character feel
             topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
-             botChannel.setLoopMode(LoopMode.Cycle);
+            botChannel.setLoopMode(LoopMode.Cycle);
         }
-        
+
         if (botChannel.getAnimationName().equals(JUMPS)) {
             botChannel.setAnim(JUMP, 0.1f); //second parameter important for character feel
-             botChannel.setLoopMode(LoopMode.Cycle);
+            botChannel.setLoopMode(LoopMode.Cycle);
         }
     }
 
     @Override
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) 
-    {
+    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
 
     }
-    
-    public void stop() 
-    {
+
+    public void stop() {
         leftStrafe = false;
         rightStrafe = false;
         leftRotate = false;
@@ -182,9 +174,9 @@ public final class Player extends GameObject implements AnimEventListener {
             walkDirection.addLocal(camLeft.negate());
         }
         if (leftRotate) {
-            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED*tpf));
+            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED * tpf));
         } else if (rightRotate) {
-            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED*tpf).negate());
+            viewDirection.addLocal(camLeft.mult(ROTATIONSPEED * tpf).negate());
         }
         if (forward) {
             walkDirection.addLocal(camDir);
@@ -238,8 +230,7 @@ public final class Player extends GameObject implements AnimEventListener {
         physicsCharacter.setViewDirection(viewDirection);
     }
 
-    public void controls(String name, boolean keyPressed) 
-    {
+    public void controls(String name, boolean keyPressed) {
         if (name.equals("Strafe Left")) {
             if (keyPressed) {
                 leftStrafe = true;
@@ -285,20 +276,31 @@ public final class Player extends GameObject implements AnimEventListener {
     protected GameObject getGObjectClone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    public Player(AssetManager assetManager, Node rootNode, Camera cam, Vector3f startPos) 
-    {
-        this.cam = cam;
-        this.assetManager = assetManager;
 
+//    public Player(AssetManager assetManager, BulletAppState bulletAppState, Node rootNode, Camera cam, Vector3f startPos) {
+//        this.cam = cam;
+//        this.assetManager = assetManager;
+//        this.bulletAppState = bulletAppState;
+//        createMaterial();
+//        super.loadModel();
+//        placeCharacter(rootNode, startPos);
+//        setFollowingCameraNode();
+//        setAnimationControl();
+//        
+//        //Temp
+//        objectDimensions = new Vector3f(0.4f, 1f, 1f);
+//    }
+
+    public Player(AssetManager assetManager) {
+        this.assetManager = assetManager;
         createMaterial();
-        loadPhysicsModel();
-        placeCharacter(rootNode, startPos);
-        setFollowingCameraNode();
+        loadModel();
+        defineObjectBounds();
         setAnimationControl();
         
         //Temp
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
+
         
         //GameObject.this.gameObjectNode = gameObjectNode;
     }
