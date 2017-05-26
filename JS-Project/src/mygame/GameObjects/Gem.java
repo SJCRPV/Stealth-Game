@@ -59,17 +59,18 @@ public final class Gem extends GameObject {
         loadPhysicsModel();
 
         //Temp
-        objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f);
-        
-        PointLight lamp_light = new PointLight();
-        lamp_light.setColor(ColorRGBA.Red);
-        lamp_light.setRadius(4f);
-        lamp_light.setPosition(new Vector3f(object.getLocalTranslation().add(new Vector3f(0,10,0))));
-        gameObjectNode.addLight(lamp_light);
-        
+        objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f); 
         gameObjectNode.attachChild(object);
     }
 
+    public void turnLight()
+    {
+        PointLight lamp_light = new PointLight();
+        lamp_light.setColor(ColorRGBA.Red);
+        lamp_light.setRadius(4f);
+        lamp_light.setPosition(new Vector3f(object.getWorldTranslation()));
+        gameObjectNode.addLight(lamp_light);
+    }
     @Override
     public void update(float tpf) {
         object.rotate(0, 2 * tpf, 0);
