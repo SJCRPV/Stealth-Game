@@ -33,7 +33,8 @@ public abstract class GameObject extends AbstractAppState {
     protected int numOfSubCellsItOccupies;
     
     protected abstract void createMaterial();
-    protected abstract void loadPhysicsModel();
+    protected abstract void loadModel();
+    public abstract void loadPhysics();
     protected abstract GameObject getGObjectClone();
     public abstract String getCName();
     
@@ -45,7 +46,7 @@ public abstract class GameObject extends AbstractAppState {
     
     /*public Spatial placeObject(Vector3f location)
     {
-        object.setLocation(location);
+        object.setLocalTranslation(location);
         return object;
     }*/
     
@@ -59,11 +60,11 @@ public abstract class GameObject extends AbstractAppState {
         placedAtY = y;
     }
     
-    public Vector3f getLocation()
+    public Vector3f getWorldTranslation()
     {
         return gameObjectNode.getWorldTranslation();
     }
-    public void setLocation(Vector3f location)
+    public void setLocalTranslation(Vector3f location)
     {
         gameObjectNode.setLocalTranslation(location);
     }

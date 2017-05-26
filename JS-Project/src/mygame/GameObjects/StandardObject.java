@@ -14,6 +14,9 @@ import java.util.List;
  */
 public abstract class StandardObject extends GameObject {
     
+    @Override
+    public abstract void loadPhysics();
+    
     private static List<StandardObject> objectList = new ArrayList<>();
     
     protected int NUM_SUBCELLS_IT_OCCUPIES;

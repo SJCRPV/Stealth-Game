@@ -42,7 +42,12 @@ public final class Desk extends StandardObject {
     }
 
     @Override
-    protected void loadPhysicsModel() {
+    public void loadPhysics()
+    {
+    }
+    
+    @Override
+    protected void loadModel() {
         Box computerDeskBox = new Box(0.25f, 0.25f, 0.25f);
         object = new Geometry("Computer Desk", computerDeskBox);
         TangentBinormalGenerator.generate(computerDeskBox);
@@ -58,7 +63,7 @@ public final class Desk extends StandardObject {
     public Desk(AssetManager assetManager) {
         this.assetManager = assetManager;
         createMaterial();
-        loadPhysicsModel();
+        loadModel();
         defineObjectBounds();
 
         //Temp

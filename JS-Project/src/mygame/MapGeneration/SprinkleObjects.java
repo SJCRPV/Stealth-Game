@@ -14,7 +14,6 @@ import mygame.GameObjects.Player;
 import mygame.GameObjects.Enemy;
 import mygame.GameObjects.StandardObject;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -27,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  *
  * @author SJCRPV
@@ -38,13 +36,12 @@ public class SprinkleObjects extends Generation {
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
     
-    GameObject player;
+    Player player;
     Camera cam;
     
     FlowerPot flowerPot;
     Desk desk;
     
-    private final Vector3f rootNodeWC;
     private final int TREASURE_VALUE;
     private final int MAX_POINTS_IN_LEVEL;
     private final int MIN_CELL_DISTANCE_TO_PLAYER;
@@ -67,7 +64,7 @@ public class SprinkleObjects extends Generation {
     
     private void putObjectInPlace(GameObject object, Vector3f location)
     {
-        object.setLocation(location);
+        object.setLocalTranslation(location);
         listOfGObjects.add(object);
         sprinkledObjects.attachChild(object.getNode());
     }
@@ -165,8 +162,7 @@ public class SprinkleObjects extends Generation {
         int objectiveSpawnRoomNum;
         GameObject objective = new Objective(assetManager);
         Vector3f location;
-        //int[] playCellCoor = player.getCellCoordinates();
-        int[] playCellCoor = new int[] {1, 1};
+        int[] playCellCoor = player.getCellCoordinates();
         int[] objCellCoor;
         do
         {
@@ -176,12 +172,8 @@ public class SprinkleObjects extends Generation {
         } while(objectiveSpawnRoomNum == playerSpawnRoomNum && !isItFarEnough(objCellCoor, playCellCoor));
         putObjectInPlace(objective, location);
     }
-
-    private Vector3f transformToWorldCoor(Vector3f localVector)
-    {
-        return rootNodeWC.add(sprinkledObjects.getWorldTranslation().add(localVector));
-    }
     
+<<<<<<< HEAD
     private void sprinklePlayer()
     {
         playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
@@ -195,6 +187,39 @@ Material pm = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 pg.setLocalTranslation(location);
 sprinkledObjects.attachChild(pg);
 playerGeo = pg;
+=======
+//    private void sprinklePlayer()
+//    {
+//        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+//        player = new Player(assetManager);
+//        Vector3f location = whereToSprinkle(player);
+//        location = transformToWorldCoor(location);
+//        putObjectInPlace(player, location);
+//        player.placeCharacter(location);
+//        player.setFollowingCameraNode(cam);
+//     }
+//    private void sprinklePlayer()
+//    {
+//        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+//        player = new Player(assetManager);
+//        Vector3f location = whereToSprinkle(player);
+//        Box p = new Box(0.25f,0.25f,0.25f);
+//        Geometry pg = new Geometry("Player",p);
+//        Material pm = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        pm.setColor("Color", ColorRGBA.White);
+//        pg.setMaterial(pm);
+//        pg.setLocalTranslation(location);
+//        sprinkledObjects.attachChild(pg);
+//        playerGeo = pg;
+//    }
+    
+    private void sprinklePlayer()
+    {
+        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+        player = new Player(assetManager);
+        Vector3f location = whereToSprinkle(player);
+        putObjectInPlace(player, location);
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
     }
 	
     public Geometry getPlayer()
@@ -257,12 +282,11 @@ playerGeo = pg;
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, Camera cam, BulletAppState bulletAppState, Vector3f rootWC, int treasurePointValue, int maxPointsInArea,
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
             int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
     {
-        sprinkledObjects = new Node();
         this.cam = cam;
-        rootNodeWC = rootWC;
+        sprinkledObjects = new Node();
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
         MAX_POINTS_IN_LEVEL = maxPointsInArea;
@@ -275,7 +299,6 @@ playerGeo = pg;
 
         numOfTreasures = Math.round(MAX_POINTS_IN_LEVEL/TREASURE_VALUE);
         listOfGObjects = new ArrayList();
-        
         
         flowerPot = new FlowerPot(assetManager);
         StandardObject.addToObjectList(flowerPot);

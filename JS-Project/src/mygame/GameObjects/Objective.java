@@ -40,8 +40,18 @@ public final class Objective extends GameObject {
     }
 
     @Override
+<<<<<<< HEAD
     protected void loadPhysicsModel() {
         Box objectiveBox = new Box(0.5f, 0.25f, 0.25f);
+=======
+    public void loadPhysics()
+    {
+    }
+    
+    @Override
+    protected void loadModel() {
+        Box objectiveBox = new Box(0.25f, 0.25f, 0.25f);
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
         object = new Geometry("Objective", objectiveBox);
         object.setLocalTranslation(0, 0, -0.26f);
         object.setMaterial(objectMat);
@@ -60,7 +70,7 @@ public final class Objective extends GameObject {
     public Objective(AssetManager assetManager) {
         this.assetManager = assetManager;
         createMaterial();
-        loadPhysicsModel();
+        loadModel();
         defineObjectBounds();
 
         //Temp

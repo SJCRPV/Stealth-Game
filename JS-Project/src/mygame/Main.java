@@ -8,6 +8,8 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh.Type;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -16,6 +18,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -23,6 +26,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
@@ -109,9 +113,15 @@ public class Main extends SimpleApplication {
                     player.detachCamera();
                     player.stop();
                     //Set location of flycam
+<<<<<<< HEAD
                     Vector3f camLocation = new Vector3f(0, 2, 2);
                     cam.setLocation(camLocation.add(player.getLocation()));
                     cam.lookAt(player.getLocation(), new Vector3f(0, 0, 0));
+=======
+                    Vector3f camLocation = new Vector3f(0, 6, 6);
+                    cam.setLocation(camLocation.add(player.getWorldTranslation()));
+                    cam.lookAt(player.getWorldTranslation(), new Vector3f(0, 0, 0));
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
                     //Enable flycam
                     flyCam.setEnabled(true);
                     freeCam = true;
@@ -155,7 +165,8 @@ public class Main extends SimpleApplication {
             player.move(tpf);
         }
 
-        for (GameObject gObject : gObjectsList) {
+        for (GameObject gObject : gObjectsList) 
+        {
             gObject.update(tpf);
 
             //Handle collisions
@@ -180,7 +191,6 @@ public class Main extends SimpleApplication {
                     System.out.println(score);
                 }
             }
-
         }
         
          for (PointLight light : lightList) {
@@ -188,15 +198,18 @@ public class Main extends SimpleApplication {
          }
     }
 
-    private Player findPlayer() {
-        for (int i = 0; i < gObjectsList.size(); i++) {
-            if (gObjectsList.get(i).getCName().equalsIgnoreCase("Player")) {
-                return (Player) gObjectsList.get(i);
+    private Player findPlayer()
+    {
+        for(int i = 0; i < gObjectsList.size(); i++)
+        {
+            if(gObjectsList.get(i).getCName().equalsIgnoreCase("Player"))
+            {
+                return (Player)gObjectsList.get(i);
             }
         }
         return null;
     }
-
+    
     private void initGame() {
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
@@ -204,6 +217,7 @@ public class Main extends SimpleApplication {
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
 
+<<<<<<< HEAD
         lightNode = new Node("lights");
         rootNode.attachChild(lightNode);
         lightList = new ArrayList();
@@ -222,6 +236,13 @@ public class Main extends SimpleApplication {
 //        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
 //Note: Chances are in a range of 1-100
         sprinkler = new SprinkleObjects(assetManager, cam, bulletAppState, new Vector3f(0, 0, 0), GEMVALUE, MAXSCORE, 10, 8, 30, 80, 70);
+=======
+//Constructor SprinkleObjects(Node rootNode, AssetManager newAssetManager, Camera cam, BulletAppState bulletAppState, 
+//          int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, 
+//          float objectChance, float treasureChance)
+//Note: Chances are in a range of 1-100
+        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
         sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
@@ -229,19 +250,46 @@ public class Main extends SimpleApplication {
         lightNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
+<<<<<<< HEAD
         addToWorld();
 
         player = findPlayer();
         //rootNode.attachChild(player.getCharNode());
 
+=======
+        //temp add lights
+        //addLights();
+        //addToWorld();
+        
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
 
+<<<<<<< HEAD
         player = new Player(assetManager, bulletAppState, lightNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
 
+=======
+        //TODO: Figure out how to get the *fucking* position out of SprinkleObjects
+        //player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
+        //player = new Player(assetManager, bulletAppState, rootNode, cam, sprinkler.getPlayer().getWorldTranslation());
+        player = findPlayer();
+        player.loadPhysics();
+        player.setFollowingCameraNode(cam);
+        
+        PointLight myLight = new PointLight();
+        myLight.setColor(ColorRGBA.White);
+        myLight.setRadius(10f);
+        myLight.setPosition(new Vector3f(player.getWorldTranslation().add(new Vector3f(0,2,0))));
+        rootNode.addLight(myLight);
+        LightControl lightControl = new LightControl(myLight);
+        player.getSpatial().addControl(lightControl);
+        
+        
+    
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
         score = 0;
         
         
@@ -270,6 +318,7 @@ public class Main extends SimpleApplication {
         for (GameObject gObject : gObjectsList) {
 
             if (gObject.getCName().equals("Flower pot")) {
+<<<<<<< HEAD
                 PointLight lamp_light = new PointLight();
                 lamp_light.setColor(ColorRGBA.Orange.mult(ColorRGBA.Yellow));
                 lamp_light.setRadius(8f);
@@ -277,6 +326,14 @@ public class Main extends SimpleApplication {
                 makeCube(gObject.getLocation().add(0, 0.55f, 0));
                 lightNode.addLight(lamp_light);
                 lightList.add(lamp_light);
+=======
+            PointLight lamp_light = new
+            PointLight(); lamp_light.setColor(ColorRGBA.Orange.mult(0.8f));
+            lamp_light.setRadius(4f);
+            lamp_light.setPosition(gObject.getWorldTranslation().add(0,0.25f,0));
+            makeCube(gObject.getWorldTranslation().add(0,0.25f,0));
+            rootNode.addLight(lamp_light); 
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
             }
 
             if (gObject.getCName().equals("Desk")) {

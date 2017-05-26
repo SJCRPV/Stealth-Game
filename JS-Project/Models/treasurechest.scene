@@ -1,0 +1,39 @@
+<scene export_time="1495672514.38533" exported_by="SJCRPV" formatVersion="1.0.1" previous_export_time="0" >
+  <nodes >
+    <node name="Lamp" >
+      <position x="-1.193745" y="5.903862" z="3.388433" />
+      <rotation qw="0.570947" qx="0.169076" qy="0.755880" qz="-0.272171" />
+      <scale x="1.000000" y="1.000000" z="1.000000" />
+      <user_data name="uid" type="int" value="100" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <light name="Lamp" powerScale="1.0" shadow="true" type="point" >
+        <position x="-1.193745" y="5.903862" z="3.388433" />
+        <lightAttenuation constant="1.0" linear="0.03333335240683057" quadratic="0.0" range="5000" />
+        <colourDiffuse b="1.0" g="1.0" r="1.0" />
+        <colourSpecular b="1.0" g="1.0" r="1.0" />
+        <colourShadow b="1.0" g="1.0" r="1.0" />
+      </light>
+    </node>
+    <node name="Camera" >
+      <position x="-5.476033" y="5.984113" z="5.617178" />
+      <rotation qw="0.813556" qx="0.413879" qy="-0.377310" qz="0.156421" />
+      <scale x="1.000000" y="1.000000" z="1.000000" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <camera fov="0.6605947096585073" name="Camera" projectionType="perspective" >
+        <clipping far="100.0" farPlaneDist="100.0" near="0.10000000149011612" nearPlaneDist="0.10000000149011612" />
+      </camera>
+    </node>
+  </nodes>
+  <externals />
+  <environment >
+    <colourDiffuse b="0.02472975105047226" g="0.012007075361907482" r="0.0003446392947807908" />
+    <colourBackground b="0.02472975105047226" g="0.012007075361907482" r="0.0003446392947807908" />
+    <colourAmbient b="0.0" g="0.0" r="0.0" />
+  </environment>
+</scene>
