@@ -195,10 +195,6 @@ Material pm = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 pg.setLocalTranslation(location);
 sprinkledObjects.attachChild(pg);
 playerGeo = pg;
-//        location = transformToWorldCoor(location);
-//        putObjectInPlace(player, location);
-//        player.placeObject(location);
-//        player.setFollowingCameraNode(cam);
     }
 	
     public Geometry getPlayer()

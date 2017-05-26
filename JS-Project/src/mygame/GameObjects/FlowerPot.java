@@ -11,6 +11,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.texture.Texture;
 
 /**
  *
@@ -26,13 +27,14 @@ public final class FlowerPot extends StandardObject {
     
     @Override
     protected void createMaterial() {
-        objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        objectMat.setColor("Color", ColorRGBA.Magenta);
+        objectMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Texture crateText = assetManager.loadTexture("153.JPG");
+        objectMat.setTexture("DiffuseMap", crateText);
     }
 
     @Override
     protected void loadPhysicsModel() {
-        Box flowerPotBox = new Box(0.125f, 0.125f, 0.5f);
+        Box flowerPotBox = new Box(0.05f, 0.05f, 0.5f);
         object = new Geometry("Flower Pot", flowerPotBox);
         object.setMaterial(objectMat);
     }

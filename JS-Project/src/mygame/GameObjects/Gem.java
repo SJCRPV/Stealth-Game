@@ -12,7 +12,9 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
+import com.jme3.util.TangentBinormalGenerator;
 
 /**
  *
@@ -39,14 +41,16 @@ public final class Gem extends GameObject {
         objectMat.setBoolean("UseMaterialColors", true);
         objectMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
         objectMat.setColor("Specular", ColorRGBA.White); // for shininess
-        objectMat.setFloat("Shininess", 64f); // [1,128] for shininess
+        objectMat.setFloat("Shininess", 120f); // [1,128] for shininess
         
     }
 
     @Override
     protected void loadPhysicsModel() {
-        Box gemBox = new Box(0.25f, 0.25f, 0.25f);
-        object = new Geometry("Gem", gemBox);
+        Sphere gemS = new Sphere(32,32, 0.25f);
+        object = new Geometry("Gem", gemS);
+        gemS.setTextureMode(Sphere.TextureMode.Projected);
+        TangentBinormalGenerator.generate(gemS);
         object.setMaterial(objectMat);
         object.rotateUpTo(new Vector3f(0.5f, 0.5f, 0.5f));
        
@@ -61,16 +65,14 @@ public final class Gem extends GameObject {
         //Temp
         objectDimensions = new Vector3f(0.5f, 0.5f, 0.5f); 
         gameObjectNode.attachChild(object);
+        
+        PointLight lamp_light = new PointLight();
+                lamp_light.setColor(ColorRGBA.Red.mult(4f));
+                lamp_light.setRadius(200f);
+                lamp_light.setPosition(new Vector3f(getLocation()));
+                gameObjectNode.addLight(lamp_light);
     }
 
-    public void turnLight()
-    {
-        PointLight lamp_light = new PointLight();
-        lamp_light.setColor(ColorRGBA.Red);
-        lamp_light.setRadius(4f);
-        lamp_light.setPosition(new Vector3f(object.getWorldTranslation()));
-        gameObjectNode.addLight(lamp_light);
-    }
     @Override
     public void update(float tpf) {
         object.rotate(0, 2 * tpf, 0);

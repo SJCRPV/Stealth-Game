@@ -21,6 +21,7 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -269,6 +270,7 @@ public final class Player extends GameObject implements AnimEventListener {
             }
         } else if (name.equals("Jump")) {
             physicsCharacter.jump();
+            
         }
     }
 
@@ -281,12 +283,14 @@ public final class Player extends GameObject implements AnimEventListener {
         this.cam = cam;
         this.assetManager = assetManager;
         this.bulletAppState = bulletAppState;
+        
+        
         createMaterial();
         loadPhysicsModel();
         placeCharacter(rootNode, startPos);
         setFollowingCameraNode();
         setAnimationControl();
-
+physicsCharacter.setJumpSpeed(JUMPSPEED);
         gameObjectNode = characterNode;
     }
 
@@ -297,8 +301,12 @@ public final class Player extends GameObject implements AnimEventListener {
         defineObjectBounds();
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
 
-        
+        physicsCharacter.setJumpSpeed(JUMPSPEED);
         
         gameObjectNode = characterNode;
+    }
+
+    public void setShadowMode(RenderQueue.ShadowMode shadowMode) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
