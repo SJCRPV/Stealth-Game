@@ -53,7 +53,7 @@ public class Main extends SimpleApplication {
     int score;
 
     Node sprinkleNode;
-    Node lightNode;
+    Node allEncompassingNode;
 
     private BulletAppState bulletAppState;
 
@@ -113,15 +113,9 @@ public class Main extends SimpleApplication {
                     player.detachCamera();
                     player.stop();
                     //Set location of flycam
-<<<<<<< HEAD
                     Vector3f camLocation = new Vector3f(0, 2, 2);
-                    cam.setLocation(camLocation.add(player.getLocation()));
-                    cam.lookAt(player.getLocation(), new Vector3f(0, 0, 0));
-=======
-                    Vector3f camLocation = new Vector3f(0, 6, 6);
                     cam.setLocation(camLocation.add(player.getWorldTranslation()));
                     cam.lookAt(player.getWorldTranslation(), new Vector3f(0, 0, 0));
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
                     //Enable flycam
                     flyCam.setEnabled(true);
                     freeCam = true;
@@ -217,83 +211,48 @@ public class Main extends SimpleApplication {
         Node sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
 
-<<<<<<< HEAD
-        lightNode = new Node("lights");
-        rootNode.attachChild(lightNode);
+        allEncompassingNode = new Node("lights");
+        
         lightList = new ArrayList();
                 
         //Light the scene
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(ColorRGBA.White.mult(0.4f));
         dl.setDirection(new Vector3f(-1f, -1f, -1));
-        lightNode.addLight(dl);
+        allEncompassingNode.addLight(dl);
         DirectionalLight dl2 = new DirectionalLight();
         dl2.setColor(ColorRGBA.White.mult(0.4f));
         dl2.setDirection(new Vector3f(1f, 1f, 1));
-        lightNode.addLight(dl2);
+        allEncompassingNode.addLight(dl2);
         
-//Constructor SprinkleObjects(AssetManager newAssetManager, int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, 
-//        int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
-//Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, bulletAppState, new Vector3f(0, 0, 0), GEMVALUE, MAXSCORE, 10, 8, 30, 80, 70);
-=======
-//Constructor SprinkleObjects(Node rootNode, AssetManager newAssetManager, Camera cam, BulletAppState bulletAppState, 
-//          int treasurePointValue, int maxPointsInArea, int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, 
-//          float objectChance, float treasureChance)
-//Note: Chances are in a range of 1-100
-        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 5, 80, 90, 90);
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
+//Constructor SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
+//            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
+        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 8, 30, 80, 70);
         sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
 
-        lightNode.attachChild(sceneNode);
+        allEncompassingNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
-<<<<<<< HEAD
         addToWorld();
 
         player = findPlayer();
         //rootNode.attachChild(player.getCharNode());
 
-=======
         //temp add lights
         //addLights();
         //addToWorld();
         
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
         //More confortable flycam and disable
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
 
-<<<<<<< HEAD
-        player = new Player(assetManager, bulletAppState, lightNode, cam, sprinkler.getPlayer().getWorldTranslation());
+        player = new Player(assetManager, bulletAppState, allEncompassingNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
 
-=======
-        //TODO: Figure out how to get the *fucking* position out of SprinkleObjects
-        //player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
-        //player = new Player(assetManager, bulletAppState, rootNode, cam, sprinkler.getPlayer().getWorldTranslation());
-        player = findPlayer();
-        player.setPhysicsRotation(new Vector3f(0, 180, 0));
-        player.loadPhysics();
-        player.setPhysicsLocation(player.getNode().getWorldTranslation());
-        player.setFollowingCameraNode(cam);
-        
-        PointLight myLight = new PointLight();
-        myLight.setColor(ColorRGBA.White);
-        myLight.setRadius(10f);
-        myLight.setPosition(new Vector3f(player.getWorldTranslation().add(new Vector3f(0,2,0))));
-        rootNode.addLight(myLight);
-        LightControl lightControl = new LightControl(myLight);
-        player.getSpatial().addControl(lightControl);
-        
-        
-    
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
         score = 0;
-        
         
         //TEST SHADOWS
         /**
@@ -307,6 +266,8 @@ public class Main extends SimpleApplication {
         dlsr.setLight(dl2);
         viewPort.addProcessor(dlsr);
         **/
+        
+        rootNode.attachChild(allEncompassingNode);
     }
 
     private void restartGame() {
@@ -320,22 +281,13 @@ public class Main extends SimpleApplication {
         for (GameObject gObject : gObjectsList) {
 
             if (gObject.getCName().equals("Flower pot")) {
-<<<<<<< HEAD
                 PointLight lamp_light = new PointLight();
                 lamp_light.setColor(ColorRGBA.Orange.mult(ColorRGBA.Yellow));
                 lamp_light.setRadius(8f);
-                lamp_light.setPosition(gObject.getLocation().add(0, 0.55f, 0));
-                makeCube(gObject.getLocation().add(0, 0.55f, 0));
-                lightNode.addLight(lamp_light);
+                lamp_light.setPosition(gObject.getWorldTranslation().add(0, 0.55f, 0));
+                makeCube(gObject.getWorldTranslation().add(0, 0.55f, 0));
+                allEncompassingNode.addLight(lamp_light);
                 lightList.add(lamp_light);
-=======
-            PointLight lamp_light = new
-            PointLight(); lamp_light.setColor(ColorRGBA.Orange.mult(0.8f));
-            lamp_light.setRadius(4f);
-            lamp_light.setPosition(gObject.getWorldTranslation().add(0,0.25f,0));
-            makeCube(gObject.getWorldTranslation().add(0,0.25f,0));
-            rootNode.addLight(lamp_light); 
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
             }
 
             if (gObject.getCName().equals("Desk")) {
@@ -349,8 +301,8 @@ public class Main extends SimpleApplication {
                 PointLight lamp_light = new PointLight();
                 lamp_light.setColor(ColorRGBA.Yellow.mult(0.8f));
                 lamp_light.setRadius(10f);
-                lamp_light.setPosition(new Vector3f(gObject.getLocation().add(0,1,0)));
-                lightNode.addLight(lamp_light);
+                lamp_light.setPosition(new Vector3f(gObject.getWorldTranslation().add(0,1,0)));
+                allEncompassingNode.addLight(lamp_light);
                 lightList.add(lamp_light);
             }
 

@@ -75,24 +75,17 @@ public final class Gem extends GameObject {
     }
 
     @Override
-<<<<<<< HEAD
-    protected void loadPhysicsModel() {
-        Sphere gemS = new Sphere(32,32, 0.25f);
-        object = new Geometry("Gem", gemS);
-        gemS.setTextureMode(Sphere.TextureMode.Projected);
-        TangentBinormalGenerator.generate(gemS);
-=======
     public void loadPhysics()
     {
     }
     
     @Override
     protected void loadModel() {
-        Box gemBox = new Box(0.25f, 0.25f, 0.25f);
-        object = new Geometry("Gem", gemBox);
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
+        Sphere gemS = new Sphere(32,32, 0.25f);
+        object = new Geometry("Gem", gemS);
         object.setMaterial(objectMat);
-        object.rotateUpTo(new Vector3f(0.5f, 0.5f, 0.5f));
+        gemS.setTextureMode(Sphere.TextureMode.Projected);
+        TangentBinormalGenerator.generate(gemS);
     }
 
     public Gem(AssetManager assetManager) {
@@ -107,10 +100,10 @@ public final class Gem extends GameObject {
         gameObjectNode.attachChild(object);
         
         PointLight lamp_light = new PointLight();
-                lamp_light.setColor(ColorRGBA.Red.mult(4f));
-                lamp_light.setRadius(200f);
-                lamp_light.setPosition(new Vector3f(getLocation()));
-                gameObjectNode.addLight(lamp_light);
+        lamp_light.setColor(ColorRGBA.Red.mult(4f));
+        lamp_light.setRadius(200f);
+        lamp_light.setPosition(new Vector3f(getWorldTranslation()));
+        gameObjectNode.addLight(lamp_light);
     }
 
     @Override

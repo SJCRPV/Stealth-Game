@@ -33,18 +33,13 @@ public final class FlowerPot extends StandardObject {
     }
 
     @Override
-<<<<<<< HEAD
-    protected void loadPhysicsModel() {
-        Box flowerPotBox = new Box(0.05f, 0.05f, 0.5f);
-=======
     public void loadPhysics()
     {
     }
     
     @Override
     protected void loadModel() {
-        Box flowerPotBox = new Box(0.125f, 0.125f, 0.5f);
->>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
+        Box flowerPotBox = new Box(0.05f, 0.05f, 0.5f);
         object = new Geometry("Flower Pot", flowerPotBox);
         object.setMaterial(objectMat);
     }
