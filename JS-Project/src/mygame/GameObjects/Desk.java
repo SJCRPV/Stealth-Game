@@ -52,6 +52,7 @@ public final class Desk extends StandardObject {
         object = new Geometry("Computer Desk", computerDeskBox);
         TangentBinormalGenerator.generate(computerDeskBox);
         object.setMaterial(objectMat);
+        object.rotate(0,0,(float) (Math.random() * Math.PI));
     }
 
     @Override

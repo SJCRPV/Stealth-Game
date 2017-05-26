@@ -34,9 +34,10 @@ public class RecDivMazeGrid extends Generation {
     Material wallMat;
     Material floorMat;
     Material cellMat;
+    Material ceilMat;
     List<int[]> minMaxWideList;
     List<int[]> minMaxTallList;
-    final float Z_HEIGHT_OF_ALL = 2f;
+    final float Z_HEIGHT_OF_ALL = 2.8f;
     final int MIN_CELLS_WIDE;
     final int MIN_CELLS_TALL;
     boolean cutIsHorizontal;
@@ -114,10 +115,9 @@ public class RecDivMazeGrid extends Generation {
             leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
             leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("left" + geomName, boxes[0]);
-            boxes[0].scaleTextureCoordinates(new Vector2f(2,leftDownWallSize / 2f));
+            boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
             TangentBinormalGenerator.generate(boxes[0]);
-            
-            
+
             //Add physics
             RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
             geoms[0].addControl(rbwall1);
@@ -128,9 +128,9 @@ public class RecDivMazeGrid extends Generation {
             rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
             rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
             geoms[1] = new Geometry("right" + geomName, boxes[1]);
-            boxes[1].scaleTextureCoordinates(new Vector2f(2,rightUpWallSize / 2f));
+            boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
             TangentBinormalGenerator.generate(boxes[1]);
-            
+
             //Add physics
             RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
             geoms[1].addControl(rbwall2);
@@ -142,9 +142,9 @@ public class RecDivMazeGrid extends Generation {
             leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
             leftDownYPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
             geoms[0] = new Geometry("down" + geomName, boxes[0]);
-            boxes[0].scaleTextureCoordinates(new Vector2f(2,leftDownWallSize / 2f));
+            boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
             TangentBinormalGenerator.generate(boxes[0]);
-            
+
             //Add physics
             RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
             geoms[0].addControl(rbwall1);
@@ -155,9 +155,9 @@ public class RecDivMazeGrid extends Generation {
             rightUpXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
             rightUpYPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
             geoms[1] = new Geometry("up" + geomName, boxes[1]);
-            boxes[1].scaleTextureCoordinates(new Vector2f(2,rightUpWallSize / 2f));
+            boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
             TangentBinormalGenerator.generate(boxes[1]);
-            
+
             //Add physics
             RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
             geoms[1].addControl(rbwall2);
@@ -228,32 +228,26 @@ public class RecDivMazeGrid extends Generation {
         float maxHeight = calcSize(numOfCellsTall);
         float s1 = (maxWidth / 2f - WALL_THICKNESS / 2f);
         float s2 = (WALL_THICKNESS / 2f);
-        
+
         Box up = new Box(s1, s2, Z_HEIGHT_OF_ALL / 2f);
         Box left = new Box(s2, s1, Z_HEIGHT_OF_ALL / 2f);
         Box down = new Box(s1, s2, Z_HEIGHT_OF_ALL / 2f);
         Box right = new Box(s2, s1, Z_HEIGHT_OF_ALL / 2f);
-        
- 
-        up.scaleTextureCoordinates(new Vector2f(2,s1));
-        left.scaleTextureCoordinates(new Vector2f(2,s1));
-        down.scaleTextureCoordinates(new Vector2f(2,s1));
-        right.scaleTextureCoordinates(new Vector2f(2,s1));
-       
-        
+
+        up.scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, s1));
+        left.scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, s1));
+        down.scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, s1));
+        right.scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, s1));
+
         /**
-        //TEST BOX
-        Box bt = new Box(1,1,2);
-        Geometry bgeom = new Geometry("test",bt);
-        bt.scaleTextureCoordinates(new Vector2f(2,2));
-          TangentBinormalGenerator.generate(bt);
-        bgeom.setMaterial(floorMat);
-        bgeom.setLocalTranslation(new Vector3f(-2,-2,-2));
-      
-        generatedMaze.attachChild(bgeom);
-        //TESTBOX
-        **/
-        
+         * //TEST BOX Box bt = new Box(1,1,2); Geometry bgeom = new
+         * Geometry("test",bt); bt.scaleTextureCoordinates(new Vector2f(2,2));
+         * TangentBinormalGenerator.generate(bt); bgeom.setMaterial(floorMat);
+         * bgeom.setLocalTranslation(new Vector3f(-2,-2,-2));
+         *
+         * generatedMaze.attachChild(bgeom); //TESTBOX
+        *
+         */
         Geometry upGeom = new Geometry("UpBorder", up);
         Geometry leftGeom = new Geometry("LeftBorder", left);
         Geometry downGeom = new Geometry("DownBorder", down);
@@ -263,7 +257,7 @@ public class RecDivMazeGrid extends Generation {
         TangentBinormalGenerator.generate(down);
         TangentBinormalGenerator.generate(left);
         TangentBinormalGenerator.generate(right);
-        
+
         upGeom.setMaterial(wallMat);
         leftGeom.setMaterial(wallMat);
         downGeom.setMaterial(wallMat);
@@ -330,18 +324,22 @@ public class RecDivMazeGrid extends Generation {
     private void createPlane(int numCellsWide, int numCellsTall) {
         float planeWidth = calcSize(numCellsWide);
         float planeHeight = calcSize(numCellsTall);
-        Quad planeMesh = new Quad(planeWidth, planeHeight );
-        planeMesh.scaleTextureCoordinates(new Vector2f(planeWidth,planeHeight));
-        plane = new Geometry("Floor", planeMesh);
-        plane.setMaterial(floorMat);
-        plane.setLocalTranslation(-WALL_THICKNESS, -WALL_THICKNESS, -0.001f);
-        TangentBinormalGenerator.generate(planeMesh);
-        generatedMaze.attachChild(plane);
+        Quad planeMesh = new Quad(planeWidth, planeHeight);
+        planeMesh.scaleTextureCoordinates(new Vector2f(planeWidth, planeHeight));
         
+        Box floorMesh = new Box(planeWidth/2,planeHeight/2,0.001f);
+        floorMesh.scaleTextureCoordinates(new Vector2f(planeWidth/2, planeHeight/2));
+        plane = new Geometry("Floor", floorMesh);
+        plane.setMaterial(floorMat);
+        plane.setLocalTranslation(-WALL_THICKNESS + planeWidth/2, -WALL_THICKNESS + planeHeight/2,0.001f);
+        TangentBinormalGenerator.generate(floorMesh);
+        generatedMaze.attachChild(plane);
+
         ceil = new Geometry("Ceil", planeMesh);
-        ceil.setMaterial(floorMat);
-        ceil.setLocalTranslation(-WALL_THICKNESS, -WALL_THICKNESS, 2.001f);
-        ceil.rotate((float)Math.PI,0,0);
+        ceil.setMaterial(ceilMat);
+        ceil.setLocalTranslation(-WALL_THICKNESS, -WALL_THICKNESS, Z_HEIGHT_OF_ALL - 0.1f);
+        ceil.rotate(0, (float) Math.PI, 0);
+        ceil.setLocalTranslation(planeWidth - WALL_THICKNESS, -WALL_THICKNESS, Z_HEIGHT_OF_ALL - 0.1f);
         generatedMaze.attachChild(ceil);
 
     }
@@ -352,31 +350,40 @@ public class RecDivMazeGrid extends Generation {
         wallMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Texture wallText = assetManager.loadTexture("178.JPG");
         wallText.setWrap(Texture.WrapMode.Repeat);
-        wallMat.setTexture("DiffuseMap",wallText );
+        wallMat.setTexture("DiffuseMap", wallText);
         Texture wallNormal = assetManager.loadTexture("178_norm.JPG");
         wallNormal.setWrap(Texture.WrapMode.Repeat);
-        wallMat.setTexture("NormalMap",wallNormal);
+        wallMat.setTexture("NormalMap", wallNormal);
         wallMat.setBoolean("UseMaterialColors", true);
         wallMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
         wallMat.setColor("Specular", ColorRGBA.White); // for shininess
-         wallMat.setFloat("Shininess",128f); // [1,128] for shininess
-       
+        wallMat.setFloat("Shininess", 128f); // [1,128] for shininess
 
         floorMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Texture floorText = assetManager.loadTexture("195.JPG");
         floorText.setWrap(Texture.WrapMode.Repeat);
-        floorMat.setTexture("DiffuseMap",floorText );
+        floorMat.setTexture("DiffuseMap", floorText);
         Texture floorNormal = assetManager.loadTexture("195_norm.JPG");
         floorNormal.setWrap(Texture.WrapMode.Repeat);
-        floorMat.setTexture("NormalMap",floorNormal);
-        
-       
-       
+        floorMat.setTexture("NormalMap", floorNormal);
+        floorMat.setBoolean("UseMaterialColors", true);
+        floorMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
+
+        ceilMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Texture ceilText = assetManager.loadTexture("168.JPG");
+        ceilText.setWrap(Texture.WrapMode.Repeat);
+        ceilMat.setTexture("DiffuseMap", ceilText);
+
         cellMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         cellMat.setColor("Color", ColorRGBA.Green);
     }
+    
+    public Geometry getPlane()
+    {
+        return plane;
+    }
 
-    public RecDivMazeGrid(AssetManager newAssetManager, BulletAppState bulletAppState, int numCellsWide, int numCellsTall, 
+    public RecDivMazeGrid(AssetManager newAssetManager, BulletAppState bulletAppState, int numCellsWide, int numCellsTall,
             float cellWidth, float cellHeight, float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall) {
         this.bulletAppState = bulletAppState;
         generatedMaze = new Node();

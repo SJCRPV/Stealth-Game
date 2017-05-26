@@ -173,6 +173,21 @@ public class SprinkleObjects extends Generation {
         putObjectInPlace(objective, location);
     }
     
+<<<<<<< HEAD
+    private void sprinklePlayer()
+    {
+        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+player = new Player(assetManager);
+Vector3f location = whereToSprinkle(player);
+Box p = new Box(0.25f,0.25f,0.25f);
+Geometry pg = new Geometry("Player",p);
+Material pm = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        pm.setColor("Color", ColorRGBA.White);
+        pg.setMaterial(pm);
+pg.setLocalTranslation(location);
+sprinkledObjects.attachChild(pg);
+playerGeo = pg;
+=======
 //    private void sprinklePlayer()
 //    {
 //        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
@@ -204,6 +219,7 @@ public class SprinkleObjects extends Generation {
         player = new Player(assetManager);
         Vector3f location = whereToSprinkle(player);
         putObjectInPlace(player, location);
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
     }
 	
     public Geometry getPlayer()

@@ -20,6 +20,7 @@ import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.control.CameraControl;
 
@@ -273,6 +274,7 @@ public final class Player extends GameObject implements AnimEventListener {
             }
         } else if (name.equals("Jump")) {
             physicsCharacter.jump();
+            
         }
     }
 
@@ -281,6 +283,22 @@ public final class Player extends GameObject implements AnimEventListener {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+<<<<<<< HEAD
+    public Player(AssetManager assetManager, BulletAppState bulletAppState, Node rootNode, Camera cam, Vector3f startPos) {
+        this.cam = cam;
+        this.assetManager = assetManager;
+        this.bulletAppState = bulletAppState;
+        
+        
+        createMaterial();
+        loadPhysicsModel();
+        placeCharacter(rootNode, startPos);
+        setFollowingCameraNode();
+        setAnimationControl();
+physicsCharacter.setJumpSpeed(JUMPSPEED);
+        gameObjectNode = characterNode;
+    }
+=======
 //    public Player(AssetManager assetManager, BulletAppState bulletAppState, Node rootNode, Camera cam, Vector3f startPos) {
 //        this.cam = cam;
 //        this.assetManager = assetManager;
@@ -294,6 +312,7 @@ public final class Player extends GameObject implements AnimEventListener {
 //        //Temp
 //        objectDimensions = new Vector3f(0.4f, 1f, 1f);
 //    }
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
 
     public Player(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -305,7 +324,17 @@ public final class Player extends GameObject implements AnimEventListener {
         //Temp
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
 
+<<<<<<< HEAD
+        physicsCharacter.setJumpSpeed(JUMPSPEED);
+        
+        gameObjectNode = characterNode;
+=======
         
         //GameObject.this.gameObjectNode = gameObjectNode;
+>>>>>>> f6d7ccb51ac9560311e3a3b7c820d023d6227d55
+    }
+
+    public void setShadowMode(RenderQueue.ShadowMode shadowMode) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
