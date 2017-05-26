@@ -239,7 +239,9 @@ public class Main extends SimpleApplication {
         //player = new Player(assetManager, rootNode, cam, new Vector3f(0, 4, 0));
         //player = new Player(assetManager, bulletAppState, rootNode, cam, sprinkler.getPlayer().getWorldTranslation());
         player = findPlayer();
+        player.setPhysicsRotation(new Vector3f(0, 180, 0));
         player.loadPhysics();
+        player.setPhysicsLocation(player.getNode().getWorldTranslation());
         player.setFollowingCameraNode(cam);
         
         PointLight myLight = new PointLight();

@@ -21,7 +21,6 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
-import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
 
 public final class Player extends GameObject implements AnimEventListener {
@@ -68,6 +67,11 @@ public final class Player extends GameObject implements AnimEventListener {
         gameObjectNode.attachChild(camNode);
     }
 
+    public void setPhysicsRotation(Vector3f rotation)
+    {
+        gameObjectNode.rotate(rotation.x, rotation.y, rotation.z);
+    }
+    
     public void setPhysicsLocation(Vector3f location)
     {
         physicsCharacter.setPhysicsLocation(location);
