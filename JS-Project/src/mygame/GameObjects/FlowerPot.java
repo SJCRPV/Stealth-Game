@@ -13,6 +13,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 
@@ -80,6 +81,7 @@ public final class FlowerPot extends StandardObject {
         Box flowerPotBox = new Box(0.05f, 0.05f, 0.5f);
         object = new Geometry("Flower Pot", flowerPotBox);
         object.setMaterial(objectMat);
+        object.setCullHint(Spatial.CullHint.Dynamic);
     }
 
     @Override

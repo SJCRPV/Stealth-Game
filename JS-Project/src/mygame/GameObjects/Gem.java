@@ -14,6 +14,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
@@ -90,6 +91,7 @@ public final class Gem extends GameObject {
         object.setMaterial(objectMat);
         gemS.setTextureMode(Sphere.TextureMode.Projected);
         TangentBinormalGenerator.generate(gemS);
+        object.setCullHint(Spatial.CullHint.Dynamic);
     }
 
     public Gem(AssetManager assetManager) {

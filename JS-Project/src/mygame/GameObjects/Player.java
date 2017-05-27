@@ -23,6 +23,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
 public final class Player extends GameObject implements AnimEventListener {
@@ -117,7 +118,8 @@ public final class Player extends GameObject implements AnimEventListener {
     {
         object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         object.scale(0.1f);
-
+        //object.setCullHint(Spatial.CullHint.Dynamic);
+        
         gameObjectNode.attachChild(object);
     }
 
@@ -322,17 +324,17 @@ public final class Player extends GameObject implements AnimEventListener {
 //    }
 
     public Player(AssetManager assetManager) {
-        this.assetManager = assetManager;
-        createMaterial();
-        loadModel();
-        loadPhysics();
-        defineObjectBounds();
-        setAnimationControl();
+//        this.assetManager = assetManager;
+//        createMaterial();
+//        loadModel();
+//        loadPhysics();
+//        defineObjectBounds();
+//        setAnimationControl();
         
         //Temp
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
 
-        physicsCharacter.setJumpSpeed(JUMPSPEED);
+//        physicsCharacter.setJumpSpeed(JUMPSPEED);
     }
 
     public void setShadowMode(RenderQueue.ShadowMode shadowMode) {

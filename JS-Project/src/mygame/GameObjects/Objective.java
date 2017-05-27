@@ -9,6 +9,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 
@@ -53,6 +54,7 @@ public final class Objective extends GameObject {
         goldGeo = new Geometry("Objective", goldBox);
         goldGeo.setLocalTranslation(0, 0, -0.26f);
         goldGeo.setMaterial(goldMat);
+        object.setCullHint(Spatial.CullHint.Dynamic);
     }
 
     @Override
