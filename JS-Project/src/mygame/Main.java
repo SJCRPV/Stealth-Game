@@ -250,7 +250,7 @@ public class Main extends SimpleApplication {
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-        sceneNode.setShadowMode(ShadowMode.Cast);
+        //sceneNode.setShadowMode(ShadowMode.Cast);
         
         allEncompassingNode = new Node("lights");
         
@@ -272,7 +272,7 @@ public class Main extends SimpleApplication {
         sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
-        sprinkleNode.setShadowMode(ShadowMode.CastAndReceive);
+        //sprinkleNode.setShadowMode(ShadowMode.CastAndReceive);
 
         allEncompassingNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
@@ -290,7 +290,7 @@ public class Main extends SimpleApplication {
 
         player = new Player(assetManager, bulletAppState, allEncompassingNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
-        player.getNode().setShadowMode(ShadowMode.Receive);
+        //player.getNode().setShadowMode(ShadowMode.Receive);
 
         score = 0;
         
@@ -328,7 +328,7 @@ public class Main extends SimpleApplication {
                 makeCube(gObject.getWorldTranslation().add(0, 0.55f, 0));
                 allEncompassingNode.addLight(lamp_light);
                 lightList.add(lamp_light);
-                renderShadows(allEncompassingNode, lamp_light, ShadowMode.CastAndReceive);
+                //renderShadows(allEncompassingNode, lamp_light, ShadowMode.CastAndReceive);
             }
 
             if (gObject.getCName().equals("Desk")) {
@@ -345,7 +345,7 @@ public class Main extends SimpleApplication {
                 lamp_light.setPosition(new Vector3f(gObject.getWorldTranslation().add(0,1,0)));
                 allEncompassingNode.addLight(lamp_light);
                 lightList.add(lamp_light);
-                renderShadows(allEncompassingNode, lamp_light, ShadowMode.Cast);
+                //renderShadows(allEncompassingNode, lamp_light, ShadowMode.Cast);
             }
         }
     }
