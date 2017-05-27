@@ -277,7 +277,7 @@ public class Main extends SimpleApplication {
         allEncompassingNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
-        //addToWorld();
+        addToWorld();
 
         //temp add lights
         //addLights();
