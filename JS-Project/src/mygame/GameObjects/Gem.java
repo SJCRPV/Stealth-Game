@@ -75,7 +75,7 @@ public final class Gem extends GameObject {
         objectMat.setFloat("Shininess", 120f); // [1,128] for shininess
         
         sparkleMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        sparkleMat.setTexture("Texture", assetManager.loadTexture("flame.png"));
+        sparkleMat.setTexture("Texture", assetManager.loadTexture("flash.png"));
     }
 
     @Override
