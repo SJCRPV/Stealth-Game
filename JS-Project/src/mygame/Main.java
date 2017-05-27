@@ -8,8 +8,6 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
-import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh.Type;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -17,12 +15,14 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -30,6 +30,9 @@ import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.PointLightShadowFilter;
+import com.jme3.shadow.PointLightShadowRenderer;
+import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.util.SkyFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +49,14 @@ public class Main extends SimpleApplication {
 
     private static final int GEMVALUE = 50;
     private static final int MAXSCORE = 1000;
+    private static final int SHADOWMAP_SIZE = 1024;
 
     RecDivMazeGrid maze;
     SprinkleObjects sprinkler;
     Player player;
     int score;
 
+    Node sceneNode;
     Node sprinkleNode;
     Node allEncompassingNode;
 
@@ -204,13 +209,49 @@ public class Main extends SimpleApplication {
         return null;
     }
     
+    private void renderShadows(Node relevantNode, Light light, ShadowMode shadowMode)
+    {
+        //WARNING: Se calhar não é preciso fazer shadows das luzes direcionais que iluminam o mapa em geral. Se calhar, apenas
+        //as luzes criadas pelas tochas e afins chegam.
+        relevantNode.setShadowMode(shadowMode);
+        
+        
+        if(light.getClass().equals(PointLight.class))
+        {
+            PointLightShadowRenderer pointShadowRend = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
+            pointShadowRend.setLight((PointLight)light);
+            viewPort.addProcessor(pointShadowRend);
+            
+            PointLightShadowFilter pointShadowFilter = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+            pointShadowFilter.setLight((PointLight)light);
+            pointShadowFilter.setEnabled(true);
+            FilterPostProcessor filterPostProcessor = new FilterPostProcessor(assetManager);
+            filterPostProcessor.addFilter(pointShadowFilter);
+            viewPort.addProcessor(filterPostProcessor);
+        }
+        else if(light.getClass().equals(DirectionalLight.class))
+        {
+            DirectionalLightShadowRenderer dirShadowRend = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
+            dirShadowRend.setLight((DirectionalLight)light);
+            viewPort.addProcessor(dirShadowRend);
+            
+            DirectionalLightShadowFilter dirShadowFilter = new DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE, 3);
+            dirShadowFilter.setLight((DirectionalLight)light);
+            dirShadowFilter.setEnabled(true);
+            FilterPostProcessor filterPostProcessor = new FilterPostProcessor(assetManager);
+            filterPostProcessor.addFilter(dirShadowFilter);
+            viewPort.addProcessor(filterPostProcessor);
+        }
+    }
+    
     private void initGame() {
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
-        Node sceneNode = new Node("scene");
+        sceneNode = new Node("scene");
         sceneNode.attachChild(maze.generateMaze());
-
+        sceneNode.setShadowMode(ShadowMode.Cast);
+        
         allEncompassingNode = new Node("lights");
         
         lightList = new ArrayList();
@@ -231,14 +272,12 @@ public class Main extends SimpleApplication {
         sprinkleNode = sprinkler.sprinkle();
         gObjectsList = sprinkler.getGOList();
         sceneNode.attachChild(sprinkleNode);
+        sprinkleNode.setShadowMode(ShadowMode.CastAndReceive);
 
         allEncompassingNode.attachChild(sceneNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
 
         addToWorld();
-
-        player = findPlayer();
-        //rootNode.attachChild(player.getCharNode());
 
         //temp add lights
         //addLights();
@@ -251,6 +290,7 @@ public class Main extends SimpleApplication {
 
         player = new Player(assetManager, bulletAppState, allEncompassingNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
+        player.getNode().setShadowMode(ShadowMode.Receive);
 
         score = 0;
         
@@ -288,6 +328,7 @@ public class Main extends SimpleApplication {
                 makeCube(gObject.getWorldTranslation().add(0, 0.55f, 0));
                 allEncompassingNode.addLight(lamp_light);
                 lightList.add(lamp_light);
+                renderShadows(allEncompassingNode, lamp_light, ShadowMode.CastAndReceive);
             }
 
             if (gObject.getCName().equals("Desk")) {
@@ -304,8 +345,8 @@ public class Main extends SimpleApplication {
                 lamp_light.setPosition(new Vector3f(gObject.getWorldTranslation().add(0,1,0)));
                 allEncompassingNode.addLight(lamp_light);
                 lightList.add(lamp_light);
+                renderShadows(allEncompassingNode, lamp_light, ShadowMode.Cast);
             }
-
         }
     }
 
