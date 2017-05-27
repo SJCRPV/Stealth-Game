@@ -8,13 +8,12 @@ package mygame.GameObjects;
 import com.jme3.asset.AssetManager;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
-import com.jme3.effect.ParticleMesh.Type;
+import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
@@ -40,19 +39,24 @@ public final class Gem extends GameObject {
     
     private void loadParticles()
     {
-        sparkles = new ParticleEmitter("Sparkles", Type.Point, 300);
-        sparkles.setLocalTranslation(object.getLocalTranslation().add(0, 10, 0));
+        Geometry g = (Geometry)object;
+        Sphere s = (Sphere)g.getMesh();
+        ColorRGBA startColour = new ColorRGBA(0.843f, 0.531f, 0.684f, 1f);
+        ColorRGBA endColour = new ColorRGBA(0.98f, 0.631f, 0.91f, 1f);
+        
+        sparkles = new ParticleEmitter("Sparkles", ParticleMesh.Type.Triangle, 2);
+        sparkles.setShape(new EmitterSphereShape(Vector3f.ZERO, s.getRadius() + 0.2f));
+        sparkles.setLocalTranslation(object.getLocalTranslation());
         sparkles.setImagesX(2);
         sparkles.setImagesY(2);
-        sparkles.setEndColor(ColorRGBA.Red);
-        sparkles.setStartColor(ColorRGBA.White);
-        sparkles.getParticleInfluencer().setInitialVelocity(new Vector3f(0,2,0));
-        sparkles.setStartSize(10.5f);
+        sparkles.setStartColor(startColour);
+        sparkles.setEndColor(endColour);
+        sparkles.setStartSize(0.1f);
         sparkles.setEndSize(0.1f);
         sparkles.setGravity(0,0,0);
-        sparkles.setLowLife(6.5f);
-        sparkles.setHighLife(9f);
-        sparkles.getParticleInfluencer().setVelocityVariation(0.3f);
+        sparkles.setLowLife(0.3f);
+        sparkles.setHighLife(0.6f);
+        sparkles.setParticlesPerSec(1);
         
         sparkles.setMaterial(sparkleMat);
         
@@ -71,7 +75,7 @@ public final class Gem extends GameObject {
         objectMat.setFloat("Shininess", 120f); // [1,128] for shininess
         
         sparkleMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        sparkleMat.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flash.png"));
+        sparkleMat.setTexture("Texture", assetManager.loadTexture("flame.png"));
     }
 
     @Override
@@ -81,7 +85,7 @@ public final class Gem extends GameObject {
     
     @Override
     protected void loadModel() {
-        Sphere gemS = new Sphere(32,32, 0.25f);
+        Sphere gemS = new Sphere(32, 32, 0.25f);
         object = new Geometry("Gem", gemS);
         object.setMaterial(objectMat);
         gemS.setTextureMode(Sphere.TextureMode.Projected);
@@ -109,6 +113,6 @@ public final class Gem extends GameObject {
     @Override
     public void update(float tpf) {
         object.rotate(0, 2 * tpf, 0);
-        sparkles.emitAllParticles();
+        sparkles.emitParticles((int)sparkles.getParticlesPerSec());
     }
 }
