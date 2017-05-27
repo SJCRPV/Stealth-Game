@@ -45,35 +45,41 @@ public class RecDivMazeGrid extends Generation {
     protected BulletAppState bulletAppState;
 
     //Temp method to test wall placement.
-    public Node getNode() {
+    public Node getNode() 
+    {
         return generatedMaze;
     }
 
-    public List<int[]> getCompletedAreas() {
+    public List<int[]> getCompletedAreas() 
+    {
         return completedAreas;
     }
 
-    private boolean isCutHorizontal(int cellsWide, int cellsTall) {
-        if (cellsTall == cellsWide) {
+    private boolean isCutHorizontal(int cellsWide, int cellsTall) 
+    {
+        if (cellsTall == cellsWide) 
+        {
             return generateRandomNum(1, 2) == 1;
         }
         return cellsTall > cellsWide;
     }
 
     //TODO: Make doorExistsNow. You've only carved the place
-    private float[] carveDoor(int startCoor, int numOfCells) {
+    private float[] carveDoor(int startCoor, int numOfCells) 
+    {
         int doorCellNum = generateRandomNum(startCoor, startCoor + numOfCells);
 
         float doorPosition = calcSize(doorCellNum);
         float doorSize = calcSize(DOOR_SIZE);
         float leftDownWallSize = calcSize(doorCellNum - startCoor);
         float rightUpWallSize = calcSize(numOfCells - ((doorCellNum - startCoor) + DOOR_SIZE));
-
+        
         float[] ret = {doorCellNum, doorPosition, doorSize, leftDownWallSize, rightUpWallSize};
         return ret;
     }
 
-    private void markDoor(int x, int y) {
+    private void markDoor(int x, int y) 
+    {
         Cell tempCell = grid[x][y];
         tempCell.doorExistsNow();
     }
@@ -88,11 +94,14 @@ public class RecDivMazeGrid extends Generation {
 
         float[] carveValues;
 
-        if (cutIsHorizontal) {
+        if (cutIsHorizontal) 
+        {
             carveValues = carveDoor(gridStartCoorX, numOfCells);
             markDoor((int) carveValues[0], gridStartCoorY);
             markDoor((int) carveValues[0], gridStartCoorY - 1);
-        } else {
+        } 
+        else 
+        {
             carveValues = carveDoor(gridStartCoorY, numOfCells);
             markDoor(gridStartCoorX, (int) carveValues[0]);
             markDoor(gridStartCoorX - 1, (int) carveValues[0]);
@@ -110,69 +119,154 @@ public class RecDivMazeGrid extends Generation {
         float rightUpXPos;
         float rightUpYPos;
 
-        if (cutIsHorizontal) {
-            boxes[0] = new Box(leftDownWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
-            leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
-            leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
-            geoms[0] = new Geometry("left" + geomName, boxes[0]);
-            boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
-            TangentBinormalGenerator.generate(boxes[0]);
+        if(cutIsHorizontal)
+        {
+            if(leftDownWallSize == 0)
+            {
+                leftDownXPos = leftDownYPos = -1;
+                geoms[0] = null;
+                
+                boxes[1] = new Box(rightUpWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+                rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
+                rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
+                geoms[1] = new Geometry("right" + geomName, boxes[1]);
+                boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[1]);
 
-            //Add physics
-            RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
-            geoms[0].addControl(rbwall1);
-            rbwall1.setKinematic(true);
-            bulletAppState.getPhysicsSpace().add(rbwall1);
+                //Add physics
+                RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
+                geoms[1].addControl(rbwall2);
+                rbwall2.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall2);
+            }
+            else if(rightUpWallSize == 0)
+            {
+                boxes[0] = new Box(leftDownWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+                leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
+                leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
+                geoms[0] = new Geometry("left" + geomName, boxes[0]);
+                boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[0]);
 
-            boxes[1] = new Box(rightUpWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
-            rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
-            rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
-            geoms[1] = new Geometry("right" + geomName, boxes[1]);
-            boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
-            TangentBinormalGenerator.generate(boxes[1]);
+                //Add physics
+                RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
+                geoms[0].addControl(rbwall1);
+                rbwall1.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall1);
+                
+                rightUpXPos = rightUpYPos = -1;
+                geoms[1] = null;
+            }
+            else
+            {
+                boxes[0] = new Box(leftDownWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+                leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
+                leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
+                geoms[0] = new Geometry("left" + geomName, boxes[0]);
+                boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[0]);
 
-            //Add physics
-            RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
-            geoms[1].addControl(rbwall2);
-            rbwall2.setKinematic(true);
-            bulletAppState.getPhysicsSpace().add(rbwall2);
+                //Add physics
+                RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
+                geoms[0].addControl(rbwall1);
+                rbwall1.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall1);
 
-        } else {
-            boxes[0] = new Box(WALL_THICKNESS / 2f, leftDownWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
-            leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
-            leftDownYPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
-            geoms[0] = new Geometry("down" + geomName, boxes[0]);
-            boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
-            TangentBinormalGenerator.generate(boxes[0]);
+                boxes[1] = new Box(rightUpWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+                rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
+                rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
+                geoms[1] = new Geometry("right" + geomName, boxes[1]);
+                boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[1]);
 
-            //Add physics
-            RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
-            geoms[0].addControl(rbwall1);
-            rbwall1.setKinematic(true);
-            bulletAppState.getPhysicsSpace().add(rbwall1);
-
-            boxes[1] = new Box(WALL_THICKNESS / 2f, rightUpWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
-            rightUpXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
-            rightUpYPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
-            geoms[1] = new Geometry("up" + geomName, boxes[1]);
-            boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
-            TangentBinormalGenerator.generate(boxes[1]);
-
-            //Add physics
-            RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
-            geoms[1].addControl(rbwall2);
-            rbwall2.setKinematic(true);
-            bulletAppState.getPhysicsSpace().add(rbwall2);
+                //Add physics
+                RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
+                geoms[1].addControl(rbwall2);
+                rbwall2.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall2);
+            }
         }
+        else
+        {
+            if(leftDownWallSize == 0)
+            {
+                leftDownXPos = leftDownYPos = -1;
+                geoms[0] = null;
+                
+                boxes[1] = new Box(rightUpWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+                rightUpXPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
+                rightUpYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
+                geoms[1] = new Geometry("right" + geomName, boxes[1]);
+                boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[1]);
 
-        geoms[0].setMaterial(wallMat);
-        geoms[1].setMaterial(wallMat);
+                //Add physics
+                RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
+                geoms[1].addControl(rbwall2);
+                rbwall2.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall2);
+            }
+            else if(rightUpWallSize == 0)
+            {
+                boxes[0] = new Box(leftDownWallSize / 2f, WALL_THICKNESS / 2f, Z_HEIGHT_OF_ALL / 2f);
+                leftDownXPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
+                leftDownYPos = fullWallStartYPos - WALL_THICKNESS * 1.5f;
+                geoms[0] = new Geometry("left" + geomName, boxes[0]);
+                boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[0]);
 
-        geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, Z_HEIGHT_OF_ALL / 2f);
-        geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, Z_HEIGHT_OF_ALL / 2f);
+                //Add physics
+                RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
+                geoms[0].addControl(rbwall1);
+                rbwall1.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall1);
+                
+                rightUpXPos = rightUpYPos = -1;
+                geoms[1] = null;
+            }
+            else
+            {
+                boxes[0] = new Box(WALL_THICKNESS / 2f, leftDownWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
+                leftDownXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
+                leftDownYPos = doorLocation - doorSize / 2f - leftDownWallSize / 2f + WALL_THICKNESS * 1.5f;
+                geoms[0] = new Geometry("down" + geomName, boxes[0]);
+                boxes[0].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, leftDownWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[0]);
 
-        generatedMaze.attachChild(geoms[0]);
-        generatedMaze.attachChild(geoms[1]);
+                //Add physics
+                RigidBodyControl rbwall1 = new RigidBodyControl(0.0f);
+                geoms[0].addControl(rbwall1);
+                rbwall1.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall1);
+
+                boxes[1] = new Box(WALL_THICKNESS / 2f, rightUpWallSize / 2f, Z_HEIGHT_OF_ALL / 2f);
+                rightUpXPos = fullWallStartXPos - WALL_THICKNESS * 1.5f;
+                rightUpYPos = doorLocation + doorSize / 2f + rightUpWallSize / 2f + WALL_THICKNESS * 0.5f;
+                geoms[1] = new Geometry("up" + geomName, boxes[1]);
+                boxes[1].scaleTextureCoordinates(new Vector2f(Z_HEIGHT_OF_ALL, rightUpWallSize / 2f));
+                TangentBinormalGenerator.generate(boxes[1]);
+
+                //Add physics
+                RigidBodyControl rbwall2 = new RigidBodyControl(0.0f);
+                geoms[1].addControl(rbwall2);
+                rbwall2.setKinematic(true);
+                bulletAppState.getPhysicsSpace().add(rbwall2);
+            }
+        }
+        
+        if(geoms[0] != null)
+        {
+            geoms[0].setMaterial(wallMat);
+            geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, Z_HEIGHT_OF_ALL / 2f);
+            generatedMaze.attachChild(geoms[0]);
+        }
+        
+        if(geoms[1] != null)
+        {
+            geoms[1].setMaterial(wallMat);
+            geoms[1].setLocalTranslation(rightUpXPos, rightUpYPos, Z_HEIGHT_OF_ALL / 2f);
+            generatedMaze.attachChild(geoms[1]);
+        }
     }
 
     //TODO? Disallow random numbers to create rooms with width or height below minimums
@@ -303,25 +397,27 @@ public class RecDivMazeGrid extends Generation {
         generatedMaze.attachChild(geom);
     }
 
-    private void createCell(int x, int y, Vector3f position) {
-        //Constructor Cell(Vector3f position, int cellX, int cellY)
+    private void createCell(int x, int y) {
+        //Constructor Cell( int cellX, int cellY)
         grid[x][y] = new Cell(x, y);
         //Remove comment to see cells
         //representOnMaze(position);
     }
 
-    private void createBaseMap() {
+    private void createBaseMap() 
+    {
         for (int i = 0; i < grid.length; i++) {
-            float vectorDotY = calcSize(i);
+            //float vectorDotY = calcSize(i);
             for (int j = 0; j < grid[i].length; j++) {
-                float vectorDotX = calcSize(j);
-                Vector3f temp = new Vector3f(vectorDotX, vectorDotY, 0);
-                createCell(i, j, temp);
+                //float vectorDotX = calcSize(j);
+                //Vector3f temp = new Vector3f(vectorDotX, vectorDotY, 0);
+                createCell(i, j);
             }
         }
     }
 
-    private void createPlane(int numCellsWide, int numCellsTall) {
+    private void createPlane(int numCellsWide, int numCellsTall) 
+    {
         float planeWidth = calcSize(numCellsWide);
         float planeHeight = calcSize(numCellsTall);
         Quad planeMesh = new Quad(planeWidth, planeHeight);
@@ -344,9 +440,8 @@ public class RecDivMazeGrid extends Generation {
 
     }
 
-    private void createMaterials() {
-        //wallMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        //wallMat.setColor("Color", ColorRGBA.Blue);
+    private void createMaterials() 
+    {
         wallMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Texture wallText = assetManager.loadTexture("178.JPG");
         wallText.setWrap(Texture.WrapMode.Repeat);
