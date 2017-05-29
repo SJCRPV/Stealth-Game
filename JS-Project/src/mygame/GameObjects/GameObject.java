@@ -36,7 +36,7 @@ public abstract class GameObject extends AbstractAppState {
     protected abstract void loadModel();
     public abstract void loadPhysics();
     protected abstract GameObject getGObjectClone();
-    public abstract String getCName();
+    public abstract String getClassName();
     
     protected void defineObjectBounds() 
     {

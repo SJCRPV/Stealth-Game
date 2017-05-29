@@ -56,7 +56,7 @@ public final class Player extends GameObject implements AnimEventListener {
     private AnimControl control;
 
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Player";
     }
     

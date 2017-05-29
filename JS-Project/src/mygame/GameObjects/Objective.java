@@ -23,7 +23,7 @@ public final class Objective extends GameObject {
     private Geometry goldGeo;
 
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Objective";
     }
 

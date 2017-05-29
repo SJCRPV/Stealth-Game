@@ -23,7 +23,7 @@ public final class Desk extends StandardObject {
 
     
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Desk";
     }
 

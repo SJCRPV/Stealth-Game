@@ -27,7 +27,7 @@ public final class FlowerPot extends StandardObject {
     Material fireMat;
     
     @Override
-    public String getCName()
+    public String getClassName()
     {
         return "Flower pot";
     }

@@ -21,7 +21,7 @@ import com.jme3.scene.Spatial;
 public final class Enemy extends GameObject {
 
     @Override
-    public String getCName()
+    public String getClassName()
     {
         return "Enemy";
     }

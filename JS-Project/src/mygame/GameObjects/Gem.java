@@ -29,7 +29,7 @@ public final class Gem extends GameObject {
     ParticleEmitter sparkles;
     
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Gem";
     }
 
