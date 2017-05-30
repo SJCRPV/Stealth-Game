@@ -72,6 +72,12 @@ public final class FlowerPot extends StandardObject {
     }
 
     @Override
+    public boolean handleCollisions(GameObject collider) 
+    {
+        return false;
+    }
+    
+    @Override
     public void loadPhysics()
     {
     }

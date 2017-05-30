@@ -23,12 +23,12 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 
 public final class Player extends GameObject implements AnimEventListener {
 
     //Player variables
+    protected static int SCORE = 0;
     protected static float ROTATIONSPEED = 3f;
     protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
@@ -58,6 +58,16 @@ public final class Player extends GameObject implements AnimEventListener {
     @Override
     public String getClassName() {
         return "Player";
+    }
+    
+    public int getScore()
+    {
+        return SCORE;
+    }
+    
+    public void addToScore(int value)
+    {
+        SCORE += value;
     }
     
     public void detachCamera() 
@@ -104,6 +114,12 @@ public final class Player extends GameObject implements AnimEventListener {
         gameObjectNode.attachChild(camNode);
     }
 
+    @Override
+    public boolean handleCollisions(GameObject gObject)
+    {
+        return false;
+    }
+    
     @Override
     public void loadPhysics()
     {

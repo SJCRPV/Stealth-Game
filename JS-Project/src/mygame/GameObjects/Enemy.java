@@ -34,6 +34,12 @@ public final class Enemy extends GameObject {
     }
     
     @Override
+    public boolean handleCollisions(GameObject collider) 
+    {
+        return false;
+    }
+    
+    @Override
     public void loadPhysics()
     {
     }

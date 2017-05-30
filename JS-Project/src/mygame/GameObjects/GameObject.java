@@ -37,6 +37,7 @@ public abstract class GameObject extends AbstractAppState {
     public abstract void loadPhysics();
     protected abstract GameObject getGObjectClone();
     public abstract String getClassName();
+    public abstract boolean handleCollisions(GameObject collider);
     
     protected void defineObjectBounds() 
     {

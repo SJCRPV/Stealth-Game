@@ -16,6 +16,8 @@ public abstract class StandardObject extends GameObject {
     
     @Override
     public abstract void loadPhysics();
+    @Override
+    public abstract boolean handleCollisions(GameObject gObject);
     
     private static List<StandardObject> objectList = new ArrayList<>();
     

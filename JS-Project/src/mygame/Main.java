@@ -26,6 +26,7 @@ import com.jme3.shadow.PointLightShadowRenderer;
 import java.util.ArrayList;
 import java.util.List;
 import mygame.GameObjects.GameObject;
+import mygame.GameObjects.Gem;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -35,15 +36,13 @@ import mygame.GameObjects.GameObject;
  */
 public class Main extends SimpleApplication {
     
-    private static final int GEMVALUE = 50;
     private static final int MAXSCORE = 1000;
     private static final int SHADOWMAP_SIZE = 1024;
-
+    
     RecDivMazeGrid maze;
     SprinkleObjects sprinkler;
     Player player;
-    int score;
-
+    
     Node sceneNode;
     Node sprinkleNode;
     Node allEncompassingNode;
@@ -131,10 +130,10 @@ public class Main extends SimpleApplication {
     {
 //Constructor SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
 //            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
-        sprinkler = new SprinkleObjects(assetManager, cam, GEMVALUE, MAXSCORE, 10, 8, 30, 80, 70);
+        sprinkler = new SprinkleObjects(assetManager, cam, Gem.getGemValue(), MAXSCORE, 10, 8, 30, 80, 70);
         Node node = new Node();
         node.attachChild(sprinkler.sprinkle());
-        node.setShadowMode(ShadowMode.CastAndReceive);
+        //node.setShadowMode(ShadowMode.CastAndReceive);
         
         return node;
     }
@@ -177,8 +176,6 @@ public class Main extends SimpleApplication {
         player = new Player(assetManager, bulletAppState, allEncompassingNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
         //player.getNode().setShadowMode(ShadowMode.Receive);
-
-        score = 0;
         
         rootNode.attachChild(allEncompassingNode);
     }
@@ -297,29 +294,16 @@ public class Main extends SimpleApplication {
     
     private void handleCollisions(GameObject gObject)
     {
-        if (gObject.getClassName().equals("Objective")) 
+        if(gObject.handleCollisions(player))
         {
-            CollisionResults results = new CollisionResults();
-            BoundingVolume bv = gObject.getGeom().getWorldBound();
-            player.getSpatial().collideWith(bv, results);
-
-            if (results.size() > 0) 
+            if (gObject.getClassName().equals("Objective")) 
             {
                 restartGame();
             }
-        }
 
-        if (gObject.getClassName().equals("Gem")) 
-        {
-            CollisionResults results = new CollisionResults();
-            BoundingVolume bv = gObject.getGeom().getWorldBound();
-            player.getSpatial().collideWith(bv, results);
-
-            if (results.size() > 0) 
+            if (gObject.getClassName().equals("Gem")) 
             {
-                sprinkleNode.detachChild(gObject.getNode());
-                score += GEMVALUE;
-                System.out.println(score);
+                gObject.getNode().removeFromParent();
             }
         }
     }
@@ -336,7 +320,7 @@ public class Main extends SimpleApplication {
         {
             gObject.update(tpf);
 
-            //For some reason, the gems no longer disappear. You can turn this into part of GameObject
+            //For some reason, the gems no longer disappear.
             handleCollisions(gObject);
         }
         

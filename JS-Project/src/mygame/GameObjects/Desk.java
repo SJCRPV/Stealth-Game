@@ -41,6 +41,12 @@ public final class Desk extends StandardObject {
         objectMat.setColor("Specular", ColorRGBA.White); // for shininess
         objectMat.setFloat("Shininess", 128f); // [1,128] for shininess
     }
+    
+    @Override
+    public boolean handleCollisions(GameObject collider) 
+    {
+        return false;
+    }
 
     @Override
     public void loadPhysics()
@@ -75,6 +81,7 @@ public final class Desk extends StandardObject {
     }
 
     @Override
-    public void update(float tpf) {
+    public void update(float tpf) 
+    {
     }
 }
