@@ -53,7 +53,7 @@ public final class Gem extends GameObject {
         sparkles.setStartColor(startColour);
         sparkles.setEndColor(endColour);
         sparkles.setStartSize(0.1f);
-        sparkles.setEndSize(0.1f);
+        sparkles.setEndSize(0.01f);
         sparkles.setGravity(0,0,0);
         sparkles.setLowLife(0.3f);
         sparkles.setHighLife(0.6f);

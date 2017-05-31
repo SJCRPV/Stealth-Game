@@ -40,21 +40,21 @@ public final class FlowerPot extends StandardObject {
         ColorRGBA startColour = new ColorRGBA(1f, 0.486f, 0.15f, 1f);
         ColorRGBA endColour = new ColorRGBA(0.98f, 0.831f, 0.91f, 1f);
         
-        fire = new ParticleEmitter("Sparkles", ParticleMesh.Type.Triangle, 20);
+        fire = new ParticleEmitter("Fire", ParticleMesh.Type.Triangle, 20);
         fire.setShape(new EmitterPointShape(Vector3f.ZERO));
         fire.setLocalTranslation(object.getLocalTranslation().add(new Vector3f(0, 0, 0.5f)));
         fire.setImagesX(2);
         fire.setImagesY(2);
         fire.setStartColor(startColour);
         fire.setEndColor(endColour);
-        fire.setStartSize(0.1f);
-        fire.setEndSize(0.1f);
-        fire.setLowLife(0.3f);
-        fire.setHighLife(0.6f);
-        fire.setParticlesPerSec(6);
-        fire.setGravity(new Vector3f(1f, 1f, 1f));
-        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0.3f, 0.3f, 1));
-        fire.getParticleInfluencer().setVelocityVariation(1f);
+        fire.setStartSize(0.2f);
+        fire.setEndSize(0.01f);
+        fire.setLowLife(1f);
+        fire.setHighLife(3f);
+        fire.setParticlesPerSec(12);
+        fire.setGravity(0, 0, 0);
+        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0,0,0.4f));
+        fire.getParticleInfluencer().setVelocityVariation(0.2f);
         
         fire.setMaterial(fireMat);
         

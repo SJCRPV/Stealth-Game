@@ -193,7 +193,7 @@ public class Main extends SimpleApplication {
         }
         
          for (PointLight light : lightList) {
-             light.setRadius(8 + (float) (Math.random()));
+             light.setRadius(6 + (float) (Math.random()*1.2f));
          }
     }
 
@@ -358,6 +358,6 @@ public class Main extends SimpleApplication {
         Geometry object = new Geometry("Objective", objectiveBox);
         object.setMaterial(objectMat);
         object.setLocalTranslation(loc);
-        rootNode.attachChild(object);
+        //rootNode.attachChild(object);
     }
 }
