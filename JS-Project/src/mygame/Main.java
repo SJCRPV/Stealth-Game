@@ -8,6 +8,10 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
+import com.jme3.effect.shapes.EmitterPointShape;
+import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -16,11 +20,14 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.PointLightShadowFilter;
 import com.jme3.shadow.PointLightShadowRenderer;
 import java.util.ArrayList;
@@ -53,6 +60,8 @@ public class Main extends SimpleApplication {
     private List<GameObject> gObjectsList;
     private List<PointLight> lightList;
 
+    Material sparkleMat;
+    ParticleEmitter sparkles;
     
     private void renderShadows(Node relevantNode, Light light, ShadowMode shadowMode)
     {
@@ -168,7 +177,7 @@ public class Main extends SimpleApplication {
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
         allEncompassingNode.attachChild(sceneNode);
         
-        //addToWorld();
+        addToWorld();
         
         //More confortable flycam and disable
         setFlyCamSettings();
@@ -303,6 +312,7 @@ public class Main extends SimpleApplication {
 
             if (gObject.getClassName().equals("Gem")) 
             {
+                loadGemParticles(gObject);
                 gObject.getNode().removeFromParent();
             }
         }
@@ -327,5 +337,38 @@ public class Main extends SimpleApplication {
         {
             light.setRadius(8 + (float) (Math.random()));
         }
+    }
+    
+    private void loadGemParticles(GameObject g)
+    {   
+        Sphere s = (Sphere) g.getGeom().getMesh();
+        
+        sparkleMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+        sparkleMat.setTexture("Texture", assetManager.loadTexture("flash.png"));
+        
+        ColorRGBA startColour = new ColorRGBA(0.843f, 0.531f, 0.684f, 1f);
+        ColorRGBA endColour = new ColorRGBA(0.98f, 0.631f, 0.91f, 1f);
+        
+        sparkles = new ParticleEmitter("Sparkles", ParticleMesh.Type.Triangle, 20);
+        sparkles.setShape(new EmitterPointShape(Vector3f.ZERO));
+        sparkles.setLocalTranslation(g.getSpatial().getWorldTranslation());
+        sparkles.setImagesX(2);
+        sparkles.setImagesY(2);
+        sparkles.setStartColor(startColour);
+        sparkles.setEndColor(endColour);
+        sparkles.setStartSize(0.4f);
+        sparkles.setEndSize(0.01f);
+        sparkles.setGravity(0,0,0);
+        sparkles.setLowLife(0.3f);
+        sparkles.setHighLife(0.6f);
+        sparkles.setParticlesPerSec(0);
+        sparkles.setRandomAngle(false);
+        sparkles.setGravity(0, 6, 0);
+        sparkles.getParticleInfluencer().setInitialVelocity(new Vector3f(0,4,0));
+        sparkles.getParticleInfluencer().setVelocityVariation(0.65f);
+        
+        sparkles.setMaterial(sparkleMat);
+        rootNode.attachChild(sparkles);  
+        sparkles.emitAllParticles();
     }
 }
