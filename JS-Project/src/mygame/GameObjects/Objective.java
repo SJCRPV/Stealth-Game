@@ -6,6 +6,8 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -23,7 +25,7 @@ public final class Objective extends GameObject {
     private Geometry goldGeo;
 
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Objective";
     }
 
@@ -38,6 +40,20 @@ public final class Objective extends GameObject {
         goldMat.setTexture("DiffuseMap", goldText);
     }
 
+    @Override
+    public boolean handleCollisions(GameObject collider)
+    {
+        CollisionResults results = new CollisionResults();
+        BoundingVolume bv = this.getGeom().getWorldBound();
+        collider.getSpatial().collideWith(bv, results);
+
+        if (results.size() > 0) 
+        {
+            return true;
+        }
+        return false;
+    }
+    
     @Override
     public void loadPhysics()
     {

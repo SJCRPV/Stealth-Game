@@ -23,7 +23,7 @@ public final class Desk extends StandardObject {
 
     
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Desk";
     }
 
@@ -40,6 +40,12 @@ public final class Desk extends StandardObject {
         objectMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
         objectMat.setColor("Specular", ColorRGBA.White); // for shininess
         objectMat.setFloat("Shininess", 128f); // [1,128] for shininess
+    }
+    
+    @Override
+    public boolean handleCollisions(GameObject collider) 
+    {
+        return false;
     }
 
     @Override
@@ -75,6 +81,7 @@ public final class Desk extends StandardObject {
     }
 
     @Override
-    public void update(float tpf) {
+    public void update(float tpf) 
+    {
     }
 }

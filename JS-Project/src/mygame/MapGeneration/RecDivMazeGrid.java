@@ -14,6 +14,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
@@ -182,12 +183,12 @@ public class RecDivMazeGrid extends Generation {
         
         if(leftDownWallSize == 0)
         {
-            geoms[0].getMaterial().setTransparent(true);
+            geoms[0].setCullHint(Spatial.CullHint.Always);
         }
         
         if(rightUpWallSize == 0)
         {
-            geoms[1].getMaterial().setTransparent(true);
+            geoms[1].setCullHint(Spatial.CullHint.Always);
         }
 
         geoms[0].setLocalTranslation(leftDownXPos, leftDownYPos, Z_HEIGHT_OF_ALL / 2f);

@@ -6,6 +6,8 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.CollisionResults;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.effect.shapes.EmitterSphereShape;
@@ -28,9 +30,16 @@ public final class Gem extends GameObject {
     Material sparkleMat;
     ParticleEmitter sparkles;
     
+    private final static int GEMVALUE = 50;
+    
     @Override
-    public String getCName() {
+    public String getClassName() {
         return "Gem";
+    }
+    
+    public static int getGemValue()
+    {
+        return GEMVALUE;
     }
 
     @Override
@@ -79,6 +88,23 @@ public final class Gem extends GameObject {
         sparkleMat.setTexture("Texture", assetManager.loadTexture("flash.png"));
     }
 
+    @Override
+    public boolean handleCollisions(GameObject collider)
+    {
+        Player player = (Player)collider;
+        CollisionResults results = new CollisionResults();
+        BoundingVolume bv = this.getGeom().getWorldBound();
+        player.getSpatial().collideWith(bv, results);
+
+        if (results.size() > 0) 
+        {
+            player.addToScore(GEMVALUE);
+            System.out.println(player.getScore());
+            return true;
+        }
+        return false;
+    }
+    
     @Override
     public void loadPhysics()
     {

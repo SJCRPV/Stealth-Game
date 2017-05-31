@@ -21,7 +21,7 @@ import com.jme3.scene.Spatial;
 public final class Enemy extends GameObject {
 
     @Override
-    public String getCName()
+    public String getClassName()
     {
         return "Enemy";
     }
@@ -31,6 +31,12 @@ public final class Enemy extends GameObject {
     {
         objectMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         objectMat.setColor("Color", ColorRGBA.Brown);
+    }
+    
+    @Override
+    public boolean handleCollisions(GameObject collider) 
+    {
+        return false;
     }
     
     @Override
