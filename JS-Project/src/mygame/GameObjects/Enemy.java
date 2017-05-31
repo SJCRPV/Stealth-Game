@@ -20,6 +20,9 @@ import com.jme3.scene.Spatial;
  */
 public final class Enemy extends GameObject {
 
+    private float direction;
+    private float speed;
+    
     @Override
     public String getClassName()
     {
@@ -96,5 +99,7 @@ public final class Enemy extends GameObject {
     @Override
     public void update(float tpf)
     {
+       gameObjectNode.move(0,0.2f*tpf,0);
+       
     }
 }

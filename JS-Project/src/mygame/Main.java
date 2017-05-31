@@ -303,10 +303,17 @@ public class Main extends SimpleApplication {
     
     private void handleCollisions(GameObject gObject)
     {
+        System.out.println(gObject.getClassName());
         if(gObject.handleCollisions(player))
         {
             if (gObject.getClassName().equals("Objective")) 
             {
+                restartGame();
+            }
+            
+            if (gObject.getClassName().equals("Enemy")) 
+            {
+               
                 restartGame();
             }
 
