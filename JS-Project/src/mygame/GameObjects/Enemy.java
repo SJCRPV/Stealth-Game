@@ -13,6 +13,7 @@ import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -28,8 +29,8 @@ public final class Enemy extends GameObject {
     private final Node mazeNode;
 
     private final static int MIN_DIST = 1;
-    private final static float SPEED = 2;
-    private final static float ROT = 2;
+    private final static float SPEED = 0.8f;
+    private final static float ROT = 20;
 
     @Override
     public String getClassName() {
@@ -65,6 +66,7 @@ public final class Enemy extends GameObject {
         object = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         object.rotateUpTo(new Vector3f(0, 0, 1));
         object.scale(0.15f);
+        object.setLocalTranslation(0,0,1);
         object.setCullHint(Spatial.CullHint.Dynamic);
     }
 
@@ -92,6 +94,9 @@ public final class Enemy extends GameObject {
         loadModel();
         defineObjectBounds();
         defineLighting();
+        
+        direction = (float) (Math.random() * 2 * FastMath.PI);
+        gameObjectNode.rotate(0,0,direction);
 
         //Temp
         objectDimensions = new Vector3f(0.25f, 0.25f, 0.5f);
@@ -110,18 +115,22 @@ public final class Enemy extends GameObject {
 
     @Override
     public void update(float tpf) {
-
+    
         CollisionResults results = new CollisionResults();
-        Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0, 0, 1 * speed));
+        Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0, FastMath.sin(direction), FastMath.cos(direction)));
+        //Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0, 0, FastMath.cos(direction)));
         mazeNode.collideWith(ray, results);
 
         if (results.size() > 0) {
             CollisionResult closest = results.getClosestCollision();
             if (closest.getDistance() < MIN_DIST) {
-                speed = -speed;
+                //direction+= ROT;
             }
         }
-        gameObjectNode.move(0, -speed * tpf, 0);
+
+        gameObjectNode.move(tpf*-SPEED*FastMath.sin(-direction), tpf*-SPEED*FastMath.cos(direction),0);
+        //gameObjectNode.rotate();
+        
 
         /**
          * CollisionResults results = new CollisionResults(); Ray ray = new

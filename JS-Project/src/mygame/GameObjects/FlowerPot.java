@@ -38,7 +38,7 @@ public final class FlowerPot extends StandardObject {
         Geometry g = (Geometry)object;
         Box s = (Box)g.getMesh();
         ColorRGBA startColour = new ColorRGBA(0.8f, 0.8f, 0f, 0.5f);
-        ColorRGBA endColour = new ColorRGBA(0.8f, 0f, 0.2f, 1f);
+        ColorRGBA endColour = new ColorRGBA(0.6f, 0f, 0.1f, 1f);
         
         
         
@@ -56,7 +56,7 @@ public final class FlowerPot extends StandardObject {
         fire.setParticlesPerSec(12);
         fire.setGravity(0, 0, 0);
         fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0,0,0.3f));
-        fire.getParticleInfluencer().setVelocityVariation(0.02f);
+        fire.getParticleInfluencer().setVelocityVariation(0.01f);
         
         fire.setMaterial(fireMat);
         
