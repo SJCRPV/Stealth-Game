@@ -51,6 +51,7 @@ public class Main extends SimpleApplication {
     Player player;
     
     Node sceneNode;
+    Node mazeNode;
     Node sprinkleNode;
     Node allEncompassingNode;
 
@@ -139,7 +140,7 @@ public class Main extends SimpleApplication {
     {
 //Constructor SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
 //            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
-        sprinkler = new SprinkleObjects(assetManager, cam, Gem.getGemValue(), MAXSCORE, 10, 8, 30, 80, 70);
+        sprinkler = new SprinkleObjects(assetManager,cam,mazeNode, Gem.getGemValue(), MAXSCORE, 10, 8, 30, 80, 70);
         Node node = new Node();
         node.attachChild(sprinkler.sprinkle());
         //node.setShadowMode(ShadowMode.CastAndReceive);
@@ -161,7 +162,9 @@ public class Main extends SimpleApplication {
     
     private void initGame() 
     {
-        sceneNode = prepareMazeNode();
+        sceneNode = new Node("Scene");
+                
+        mazeNode = prepareMazeNode();
         
         allEncompassingNode = new Node("newRoot");
         
@@ -173,6 +176,7 @@ public class Main extends SimpleApplication {
 
         gObjectsList = sprinkler.getGOList();
         
+        sceneNode.attachChild(mazeNode);
         sceneNode.attachChild(sprinkleNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
         allEncompassingNode.attachChild(sceneNode);
@@ -303,17 +307,17 @@ public class Main extends SimpleApplication {
     
     private void handleCollisions(GameObject gObject)
     {
-        System.out.println(gObject.getClassName());
+        
         if(gObject.handleCollisions(player))
         {
+            System.out.println(gObject.getClassName());
             if (gObject.getClassName().equals("Objective")) 
             {
                 restartGame();
             }
             
             if (gObject.getClassName().equals("Enemy")) 
-            {
-               
+            {    
                 restartGame();
             }
 

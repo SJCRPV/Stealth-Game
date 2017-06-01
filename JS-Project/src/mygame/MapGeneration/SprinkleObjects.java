@@ -33,6 +33,7 @@ import java.util.List;
 public class SprinkleObjects extends Generation {
     
     Node sprinkledObjects;
+    Node mazeNode;
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
     
@@ -152,7 +153,7 @@ public class SprinkleObjects extends Generation {
 
     private void sprinkleEnemy()
     {
-        GameObject enemy = new Enemy(assetManager);
+        GameObject enemy = new Enemy(assetManager,mazeNode);
         Vector3f location = whereToSprinkle(enemy);
         putObjectInPlace(enemy, location);
     }
@@ -248,10 +249,11 @@ public class SprinkleObjects extends Generation {
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, Node mazeNode, int treasurePointValue, int maxPointsInArea, 
             int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
     {
         this.cam = cam;
+        this.mazeNode = mazeNode;
         sprinkledObjects = new Node();
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
