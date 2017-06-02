@@ -7,12 +7,11 @@ package mygame.MapGeneration;
 
 import mygame.GameObjects.Objective;
 import mygame.GameObjects.Gem;
-import mygame.GameObjects.Desk;
-import mygame.GameObjects.FlowerPot;
+import mygame.GameObjects.Crate;
+import mygame.GameObjects.Torch;
 import mygame.GameObjects.GameObject;
 import mygame.GameObjects.Player;
 import mygame.GameObjects.Enemy;
-import mygame.GameObjects.StandardObject;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -22,7 +21,6 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,26 +38,26 @@ public class SprinkleObjects extends Generation {
     Player player;
     Camera cam;
     
-    FlowerPot flowerPot;
-    Desk desk;
-    
     private final int TREASURE_VALUE;
-    private final int MAX_POINTS_IN_LEVEL;
     private final int MIN_CELL_DISTANCE_TO_PLAYER;
-    private final int MAX_GAMEOBJECTS_PER_ROOM;
-    private final float TREASURE_CHANCE;
-    private final float OBJECT_CHANCE;
+    private final int MAX_GAMEOBJECT_SPAWN_ATTEMPTS;
+    private final int MAX_ENEMIES_PER_ROOM;
+    private final int MAX_GEMS_PER_ROOM;
+    private final int MAX_TORCHES_PER_ROOM;
+    private final float GEM_CHANCE;
+    private final float CRATE_CHANCE;
     private final float ENEMY_CHANCE;
-	
+
+    private int maxPointsInLevel;
     private int playerSpawnRoomNum;
     private int currentRoomNum;
     private int numOfEnemies;
-    private int numOfTreasures;
+    private int numOfGems;
     private Geometry playerGeo;
 	
     public List<GameObject> getGOList()
     {
-        System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
+        //System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
         return listOfGObjects;
     }
     
@@ -128,34 +126,41 @@ public class SprinkleObjects extends Generation {
             isValid = isPositionValid(xCoor, yCoor, subCellNum);
         } while(!isValid);
 
-        //TODO: Account for objects that occupy multiple subCells. 
-        //TODO: Account for vertical or horizontal alignment.
         grid[xCoor][yCoor].addObjectToSubCell(subCellNum, gameO);
         gameO.setCellCoordinates(xCoor, yCoor);
 
         return assemblePos(xCoor, yCoor, subCellNum, gameOHeight);
     }
-	
-    private void sprinkleObject() throws InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException
+    
+    private void findLocation(GameObject object)
     {
-        int objectNum = generateRandomNum(0, StandardObject.getObjectList().size());        
-        StandardObject newObject = StandardObject.getObjectAt(objectNum).getClass().getConstructor(AssetManager.class).newInstance(assetManager);      
-        Vector3f location = whereToSprinkle(newObject);
-        putObjectInPlace(newObject, location);
+        Vector3f location = whereToSprinkle(object);
+        putObjectInPlace(object, location);
+    }
+    
+    private void sprinkleCrate()
+    {
+        GameObject crate = new Crate(assetManager);
+        findLocation(crate);
+    }
+    
+    private void sprinkleTorch()
+    {
+        GameObject torch = new Torch(assetManager);
+        findLocation(torch);
     }
 
-    private void sprinkleTreasure()
+    private void sprinkleGem()
     {
-        GameObject treasure = new Gem(assetManager);
-        Vector3f location = whereToSprinkle(treasure);
-        putObjectInPlace(treasure, location);
+        GameObject gem = new Gem(assetManager);
+        findLocation(gem);
+        numOfGems++;
     }
 
     private void sprinkleEnemy()
     {
         GameObject enemy = new Enemy(assetManager,mazeNode);
-        Vector3f location = whereToSprinkle(enemy);
-        putObjectInPlace(enemy, location);
+        findLocation(enemy);
     }
 
     private void sprinkleObjective()
@@ -194,18 +199,6 @@ public class SprinkleObjects extends Generation {
         return playerGeo;
     }
     
-    private void tryToSprinkleObject()
-    {
-        try
-        {
-            sprinkleObject();
-        }
-        catch(InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
-        {
-            System.out.println(e);
-        }
-    }
-    
     public Node sprinkle()
     {
         sprinklePlayer();
@@ -213,64 +206,55 @@ public class SprinkleObjects extends Generation {
         
         for(currentRoomNum = 0; currentRoomNum < completedAreas.size(); currentRoomNum++)
         {
-            //int gObjectsInRoom = generateRandomNum(0, MAX_GAMEOBJECTS_PER_ROOM);
             int currentChance = generateRandomNum(1, 100);
-            for(int i = 0; i < MAX_GAMEOBJECTS_PER_ROOM; i++)
-            {   
-                if(currentChance < OBJECT_CHANCE)
+            for(int i = 0, gemCounter = 0, enemyCounter = 0, torchCounter = 0; i < MAX_GAMEOBJECT_SPAWN_ATTEMPTS; i++)
+            {
+                if(currentChance < CRATE_CHANCE)
                 {
-                    tryToSprinkleObject();
+                    sprinkleCrate();
+                }
+                if(torchCounter < MAX_TORCHES_PER_ROOM)
+                {
+                    sprinkleTorch();
+                    torchCounter++;
                     i++;
                 }
-                if(currentChance < TREASURE_CHANCE)
+                if(currentChance < GEM_CHANCE && gemCounter < MAX_GEMS_PER_ROOM)
                 {
-                    sprinkleTreasure();
+                    sprinkleGem();
+                    gemCounter++;
                     i++;
                 }
-                if(currentChance < ENEMY_CHANCE)
+                if(currentChance < ENEMY_CHANCE && currentRoomNum != playerSpawnRoomNum && enemyCounter < MAX_ENEMIES_PER_ROOM)
                 {
                     sprinkleEnemy();
+                    enemyCounter++;
                     i++;
-                }
-                if(currentChance < TREASURE_CHANCE && numOfTreasures > 0)
-                {
-                    sprinkleTreasure();
-                    i++;
-                    numOfTreasures--;
-                }
-                if(currentChance < ENEMY_CHANCE && numOfEnemies > 0 && currentRoomNum != playerSpawnRoomNum)
-                {
-                    sprinkleEnemy();
-                    i++;
-                    numOfEnemies--;
                 }
             }
         }
+        maxPointsInLevel = numOfGems * TREASURE_VALUE;
         return sprinkledObjects;
     }
     
-    public SprinkleObjects(AssetManager newAssetManager, Camera cam, Node mazeNode, int treasurePointValue, int maxPointsInArea, 
-            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
+    public SprinkleObjects(AssetManager newAssetManager, Camera cam, Node mazeNode, int treasurePointValue, int minDistanceToPlayer, 
+            int maxEnemiesPerRoom, int maxTorchesPerRoom, int maxGemsPerRoom, float enemyChance, float crateChance, float treasureChance)
     {
         this.cam = cam;
         this.mazeNode = mazeNode;
         sprinkledObjects = new Node();
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
-        MAX_POINTS_IN_LEVEL = maxPointsInArea;
         MIN_CELL_DISTANCE_TO_PLAYER = minDistanceToPlayer;
-        MAX_GAMEOBJECTS_PER_ROOM = maxObjectsPerRoom;
+        MAX_ENEMIES_PER_ROOM = maxEnemiesPerRoom;
+        MAX_TORCHES_PER_ROOM = maxTorchesPerRoom;
+        MAX_GEMS_PER_ROOM = maxGemsPerRoom;
+        MAX_GAMEOBJECT_SPAWN_ATTEMPTS = MAX_ENEMIES_PER_ROOM + MAX_TORCHES_PER_ROOM + MAX_GEMS_PER_ROOM;        
         ENEMY_CHANCE = enemyChance;
-        OBJECT_CHANCE = objectChance;
-        TREASURE_CHANCE = treasureChance;
+        CRATE_CHANCE = crateChance;
+        GEM_CHANCE = treasureChance;
         numOfEnemies = Math.round(completedAreas.size() * 0.9f);
 
-        numOfTreasures = Math.round(MAX_POINTS_IN_LEVEL/TREASURE_VALUE);
         listOfGObjects = new ArrayList();
-        
-        flowerPot = new FlowerPot(assetManager);
-        StandardObject.addToObjectList(flowerPot);
-        desk = new Desk(assetManager);
-        StandardObject.addToObjectList(desk);
     }
 }

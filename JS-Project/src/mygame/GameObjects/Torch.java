@@ -21,7 +21,7 @@ import com.jme3.texture.Texture;
  *
  * @author SJCRPV
  */
-public final class FlowerPot extends StandardObject {
+public final class Torch extends StandardObject {
 
     ParticleEmitter fire;
     Material fireMat;
@@ -29,7 +29,7 @@ public final class FlowerPot extends StandardObject {
     @Override
     public String getClassName()
     {
-        return "Flower pot";
+        return "Torch";
     }
     
     private void loadParticles()
@@ -97,7 +97,7 @@ public final class FlowerPot extends StandardObject {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public FlowerPot(AssetManager assetManager)
+    public Torch(AssetManager assetManager)
     {
         this.assetManager = assetManager;
         createMaterial();

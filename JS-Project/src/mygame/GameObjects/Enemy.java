@@ -46,7 +46,8 @@ public final class Enemy extends GameObject {
     }
 
     @Override
-    public boolean handleCollisions(GameObject collider) {
+    public boolean handleCollisions(GameObject collider)
+    {
         Player player = (Player) collider;
         CollisionResults results = new CollisionResults();
         BoundingVolume bv = object.getWorldBound();

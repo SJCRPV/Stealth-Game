@@ -19,12 +19,12 @@ import com.jme3.util.TangentBinormalGenerator;
  *
  * @author SJCRPV
  */
-public final class Desk extends StandardObject {
+public final class Crate extends StandardObject {
 
     
     @Override
     public String getClassName() {
-        return "Desk";
+        return "Crate";
     }
 
     @Override
@@ -68,7 +68,7 @@ public final class Desk extends StandardObject {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public Desk(AssetManager assetManager) {
+    public Crate(AssetManager assetManager) {
         this.assetManager = assetManager;
         createMaterial();
         loadModel();

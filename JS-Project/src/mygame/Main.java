@@ -91,12 +91,12 @@ public class Main extends SimpleApplication {
     {
         for (GameObject gObject : gObjectsList) 
         {
-            if (gObject.getClassName().equals("Flower pot")) 
+            if (gObject.getClassName().equals("Torch")) 
             {
                 createLight(gObject, ColorRGBA.Orange.mult(ColorRGBA.Yellow), 8f, new Vector3f(0, 0.55f, 0), ShadowMode.CastAndReceive);
             }
 
-            if (gObject.getClassName().equals("Desk")) 
+            if (gObject.getClassName().equals("Crate")) 
             {
                 RigidBodyControl cratePhy = new RigidBodyControl(0f);
                 gObject.getGeom().addControl(cratePhy);
@@ -131,12 +131,13 @@ public class Main extends SimpleApplication {
     
     private Node prepareSprinkleNode()
     {
-//Constructor SprinkleObjects(AssetManager newAssetManager, Camera cam, int treasurePointValue, int maxPointsInArea, 
-//            int minDistanceToPlayer, int maxObjectsPerRoom, float enemyChance, float objectChance, float treasureChance)
-        sprinkler = new SprinkleObjects(assetManager,cam,mazeNode, Gem.getGemValue(), MAXSCORE, 10, 8, 30, 80, 70);
+//Constructor SprinkleObjects(AssetManager newAssetManager, Camera cam, Node mazeNode, int treasurePointValue,
+//            int minDistanceToPlayer, int maxEnemiesPerRoom, int maxTorchesPerRoom, int maxGemsPerRoom, 
+//            float enemyChance, float objectChance, float treasureChance)
+        sprinkler = new SprinkleObjects(assetManager, cam, mazeNode, Gem.getGemValue(), 3, 2, 1, 2, 30, 80, 70);
         Node node = new Node();
         node.attachChild(sprinkler.sprinkle());
-        //node.setShadowMode(ShadowMode.CastAndReceive);
+        node.setShadowMode(ShadowMode.CastAndReceive);
         
         return node;
     }

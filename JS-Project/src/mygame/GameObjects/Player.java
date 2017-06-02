@@ -27,7 +27,7 @@ import com.jme3.scene.control.CameraControl;
 
 public final class Player extends GameObject implements AnimEventListener {
     
-        //Player variables
+    //Player variables
     protected static int SCORE = 0;
     protected static float ROTATIONSPEED = 3f;
     protected static float WALKSPEED = 0.1f;
@@ -106,8 +106,6 @@ public final class Player extends GameObject implements AnimEventListener {
     {
         return physicsCharacter.getPhysicsLocation();
     }
-    
-    
     
     @Override
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) 
