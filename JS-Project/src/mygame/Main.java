@@ -7,6 +7,8 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -17,14 +19,18 @@ import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.font.Rectangle;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.shadow.PointLightShadowFilter;
 import com.jme3.shadow.PointLightShadowRenderer;
 import java.util.ArrayList;
 import java.util.List;
+import mygame.GameObjects.Enemy;
 import mygame.GameObjects.GameObject;
 import mygame.GameObjects.Gem;
 
@@ -35,14 +41,14 @@ import mygame.GameObjects.Gem;
  * @author SJCRPV
  */
 public class Main extends SimpleApplication {
-    
+
     private static final int MAXSCORE = 1000;
     private static final int SHADOWMAP_SIZE = 1024;
-    
+
     RecDivMazeGrid maze;
     SprinkleObjects sprinkler;
     Player player;
-    
+
     Node sceneNode;
     Node mazeNode;
     Node sprinkleNode;
@@ -51,32 +57,33 @@ public class Main extends SimpleApplication {
     private BulletAppState bulletAppState;
 
     private boolean freeCam = false;
+    private boolean playing = true;
     private List<GameObject> gObjectsList;
     private List<PointLight> lightList;
 
     Material sparkleMat;
     ParticleEmitter sparkles;
-    
-    private void renderShadows(Node relevantNode, Light light, ShadowMode shadowMode)
-    {
+
+    BitmapText hudText;
+
+    private void renderShadows(Node relevantNode, Light light, ShadowMode shadowMode) {
         //WARNING: Se calhar não é preciso fazer shadows das luzes direcionais que iluminam o mapa em geral. Se calhar, apenas
         //as luzes criadas pelas tochas e afins chegam.
         relevantNode.setShadowMode(shadowMode);
-        
+
         PointLightShadowRenderer pointShadowRend = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
-        pointShadowRend.setLight((PointLight)light);
+        pointShadowRend.setLight((PointLight) light);
         viewPort.addProcessor(pointShadowRend);
 
         PointLightShadowFilter pointShadowFilter = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
-        pointShadowFilter.setLight((PointLight)light);
+        pointShadowFilter.setLight((PointLight) light);
         pointShadowFilter.setEnabled(true);
         FilterPostProcessor filterPostProcessor = new FilterPostProcessor(assetManager);
         filterPostProcessor.addFilter(pointShadowFilter);
         viewPort.addProcessor(filterPostProcessor);
     }
-    
-    private void createLight(GameObject gObject, ColorRGBA colour, float lightRadius, Vector3f position, ShadowMode shadowMode)
-    {
+
+    private void createLight(GameObject gObject, ColorRGBA colour, float lightRadius, Vector3f position, ShadowMode shadowMode) {
         PointLight lamp_light = new PointLight();
         lamp_light.setColor(colour);
         lamp_light.setRadius(lightRadius);
@@ -102,23 +109,20 @@ public class Main extends SimpleApplication {
                 gObject.getGeom().addControl(cratePhy);
                 bulletAppState.getPhysicsSpace().add(cratePhy);
             }
-            
-            if (gObject.getClassName().equals("Objective")) 
-            {
+
+            if (gObject.getClassName().equals("Objective")) {
                 createLight(gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y, ShadowMode.Cast);
             }
         }
     }
-    
-    private void setFlyCamSettings()
-    {
+
+    private void setFlyCamSettings() {
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
     }
-    
-    private void lightScene()
-    {
+
+    private void lightScene() {
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(ColorRGBA.White.mult(0.4f));
         dl.setDirection(new Vector3f(-1f, -1f, -1));
@@ -141,54 +145,63 @@ public class Main extends SimpleApplication {
         
         return node;
     }
-    
-    private Node prepareMazeNode()
-    {
+
+    private Node prepareMazeNode() {
 //Constructor RecDivMazeGrid(AssetManager newAssetManager, int numCellsWide, int numCellsTall, float cellWidth, float cellHeight, 
 //        float wallThickness, int doorCellSize, int minCellsWide, int minCellsTall)
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         Node node = new Node();
         node.attachChild(maze.generateMaze());
         node.setShadowMode(ShadowMode.Cast);
-        
+
         return node;
     }
-    
-    private void initGame() 
-    {
+
+    private void initGame() {
+        playing = true;
+
         sceneNode = new Node("Scene");
-                
+
         mazeNode = prepareMazeNode();
-        
+
         allEncompassingNode = new Node("newRoot");
-        
+
         lightList = new ArrayList();
-                
+
         lightScene();
-        
+
         sprinkleNode = prepareSprinkleNode();
 
         gObjectsList = sprinkler.getGOList();
-        
+
         sceneNode.attachChild(mazeNode);
         sceneNode.attachChild(sprinkleNode);
         sceneNode.rotateUpTo(new Vector3f(0, 0, -1));
         allEncompassingNode.attachChild(sceneNode);
-        
+
         addToWorld();
-        
+
         //More confortable flycam and disable
         setFlyCamSettings();
 
         player = new Player(assetManager, bulletAppState, allEncompassingNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
         //player.getNode().setShadowMode(ShadowMode.Receive);
-        
+
+        //Init hud text
+        hudText = new BitmapText(guiFont, false);
+        hudText.setSize(guiFont.getCharSet().getRenderedSize() * 2);      // font size
+        hudText.setBox(new Rectangle(0,0,settings.getWidth(), settings.getHeight()));
+        hudText.setAlignment(BitmapFont.Align.Center);
+        hudText.setColor(ColorRGBA.Red);                             // font color
+        hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
+        hudText.setText("Score: " + Integer.toString(player.getScore()));             // the text
+        guiNode.attachChild(hudText);
+
         rootNode.attachChild(allEncompassingNode);
     }
-    
-    private void initKeys() 
-    {
+
+    private void initKeys() {
         //Restart maze and change camera
         inputManager.addMapping("Restart", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addMapping("Camera", new KeyTrigger(KeyInput.KEY_C));
@@ -223,14 +236,14 @@ public class Main extends SimpleApplication {
         inputManager.addListener(actionListener, "Walk Forward", "Walk Backward");
         inputManager.addListener(actionListener, "Jump", "Shoot");
     }
-    
-    private void switchCamera()
-    {
-        if (!freeCam) 
-        {
+
+    private void switchCamera() {
+        if (!freeCam) {
             //Detach chase camera
             player.detachCamera();
-            player.stop();
+            if (playing) {
+                player.stop();
+            }
             //Set location of flycam
             Vector3f camLocation = new Vector3f(0, 2, 2);
             cam.setLocation(camLocation.add(player.getWorldTranslation()));
@@ -238,9 +251,7 @@ public class Main extends SimpleApplication {
             //Enable flycam
             flyCam.setEnabled(true);
             freeCam = true;
-        } 
-        else 
-        {
+        } else {
             //Disable flycam
             flyCam.setEnabled(false);
             //Attach chase camera
@@ -248,39 +259,36 @@ public class Main extends SimpleApplication {
             freeCam = false;
         }
     }
-    
-    private void restartGame() 
-    {
+
+    private void restartGame() {
         bulletAppState.getPhysicsSpace().removeAll(rootNode);
         rootNode.detachAllChildren();
+        guiNode.detachAllChildren();
         System.out.println("Restart");
         initGame();
     }
-    
-    private ActionListener actionListener = new ActionListener() 
-    {
+
+    private ActionListener actionListener = new ActionListener() {
         @Override
-        public void onAction(String name, boolean keyPressed, float tpf) 
-        {
+        public void onAction(String name, boolean keyPressed, float tpf) {
             //Restart maze (temp)
-            if (name.equals("Restart") && !keyPressed && !freeCam) 
-            {
+            if (name.equals("Restart") && !keyPressed && !freeCam) {
                 restartGame();
             }
 
-            if (name.equals("Camera") && !keyPressed) 
-            {
+            if (name.equals("Camera") && !keyPressed) {
                 switchCamera();
             }
 
             //Player controls
-            player.controls(name, keyPressed);
+            if (playing && !freeCam) {
+                player.controls(name, keyPressed);
+            }
         }
     };
-    
+
     @Override
-    public void simpleInitApp() 
-    {
+    public void simpleInitApp() {
         //To avoid not showing objects behind player. Does not work well with flycam
         cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
 
@@ -293,54 +301,59 @@ public class Main extends SimpleApplication {
         initGame();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Main app = new Main();
         app.start();
     }
-    
-    private void handleCollisions(GameObject gObject)
-    {
-        
-        if(gObject.handleCollisions(player))
-        {
-            System.out.println(gObject.getClassName());
-            if (gObject.getClassName().equals("Objective")) 
-            {
-                restartGame();
-            }
-            
-            if (gObject.getClassName().equals("Enemy")) 
-            {
-                restartGame();
+
+    private void handleCollisions(GameObject gObject) {
+
+        if (gObject.handleCollisions(player)) {
+            if (gObject.getClassName().equals("Objective")) {
+                if (playing) {
+                    playing = false;
+                    player.dance();
+
+                    hudText.setLocalTranslation(0, settings.getHeight() / 2, 0); // position
+                    hudText.setText("You found the treasure! \n Press R to play again \n Your score: " + Integer.toString(player.getScore()));             // the text
+                }
             }
 
-            if (gObject.getClassName().equals("Gem")) 
-            {
-                Gem gem = (Gem)gObject;
+            if (gObject.getClassName().equals("Enemy")) {
+                if (playing) {
+                    Enemy e = (Enemy) gObject;
+                    e.stop();
+                    playing = false;
+                    player.die();
+
+                    hudText.setLocalTranslation(0, settings.getHeight() / 2, 0); // position
+                    hudText.setText("You are dead :( \n Press R to play again");             // the text
+                }
+            }
+
+            if (gObject.getClassName().equals("Gem") && playing) {
+                Gem gem = (Gem) gObject;
                 ParticleEmitter temp = gem.prepareParticleExplosion(gObject);
                 rootNode.attachChild(temp);
                 temp.emitAllParticles();
+                hudText.setText("Score: " + Integer.toString(player.getScore()));
                 gObject.getNode().removeFromParent();
             }
         }
     }
-    
+
     @Override
-    public void simpleUpdate(float tpf) 
-    {
-        if (!freeCam)
-        {
+    public void simpleUpdate(float tpf) {
+        if (!freeCam) {
             player.move(tpf);
         }
-        for (GameObject gObject : gObjectsList) 
-        {
+        for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
             handleCollisions(gObject);
         }
-        for (PointLight light : lightList) 
-        {
+        for (PointLight light : lightList) {
             light.setRadius(8 + (float) (Math.random()));
         }
+
     }
 }

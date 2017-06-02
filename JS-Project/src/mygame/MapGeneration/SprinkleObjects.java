@@ -32,6 +32,7 @@ public class SprinkleObjects extends Generation {
     
     Node sprinkledObjects;
     Node mazeNode;
+    Node rootNode;
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
     
@@ -159,7 +160,7 @@ public class SprinkleObjects extends Generation {
 
     private void sprinkleEnemy()
     {
-        GameObject enemy = new Enemy(assetManager,mazeNode);
+        GameObject enemy = new Enemy(assetManager, mazeNode);
         findLocation(enemy);
     }
 
@@ -242,6 +243,7 @@ public class SprinkleObjects extends Generation {
     {
         this.cam = cam;
         this.mazeNode = mazeNode;
+        this.rootNode = rootNode;
         sprinkledObjects = new Node();
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
