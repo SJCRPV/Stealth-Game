@@ -14,6 +14,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -26,11 +27,12 @@ import com.jme3.scene.Spatial;
 public final class Enemy extends GameObject {
 
     private float direction;
+    private Quaternion rotation = new Quaternion();
     private final Node mazeNode;
 
-    private final static int MIN_DIST = 1;
-    private final static float SPEED = 0.8f;
-    private final static float ROT = 20;
+    private final static float MIN_DIST = 2.5f;
+    private final static float SPEED = 1f;
+    private final static float ROT = 90*FastMath.DEG_TO_RAD;
 
     @Override
     public String getClassName() {
@@ -65,8 +67,9 @@ public final class Enemy extends GameObject {
     protected final void loadModel() {
         object = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         object.rotateUpTo(new Vector3f(0, 0, 1));
+        object.rotate(0,FastMath.PI / 2,0);
         object.scale(0.15f);
-        object.setLocalTranslation(0,0,1);
+        object.setLocalTranslation(0,0,0.2f);
         object.setCullHint(Spatial.CullHint.Dynamic);
     }
 
@@ -96,8 +99,8 @@ public final class Enemy extends GameObject {
         defineLighting();
         
         direction = (float) (Math.random() * 2 * FastMath.PI);
-        gameObjectNode.rotate(0,0,direction);
-
+        direction = 0;
+        
         //Temp
         objectDimensions = new Vector3f(0.25f, 0.25f, 0.5f);
 
@@ -117,19 +120,23 @@ public final class Enemy extends GameObject {
     public void update(float tpf) {
     
         CollisionResults results = new CollisionResults();
-        Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0, FastMath.sin(direction), FastMath.cos(direction)));
-        //Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0, 0, FastMath.cos(direction)));
+        Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(FastMath.cos(direction), 0,FastMath.sin(direction)));
+        
+                //Ray ray = new Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0,0,FastMath.sin(direction)));
+
         mazeNode.collideWith(ray, results);
 
         if (results.size() > 0) {
             CollisionResult closest = results.getClosestCollision();
             if (closest.getDistance() < MIN_DIST) {
-                //direction+= ROT;
+               direction += ROT;
             }
         }
 
-        gameObjectNode.move(tpf*-SPEED*FastMath.sin(-direction), tpf*-SPEED*FastMath.cos(direction),0);
-        //gameObjectNode.rotate();
+        
+        rotation.fromAngles(0, 0, direction);
+        gameObjectNode.setLocalRotation(rotation);
+        gameObjectNode.move(tpf*SPEED*FastMath.cos(direction), tpf*SPEED*FastMath.sin(direction),0);
         
 
         /**
