@@ -28,7 +28,7 @@ import com.jme3.scene.control.CameraControl;
 public final class Player extends GameObject implements AnimEventListener {
     
         //Player variables
-    protected static int SCORE = 0;
+    protected static int SCORE;
     protected static float ROTATIONSPEED = 3f;
     protected static float WALKSPEED = 0.1f;
     protected static float JUMPSPEED = 8;
@@ -123,12 +123,22 @@ public final class Player extends GameObject implements AnimEventListener {
             botChannel.setAnim(IDLEB, 0.5f); //second parameter important for character feel
             topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
             botChannel.setLoopMode(LoopMode.Cycle);
+            topChannel.setLoopMode(LoopMode.Cycle);
         }
 
         if (botChannel.getAnimationName().equals(JUMPS)) 
         {
             botChannel.setAnim(JUMP, 0.1f); //second parameter important for character feel
             botChannel.setLoopMode(LoopMode.Cycle);
+        }
+        
+        if (botChannel.getAnimationName().equals("StandUpBack")) 
+        {
+            botChannel.setAnim(IDLEB, 0.1f); //second parameter important for character feel
+            botChannel.setLoopMode(LoopMode.Cycle);
+            topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
+            topChannel.setLoopMode(LoopMode.Cycle);
+            
         }
     }
     
@@ -205,6 +215,8 @@ public final class Player extends GameObject implements AnimEventListener {
         this.assetManager = assetManager;
         this.bulletAppState = bulletAppState;
             
+        SCORE = 0;
+            
         createMaterial();
         loadModel();
         loadPhysics();
@@ -228,8 +240,8 @@ public final class Player extends GameObject implements AnimEventListener {
         rightRotate = false;
         forward = false;
         backward = false;
-        walkDirection.set(0, 0, 0);
-        viewDirection.set(0, 0, 0);
+        //walkDirection.set(0, 0, 0);
+        //viewDirection.set(0, 0, 0);
         physicsCharacter.setWalkDirection(walkDirection);
         physicsCharacter.setViewDirection(viewDirection);
         botChannel.setAnim(IDLEB, 0.5f);
@@ -356,8 +368,10 @@ if(!dead){
     {
                 stop();
                 dead = true;
-                botChannel.setAnim("Dance", 0.2f); //second parameter important for character feel
-                botChannel.setLoopMode(LoopMode.Cycle);
+                botChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
+                botChannel.setLoopMode(LoopMode.DontLoop);
+                topChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
+                topChannel.setLoopMode(LoopMode.DontLoop);
     }
     
     public void dance()
@@ -366,5 +380,7 @@ if(!dead){
                 dead = true;
                 botChannel.setAnim("Dance"); //second parameter important for character feel
                 botChannel.setLoopMode(LoopMode.Cycle);
+                topChannel.setAnim("Dance", 0.2f); //second parameter important for character feel
+                topChannel.setLoopMode(LoopMode.Cycle);
     }
 }

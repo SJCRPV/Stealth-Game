@@ -39,6 +39,7 @@ public final class Enemy extends GameObject implements AnimEventListener{
     private final Node rootNode;
     private AnimChannel enemyChannel;
     private AnimControl control;
+    private boolean stop = false;
     
     private Geometry mark;
 
@@ -140,6 +141,8 @@ public final class Enemy extends GameObject implements AnimEventListener{
     @Override
     public void update(float tpf) {
 
+        if(!stop)
+        {
         CollisionResults results = new CollisionResults();
         Ray ray = new Ray(gameObjectNode.getWorldTranslation().add(0, 1, 0), new Vector3f(FastMath.cos(direction), 0, -FastMath.sin(direction)));
         mazeNode.collideWith(ray, results);
@@ -157,7 +160,7 @@ public final class Enemy extends GameObject implements AnimEventListener{
         rotation.fromAngles(0, 0, direction);
         gameObjectNode.setLocalRotation(rotation);
         gameObjectNode.move(tpf * SPEED * FastMath.cos(direction), tpf * SPEED * FastMath.sin(direction), 0);
-
+        }
         /**
          * CollisionResults results = new CollisionResults(); Ray ray = new
          * Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0,0,1*speed));
@@ -184,8 +187,14 @@ public final class Enemy extends GameObject implements AnimEventListener{
         control = object.getControl(AnimControl.class);
         control.addListener(this);
         enemyChannel = control.createChannel();
-        System.out.println(control.getAnimationNames());
         enemyChannel.setAnim("Walk",0.5f);
         enemyChannel.setLoopMode(LoopMode.Cycle);
     }
+     
+     public void stop()
+     {
+        stop = true;
+        enemyChannel.setAnim("push",0);
+        enemyChannel.setLoopMode(LoopMode.Cycle);
+     }
 }
