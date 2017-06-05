@@ -50,33 +50,16 @@ public final class Gem extends GameObject {
     
     public ParticleEmitter prepareParticleExplosion(GameObject g)
     {   
-        Sphere s = (Sphere) g.getGeom().getMesh();
-        
-        sparkleMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        sparkleMat.setTexture("Texture", assetManager.loadTexture("flash.png"));
-        
-        ColorRGBA startColour = new ColorRGBA(0.843f, 0.531f, 0.684f, 1f);
-        ColorRGBA endColour = new ColorRGBA(0.98f, 0.631f, 0.91f, 1f);
-        
-        sparkles = new ParticleEmitter("Sparkles", ParticleMesh.Type.Triangle, 20);
+        sparkles.setNumParticles(20);
         sparkles.setShape(new EmitterPointShape(Vector3f.ZERO));
         sparkles.setLocalTranslation(g.getSpatial().getWorldTranslation());
-        sparkles.setImagesX(2);
-        sparkles.setImagesY(2);
-        sparkles.setStartColor(startColour);
-        sparkles.setEndColor(endColour);
         sparkles.setStartSize(0.4f);
-        sparkles.setEndSize(0.01f);
-        sparkles.setGravity(0,0,0);
-        sparkles.setLowLife(0.3f);
-        sparkles.setHighLife(0.6f);
         sparkles.setParticlesPerSec(0);
         sparkles.setRandomAngle(false);
         sparkles.setGravity(0, 6, 0);
         sparkles.getParticleInfluencer().setInitialVelocity(new Vector3f(0,4,0));
         sparkles.getParticleInfluencer().setVelocityVariation(0.65f);
         
-        sparkles.setMaterial(sparkleMat);
         return sparkles;
     }
     

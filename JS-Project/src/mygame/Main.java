@@ -21,12 +21,8 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.font.Rectangle;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
-import com.jme3.shadow.PointLightShadowFilter;
 import com.jme3.shadow.PointLightShadowRenderer;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,45 +49,43 @@ public class Main extends SimpleApplication {
     Node mazeNode;
     Node sprinkleNode;
     Node allEncompassingNode;
-
-    private BulletAppState bulletAppState;
+    Node lightNode;
 
     private boolean freeCam = false;
     private boolean playing = true;
     private List<GameObject> gObjectsList;
     private List<PointLight> lightList;
 
+    BulletAppState bulletAppState;
     Material sparkleMat;
     ParticleEmitter sparkles;
-
     BitmapText hudText;
 
-    private void renderShadows(Node relevantNode, Light light, ShadowMode shadowMode) {
-        //WARNING: Se calhar não é preciso fazer shadows das luzes direcionais que iluminam o mapa em geral. Se calhar, apenas
-        //as luzes criadas pelas tochas e afins chegam.
+    private void renderShadows(Node relevantNode, Light light, ShadowMode shadowMode)
+    {
         relevantNode.setShadowMode(shadowMode);
 
         PointLightShadowRenderer pointShadowRend = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         pointShadowRend.setLight((PointLight) light);
         viewPort.addProcessor(pointShadowRend);
 
-        PointLightShadowFilter pointShadowFilter = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
-        pointShadowFilter.setLight((PointLight) light);
-        pointShadowFilter.setEnabled(true);
-        FilterPostProcessor filterPostProcessor = new FilterPostProcessor(assetManager);
-        filterPostProcessor.addFilter(pointShadowFilter);
-        viewPort.addProcessor(filterPostProcessor);
+//        PointLightShadowFilter pointShadowFilter = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+//        pointShadowFilter.setLight((PointLight) light);
+//        pointShadowFilter.setEnabled(true);
+//        FilterPostProcessor filterPostProcessor = new FilterPostProcessor(assetManager);
+//        filterPostProcessor.addFilter(pointShadowFilter);
+//        viewPort.addProcessor(filterPostProcessor);
     }
 
-    private void createLight(GameObject gObject, ColorRGBA colour, float lightRadius, Vector3f position, ShadowMode shadowMode) {
+    private void createLight(GameObject gObject, ColorRGBA colour, float lightRadius, Vector3f position, ShadowMode shadowMode) 
+    {
         PointLight lamp_light = new PointLight();
         lamp_light.setColor(colour);
         lamp_light.setRadius(lightRadius);
         lamp_light.setPosition(gObject.getWorldTranslation().add(position));
-        //akeCube(gObject.getWorldTranslation().add(0, 0.55f, 0));
-        allEncompassingNode.addLight(lamp_light);
+        lightNode.addLight(lamp_light);
         lightList.add(lamp_light);
-        //renderShadows(allEncompassingNode, lamp_light, shadowMode);
+        renderShadows(lightNode, lamp_light, shadowMode);
     }
     
     private void addToWorld() 
@@ -100,7 +94,7 @@ public class Main extends SimpleApplication {
         {
             if (gObject.getClassName().equals("Torch")) 
             {
-                createLight(gObject, ColorRGBA.Orange.mult(ColorRGBA.Yellow), 8f, new Vector3f(0, 0.55f, 0), ShadowMode.CastAndReceive);
+                createLight(gObject, ColorRGBA.Orange.mult(ColorRGBA.Yellow), 8f, new Vector3f(0, 0.55f, 0), ShadowMode.Receive);
             }
 
             if (gObject.getClassName().equals("Crate")) 
@@ -111,18 +105,20 @@ public class Main extends SimpleApplication {
             }
 
             if (gObject.getClassName().equals("Objective")) {
-                createLight(gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y, ShadowMode.Cast);
+                createLight(gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y, ShadowMode.Receive);
             }
         }
     }
 
-    private void setFlyCamSettings() {
+    private void setFlyCamSettings()
+    {
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
     }
 
-    private void lightScene() {
+    private void lightScene()
+    {
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(ColorRGBA.White.mult(0.4f));
         dl.setDirection(new Vector3f(-1f, -1f, -1));
@@ -141,7 +137,7 @@ public class Main extends SimpleApplication {
         sprinkler = new SprinkleObjects(assetManager, cam, mazeNode, Gem.getGemValue(), 3, 2, 1, 2, 30, 80, 70);
         Node node = new Node();
         node.attachChild(sprinkler.sprinkle());
-        node.setShadowMode(ShadowMode.CastAndReceive);
+        node.setShadowMode(ShadowMode.Receive);
         
         return node;
     }
@@ -152,26 +148,34 @@ public class Main extends SimpleApplication {
         maze = new RecDivMazeGrid(assetManager, bulletAppState, 15, 15, 1f, 1f, 0.5f, 1, 4, 4);
         Node node = new Node();
         node.attachChild(maze.generateMaze());
-        node.setShadowMode(ShadowMode.Cast);
+        node.setShadowMode(ShadowMode.Receive);
 
         return node;
     }
 
-    private void initGame() {
+    private void createHUD()
+    {
+        hudText = new BitmapText(guiFont, false);
+        hudText.setSize(guiFont.getCharSet().getRenderedSize() * 2);      // font size
+        hudText.setBox(new Rectangle(0,0,settings.getWidth(), settings.getHeight()));
+        hudText.setAlignment(BitmapFont.Align.Center);
+        hudText.setColor(ColorRGBA.Red);                             // font color
+        hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
+        hudText.setText("Score: " + Integer.toString(player.getScore()));             // the text
+        guiNode.attachChild(hudText);
+    }
+    
+    private void initGame() 
+    {
         playing = true;
 
         sceneNode = new Node("Scene");
-
         mazeNode = prepareMazeNode();
-
         allEncompassingNode = new Node("newRoot");
-
+        lightNode = new Node("Light");
         lightList = new ArrayList();
-
         lightScene();
-
         sprinkleNode = prepareSprinkleNode();
-
         gObjectsList = sprinkler.getGOList();
 
         sceneNode.attachChild(mazeNode);
@@ -186,22 +190,17 @@ public class Main extends SimpleApplication {
 
         player = new Player(assetManager, bulletAppState, allEncompassingNode, cam, sprinkler.getPlayer().getWorldTranslation());
         sprinkleNode.detachChild(sprinkler.getPlayer());
-        //player.getNode().setShadowMode(ShadowMode.Receive);
+        player.getNode().setShadowMode(ShadowMode.Cast);
 
         //Init hud text
-        hudText = new BitmapText(guiFont, false);
-        hudText.setSize(guiFont.getCharSet().getRenderedSize() * 2);      // font size
-        hudText.setBox(new Rectangle(0,0,settings.getWidth(), settings.getHeight()));
-        hudText.setAlignment(BitmapFont.Align.Center);
-        hudText.setColor(ColorRGBA.Red);                             // font color
-        hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
-        hudText.setText("Score: " + Integer.toString(player.getScore()));             // the text
-        guiNode.attachChild(hudText);
+        createHUD();
 
+        rootNode.attachChild(lightNode);
         rootNode.attachChild(allEncompassingNode);
     }
 
-    private void initKeys() {
+    private void initKeys() 
+    {
         //Restart maze and change camera
         inputManager.addMapping("Restart", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addMapping("Camera", new KeyTrigger(KeyInput.KEY_C));

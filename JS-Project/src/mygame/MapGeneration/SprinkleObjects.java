@@ -243,7 +243,7 @@ public class SprinkleObjects extends Generation {
     {
         this.cam = cam;
         this.mazeNode = mazeNode;
-        this.rootNode = rootNode;
+        //this.rootNode = rootNode;
         sprinkledObjects = new Node();
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;

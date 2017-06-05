@@ -246,6 +246,26 @@ public final class Player extends GameObject implements AnimEventListener {
         topChannel.setAnim(IDLET, 0.5f);
     }
     
+    public void die()
+    {
+        stop();
+        dead = true;
+        botChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
+        botChannel.setLoopMode(LoopMode.DontLoop);
+        topChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
+        topChannel.setLoopMode(LoopMode.DontLoop);
+    }
+    
+    public void dance()
+    {
+        stop();
+        dead = true;
+        botChannel.setAnim("Dance"); //second parameter important for character feel
+        botChannel.setLoopMode(LoopMode.Cycle);
+        topChannel.setAnim("Dance", 0.2f); //second parameter important for character feel
+        topChannel.setLoopMode(LoopMode.Cycle);
+    }    
+    
     public void controls(String name, boolean keyPressed) 
     {
         if (name.equals("Strafe Left")) {
@@ -314,71 +334,64 @@ public final class Player extends GameObject implements AnimEventListener {
         } else if (backward) {
             walkDirection.addLocal(camDir.negate());
         }
-if(!dead){
-        if (physicsCharacter.onGround()) {
-
-            if (botChannel.getAnimationName().equals(JUMP)) {
-                botChannel.setAnim(JUMPE, 0); //second parameter important for character feel
-                botChannel.setLoopMode(LoopMode.DontLoop);
-            }
-
-            //Buttons
-            if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) {
-                if (!botChannel.getAnimationName().equals(RUNB)) {
-                    botChannel.setAnim(RUNB, 0.1f); //second parameter important for character feel
-                }
-
-                //Turn on and off top part for more natural animations
-                if (!topChannel.getAnimationName().equals(RUNT) && (backward || forward || leftStrafe || rightStrafe)) {
-                    topChannel.setAnim(RUNT, 0.5f);
-                }
-
-                if (topChannel.getAnimationName().equals(RUNT) && (!backward && !forward && !leftStrafe && !rightStrafe)) {
-                    topChannel.setAnim(IDLET, 0.4f);
-                }
-
-                if (!backward && !forward && !leftStrafe && !rightStrafe) //Animation speed
+        if(!dead)
+        {
+            if (physicsCharacter.onGround()) 
+            {
+                if (botChannel.getAnimationName().equals(JUMP)) 
                 {
-                    botChannel.setSpeed(0.6f);
-                } else {
-                    botChannel.setSpeed(1);
+                    botChannel.setAnim(JUMPE, 0); //second parameter important for character feel
+                    botChannel.setLoopMode(LoopMode.DontLoop);
                 }
 
-            } else {
-                if (botChannel.getAnimationName().equals(RUNB)) {
-                    botChannel.setAnim(IDLEB, 0.1f);
-                    topChannel.setAnim(IDLET, 0.4f);
+                //Buttons
+                if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) 
+                {
+                    if (!botChannel.getAnimationName().equals(RUNB)) 
+                    {
+                        botChannel.setAnim(RUNB, 0.1f); //second parameter important for character feel
+                    }
+
+                    //Turn on and off top part for more natural animations
+                    if (!topChannel.getAnimationName().equals(RUNT) && (backward || forward || leftStrafe || rightStrafe)) 
+                    {
+                        topChannel.setAnim(RUNT, 0.5f);
+                    }
+
+                    if (topChannel.getAnimationName().equals(RUNT) && (!backward && !forward && !leftStrafe && !rightStrafe)) 
+                    {
+                        topChannel.setAnim(IDLET, 0.4f);
+                    }
+
+                    if (!backward && !forward && !leftStrafe && !rightStrafe) //Animation speed
+                    {
+                        botChannel.setSpeed(0.6f);
+                    } 
+                    else 
+                    {
+                        botChannel.setSpeed(1);
+                    }
+                } 
+                else 
+                {
+                    if (botChannel.getAnimationName().equals(RUNB)) 
+                    {
+                        botChannel.setAnim(IDLEB, 0.1f);
+                        topChannel.setAnim(IDLET, 0.4f);
+                    }
                 }
-            }
-        } else {
-            if (!botChannel.getAnimationName().equals(JUMPS) && !botChannel.getAnimationName().equals(JUMP) && !botChannel.getAnimationName().equals(JUMPE)) {
-                botChannel.setAnim(JUMPS, 0.1f); //second parameter important for character feel
-                botChannel.setLoopMode(LoopMode.DontLoop);
+            } 
+            else 
+            {
+                if (!botChannel.getAnimationName().equals(JUMPS) && !botChannel.getAnimationName().equals(JUMP) && !botChannel.getAnimationName().equals(JUMPE)) 
+                {
+                    botChannel.setAnim(JUMPS, 0.1f); //second parameter important for character feel
+                    botChannel.setLoopMode(LoopMode.DontLoop);
+                }
             }
         }
-}
 
         physicsCharacter.setWalkDirection(walkDirection);
         physicsCharacter.setViewDirection(viewDirection);
-    }
-    
-    public void die()
-    {
-                stop();
-                dead = true;
-                botChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
-                botChannel.setLoopMode(LoopMode.DontLoop);
-                topChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
-                topChannel.setLoopMode(LoopMode.DontLoop);
-    }
-    
-    public void dance()
-    {
-                stop();
-                dead = true;
-                botChannel.setAnim("Dance"); //second parameter important for character feel
-                botChannel.setLoopMode(LoopMode.Cycle);
-                topChannel.setAnim("Dance", 0.2f); //second parameter important for character feel
-                topChannel.setLoopMode(LoopMode.Cycle);
     }
 }

@@ -85,8 +85,7 @@ public class RecDivMazeGrid extends Generation {
         tempCell.doorExistsNow();
     }
 
-    //TODO: Clean this function into smaller pieces AND don't allow it to create walls with size 0. They make for some ugly
-    //clipping. Eww...
+    //TODO: Clean this function into smaller pieces
     private void createWall(int gridStartCoorX, int gridStartCoorY, int numOfCells, String geomName) {
         Geometry[] geoms = new Geometry[2];
         Box[] boxes = new Box[2];
@@ -381,7 +380,7 @@ public class RecDivMazeGrid extends Generation {
         wallMat.setTexture("NormalMap", wallNormal);
         wallMat.setBoolean("UseMaterialColors", true);
         wallMat.setColor("Diffuse", ColorRGBA.White);  // minimum material color
-        wallMat.setColor("Specular", ColorRGBA.White); // for shininess
+        wallMat.setColor("Specular", ColorRGBA.Gray); // for shininess
         wallMat.setFloat("Shininess", 128f); // [1,128] for shininess
 
         floorMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
