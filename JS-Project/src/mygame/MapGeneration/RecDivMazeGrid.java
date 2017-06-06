@@ -366,7 +366,6 @@ public class RecDivMazeGrid extends Generation {
         ceil.rotate(0, (float) Math.PI, 0);
         ceil.setLocalTranslation(planeWidth - WALL_THICKNESS, -WALL_THICKNESS, Z_HEIGHT_OF_ALL - 0.1f);
         generatedMaze.attachChild(ceil);
-
     }
 
     private void createMaterials() 
