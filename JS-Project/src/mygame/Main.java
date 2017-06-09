@@ -4,6 +4,8 @@ import mygame.MapGeneration.RecDivMazeGrid;
 import mygame.MapGeneration.SprinkleObjects;
 import mygame.GameObjects.Player;
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
+import com.jme3.audio.Environment;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResult;
@@ -21,10 +23,12 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.font.Rectangle;
+import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
 import mygame.GameObjects.Enemy;
@@ -47,6 +51,7 @@ public class Main extends SimpleApplication {
     SprinkleObjects sprinkler;
     Player player;
 
+    Node aNode;
     Node sceneNode;
     Node mazeNode;
     Node sprinkleNode;
@@ -63,25 +68,35 @@ public class Main extends SimpleApplication {
     ParticleEmitter sparkles;
     BitmapText hudText;
 
-    private void addLightToRelevantAreas(FullLight lamp_light)
-    {
+    AudioNode aGem;
+    AudioNode aDeath;
+    AudioNode aAmbient;
+
+    private void addLightToRelevantAreas(FullLight lamp_light) {
         allEncompassingNode.addLight(lamp_light.getLight());
         allEncompassingNode.setShadowMode(ShadowMode.Receive);
         lightList.add(lamp_light);
     }
-    
-    private void addToWorld() 
-    {
-        for (GameObject gObject : gObjectsList) 
-        {
-            if (gObject.getClassName().equals("Torch")) 
-            {   
+
+    private void addToWorld() {
+        for (GameObject gObject : gObjectsList) {
+            if (gObject.getClassName().equals("Torch")) {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Orange.mult(ColorRGBA.Yellow), 8f, new Vector3f(0, 0.55f, 0));
                 addLightToRelevantAreas(light);
+
+                AudioNode aTorch = new AudioNode(assetManager, "Sounds/fire.wav");
+                aTorch.setLooping(true);
+                aTorch.setPositional(true);
+                aTorch.setLocalTranslation(gObject.getWorldTranslation().add(0, 0.55f, 0));
+                //aTorch.setTimeOffset((float) Math.random());
+                aTorch.setVolume(2);
+                aTorch.setRefDistance(0.1f);
+                aTorch.setMaxDistance(2000f);
+                aNode.attachChild(aTorch);
+                aTorch.play(); 
             }
 
-            if (gObject.getClassName().equals("Crate")) 
-            {
+            if (gObject.getClassName().equals("Crate")) {
                 RigidBodyControl cratePhy = new RigidBodyControl(0f);
                 gObject.getGeom().addControl(cratePhy);
                 bulletAppState.getPhysicsSpace().add(cratePhy);
@@ -94,15 +109,13 @@ public class Main extends SimpleApplication {
         }
     }
 
-    private void setFlyCamSettings()
-    {
+    private void setFlyCamSettings() {
         flyCam.setMoveSpeed(20);
         flyCam.setRotationSpeed(10);
         flyCam.setEnabled(false);
     }
 
-    private void lightScene()
-    {
+    private void lightScene() {
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(ColorRGBA.White.mult(0.4f));
         dl.setDirection(new Vector3f(-1f, -1f, -1));
@@ -112,9 +125,8 @@ public class Main extends SimpleApplication {
         dl2.setDirection(new Vector3f(1f, 1f, 1));
         allEncompassingNode.addLight(dl2);
     }
-    
-    private Node prepareSprinkleNode()
-    {
+
+    private Node prepareSprinkleNode() {
 //Constructor SprinkleObjects(AssetManager newAssetManager, Camera cam, Node mazeNode, int treasurePointValue,
 //            int minDistanceToPlayer, int maxEnemiesPerRoom, int maxTorchesPerRoom, int maxGemsPerRoom, 
 //            float enemyChance, float objectChance, float treasureChance)
@@ -122,7 +134,7 @@ public class Main extends SimpleApplication {
         Node node = new Node();
         node.attachChild(sprinkler.sprinkle());
         node.setShadowMode(ShadowMode.Receive);
-        
+
         return node;
     }
 
@@ -137,21 +149,24 @@ public class Main extends SimpleApplication {
         return node;
     }
 
-    private void createHUD()
-    {
+    private void createHUD() {
         hudText = new BitmapText(guiFont, false);
         hudText.setSize(guiFont.getCharSet().getRenderedSize() * 2);      // font size
-        hudText.setBox(new Rectangle(0,0,settings.getWidth(), settings.getHeight()));
+        hudText.setBox(new Rectangle(0, 0, settings.getWidth(), settings.getHeight()));
         hudText.setAlignment(BitmapFont.Align.Center);
         hudText.setColor(ColorRGBA.Red);                             // font color
         hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
         hudText.setText("Score: " + Integer.toString(player.getScore()));             // the text
         guiNode.attachChild(hudText);
     }
-    
-    private void initGame() 
-    {
+
+    private void initGame() {
         playing = true;
+
+        aNode = new Node("Audio");
+        rootNode.attachChild(aNode);
+        initAudio();
+        
 
         sceneNode = new Node("Scene");
         mazeNode = prepareMazeNode();
@@ -183,8 +198,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(allEncompassingNode);
     }
 
-    private void initKeys() 
-    {
+    private void initKeys() {
         //Restart maze and change camera
         inputManager.addMapping("Restart", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addMapping("Camera", new KeyTrigger(KeyInput.KEY_C));
@@ -244,6 +258,13 @@ public class Main extends SimpleApplication {
     }
 
     private void restartGame() {
+
+        List<Spatial> audiolist = aNode.getChildren();
+        for (Spatial sound : audiolist) {
+            AudioNode audion = (AudioNode) sound;
+            audion.stop();
+        }
+
         bulletAppState.getPhysicsSpace().removeAll(rootNode);
         rootNode.detachAllChildren();
         guiNode.detachAllChildren();
@@ -304,6 +325,9 @@ public class Main extends SimpleApplication {
 
             if (gObject.getClassName().equals("Enemy")) {
                 if (playing) {
+
+                    aDeath.play();
+
                     Enemy e = (Enemy) gObject;
                     e.stop();
                     playing = false;
@@ -315,6 +339,9 @@ public class Main extends SimpleApplication {
             }
 
             if (gObject.getClassName().equals("Gem") && playing) {
+
+                aGem.playInstance();
+
                 Gem gem = (Gem) gObject;
                 ParticleEmitter temp = gem.prepareParticleExplosion(gObject);
                 rootNode.attachChild(temp);
@@ -324,26 +351,53 @@ public class Main extends SimpleApplication {
             }
         }
     }
-    
+
     @Override
     public void simpleUpdate(float tpf) {
         if (!freeCam) {
             player.move(tpf);
         }
+
+        if (!freeCam) {
+            listener.setLocation(player.getPhysicsLocationLocation());
+            listener.setRotation(player.getSpatial().getWorldRotation());
+        } else {
+            listener.setLocation(cam.getLocation());
+            listener.setRotation(cam.getRotation());
+        }
+
         for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
             handleCollisions(gObject);
         }
         for (FullLight light : lightList) {
             light.setRadius(8 + (float) (Math.random()));
-            if(!light.castRay(allEncompassingNode, player))
-            {
+            if (!light.castRay(allEncompassingNode, player)) {
                 light.removeShadow();
-            }
-            else
-            {
+            } else {
                 light.addShadow();
             }
         }
+    }
+
+    private void initAudio() {
+       
+        aGem = new AudioNode(assetManager, "Sounds/collectGem.wav");
+        aGem.setPositional(false);
+        aGem.setDirectional(false);
+        aNode.attachChild(aGem);
+
+        aDeath = new AudioNode(assetManager, "Sounds/death.wav");
+        aDeath.setPositional(false);
+        aDeath.setDirectional(false);
+        aNode.attachChild(aDeath);
+
+        aAmbient = new AudioNode(assetManager, "Sounds/ambient.ogg", true);
+        aAmbient.setLooping(true);  // activate continuous playing
+        aAmbient.setPositional(false);
+        aAmbient.setVolume(0.01f);
+        //aNode.attachChild(aAmbient);
+        //aAmbient.play(); // play continuously!
+
     }
 }
