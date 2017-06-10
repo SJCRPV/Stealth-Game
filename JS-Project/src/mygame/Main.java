@@ -70,6 +70,7 @@ public class Main extends SimpleApplication {
 
     AudioNode aGem;
     AudioNode aDeath;
+    AudioNode aHit;
     AudioNode aAmbient;
 
     private void addLightToRelevantAreas(FullLight lamp_light) {
@@ -84,14 +85,13 @@ public class Main extends SimpleApplication {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Orange.mult(ColorRGBA.Yellow), 8f, new Vector3f(0, 0.55f, 0));
                 addLightToRelevantAreas(light);
 
-                AudioNode aTorch = new AudioNode(assetManager, "Sounds/fire.wav");
+                AudioNode aTorch = new AudioNode(assetManager, "Sounds/abc.wav");
                 aTorch.setLooping(true);
                 aTorch.setPositional(true);
                 aTorch.setLocalTranslation(gObject.getWorldTranslation().add(0, 0.55f, 0));
-                //aTorch.setTimeOffset((float) Math.random());
-                aTorch.setVolume(2);
-                aTorch.setRefDistance(0.1f);
-                aTorch.setMaxDistance(2000f);
+                aTorch.setTimeOffset((float) Math.random());
+                aTorch.setRefDistance(0.5f);
+                aTorch.setMaxDistance(5000);
                 aNode.attachChild(aTorch);
                 aTorch.play(); 
             }
@@ -105,6 +105,17 @@ public class Main extends SimpleApplication {
             if (gObject.getClassName().equals("Objective")) {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y);
                 addLightToRelevantAreas(light);
+                
+                AudioNode aTorch = new AudioNode(assetManager, "Sounds/firetest.wav");
+                aTorch.setLooping(true);
+                aTorch.setPositional(true);
+                aTorch.setLocalTranslation(gObject.getWorldTranslation().add(0, 0.55f, 0));
+                //aTorch.setTimeOffset((float) Math.random());
+                aTorch.setVolume(2);
+                aTorch.setRefDistance(0.01f);
+                aTorch.setMaxDistance(5000);
+                aNode.attachChild(aTorch);
+                //aTorch.play(); 
             }
         }
     }
@@ -327,6 +338,8 @@ public class Main extends SimpleApplication {
                 if (playing) {
 
                     aDeath.play();
+                    aHit.setLocalTranslation(gObject.getWorldTranslation());
+                    aHit.play();
 
                     Enemy e = (Enemy) gObject;
                     e.stop();
@@ -358,13 +371,13 @@ public class Main extends SimpleApplication {
             player.move(tpf);
         }
 
-        if (!freeCam) {
-            listener.setLocation(player.getPhysicsLocationLocation());
-            listener.setRotation(player.getSpatial().getWorldRotation());
-        } else {
+        //if (!freeCam) {
+          //listener.setLocation(player.getModelTranslation());
+          //listener.setRotation(player.getModelRotation());     
+        //} else {
             listener.setLocation(cam.getLocation());
             listener.setRotation(cam.getRotation());
-        }
+        //}
 
         for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
@@ -382,7 +395,8 @@ public class Main extends SimpleApplication {
 
     private void initAudio() {
        
-        aGem = new AudioNode(assetManager, "Sounds/collectGem.wav");
+        aGem = new AudioNode(assetManager, "Sounds/collectGem2.wav");
+        aGem.setVolume(0.1f);
         aGem.setPositional(false);
         aGem.setDirectional(false);
         aNode.attachChild(aGem);
@@ -391,6 +405,10 @@ public class Main extends SimpleApplication {
         aDeath.setPositional(false);
         aDeath.setDirectional(false);
         aNode.attachChild(aDeath);
+        
+        aHit = new AudioNode(assetManager, "Sounds/hit.wav");
+        aHit.setPositional(true);
+        aNode.attachChild(aHit);
 
         aAmbient = new AudioNode(assetManager, "Sounds/ambient.ogg", true);
         aAmbient.setLooping(true);  // activate continuous playing

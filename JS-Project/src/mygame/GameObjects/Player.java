@@ -18,6 +18,7 @@ import com.jme3.bullet.BulletAppState;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
@@ -393,5 +394,15 @@ public final class Player extends GameObject implements AnimEventListener {
 
         physicsCharacter.setWalkDirection(walkDirection);
         physicsCharacter.setViewDirection(viewDirection);
+    }
+    
+    public Vector3f getModelTranslation()
+    {
+        return object.getWorldTranslation();
+    }
+    
+     public Quaternion getModelRotation()
+    {
+        return object.getWorldRotation();
     }
 }
