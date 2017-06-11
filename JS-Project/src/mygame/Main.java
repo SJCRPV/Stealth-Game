@@ -85,12 +85,12 @@ public class Main extends SimpleApplication {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Orange.mult(ColorRGBA.Yellow), 8f, new Vector3f(0, 0.55f, 0));
                 addLightToRelevantAreas(light);
 
-                AudioNode aTorch = new AudioNode(assetManager, "Sounds/abc.wav");
+                AudioNode aTorch = new AudioNode(assetManager, "Sounds/fire.wav");
                 aTorch.setLooping(true);
                 aTorch.setPositional(true);
                 aTorch.setLocalTranslation(gObject.getWorldTranslation().add(0, 0.55f, 0));
-                aTorch.setTimeOffset((float) Math.random());
-                aTorch.setRefDistance(0.5f);
+                aTorch.setTimeOffset((float) Math.random() * 4);
+                aTorch.setRefDistance(1f);
                 aTorch.setMaxDistance(5000);
                 aNode.attachChild(aTorch);
                 aTorch.play(); 
@@ -177,6 +177,8 @@ public class Main extends SimpleApplication {
         aNode = new Node("Audio");
         rootNode.attachChild(aNode);
         initAudio();
+        
+        
         
 
         sceneNode = new Node("Scene");
@@ -275,7 +277,12 @@ public class Main extends SimpleApplication {
             AudioNode audion = (AudioNode) sound;
             audion.stop();
         }
-
+        for (GameObject gObject : gObjectsList) {
+            if (gObject.getClassName().equals("Enemy")) {
+                Enemy e = (Enemy) gObject;
+                e.stopWalk();              
+            }
+        }
         bulletAppState.getPhysicsSpace().removeAll(rootNode);
         rootNode.detachAllChildren();
         guiNode.detachAllChildren();
@@ -336,7 +343,8 @@ public class Main extends SimpleApplication {
 
             if (gObject.getClassName().equals("Enemy")) {
                 if (playing) {
-
+                    
+                    aDeath.setLocalTranslation(gObject.getWorldTranslation());
                     aDeath.play();
                     aHit.setLocalTranslation(gObject.getWorldTranslation());
                     aHit.play();
@@ -394,6 +402,8 @@ public class Main extends SimpleApplication {
     }
 
     private void initAudio() {
+        
+        audioRenderer.setEnvironment(new Environment(Environment.Dungeon));
        
         aGem = new AudioNode(assetManager, "Sounds/collectGem2.wav");
         aGem.setVolume(0.1f);
@@ -402,8 +412,8 @@ public class Main extends SimpleApplication {
         aNode.attachChild(aGem);
 
         aDeath = new AudioNode(assetManager, "Sounds/death.wav");
-        aDeath.setPositional(false);
-        aDeath.setDirectional(false);
+        aDeath.setPositional(true);
+        aDeath.setReverbEnabled(true);
         aNode.attachChild(aDeath);
         
         aHit = new AudioNode(assetManager, "Sounds/hit.wav");

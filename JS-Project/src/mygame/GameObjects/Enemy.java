@@ -10,6 +10,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioNode;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResult;
@@ -39,6 +40,8 @@ public final class Enemy extends GameObject implements AnimEventListener {
     private final static float MIN_DIST = 1.2f;
     private final static float SPEED = 1f;
     private final static float ROT = 60 * FastMath.DEG_TO_RAD;
+    
+    AudioNode aWalk;
 
     @Override
     public String getClassName() 
@@ -129,7 +132,16 @@ public final class Enemy extends GameObject implements AnimEventListener {
         defineObjectBounds();
         defineLighting();
         setAnimationControl();
-
+        
+        aWalk = new AudioNode(assetManager, "Sounds/robot.wav");
+        aWalk.setPositional(true);
+        aWalk.setLocalTranslation(gameObjectNode.getWorldTranslation());
+        aWalk.setLooping(true);
+        //aWalk.setVolume(0.1f);
+        aWalk.setRefDistance(0.1f);
+        aWalk.setMaxDistance(5000);
+        aWalk.setReverbEnabled(true);
+        aWalk.play();
         direction = (float) (Math.random() * 2 * FastMath.PI);
         //direction = FastMath.PI /2;
 
@@ -181,6 +193,8 @@ public final class Enemy extends GameObject implements AnimEventListener {
         {
             castRay(tpf);
         }
+        
+        aWalk.setLocalTranslation(gameObjectNode.getWorldTranslation());
         /**
          * CollisionResults results = new CollisionResults(); Ray ray = new
          * Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0,0,1*speed));
@@ -191,5 +205,10 @@ public final class Enemy extends GameObject implements AnimEventListener {
          * System.out.println(closest.getDistance());
          * if(closest.getDistance()<MIN_DIST) speed = -speed; } 
         */
+    }
+    
+    public void stopWalk()
+    {
+        aWalk.stop();
     }
 }

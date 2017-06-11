@@ -14,10 +14,12 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioNode;
 import com.jme3.bullet.BulletAppState;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -27,7 +29,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
 
 public final class Player extends GameObject implements AnimEventListener {
-    
+
     //Player variables
     protected static int SCORE = 0;
     protected static float ROTATIONSPEED = 3f;
@@ -57,92 +59,87 @@ public final class Player extends GameObject implements AnimEventListener {
     private AnimChannel botChannel;
     private AnimControl control;
 
-    public void setShadowMode(RenderQueue.ShadowMode shadowMode) 
-    {
+    AudioNode left1;
+    AudioNode left2;
+    AudioNode left3;
+    AudioNode right1;
+    AudioNode right2;
+    AudioNode right3;
+    AudioNode aLand1;
+    AudioNode aLand2;
+    
+    int stepInt;
+
+    public void setShadowMode(RenderQueue.ShadowMode shadowMode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    protected GameObject getGObjectClone() 
-    {
+    protected GameObject getGObjectClone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public String getClassName() 
-    {
+    public String getClassName() {
         return "Player";
     }
-    
-    public int getScore()
-    {
+
+    public int getScore() {
         return SCORE;
     }
-    
-    public void addToScore(int value)
-    {
+
+    public void addToScore(int value) {
         SCORE += value;
     }
-    
-    public void detachCamera() 
-    {
+
+    public void detachCamera() {
         gameObjectNode.detachChild(camNode);
     }
 
-    public void attachCamera() 
-    {
+    public void attachCamera() {
         gameObjectNode.attachChild(camNode);
     }
 
-    public void setPhysicsRotation(Vector3f rotation)
-    {
+    public void setPhysicsRotation(Vector3f rotation) {
         gameObjectNode.rotate(rotation.x, rotation.y, rotation.z);
     }
-    
-    public void setPhysicsLocation(Vector3f location)
-    {
+
+    public void setPhysicsLocation(Vector3f location) {
         physicsCharacter.setPhysicsLocation(location);
     }
 
-    public Vector3f getPhysicsLocationLocation() 
-    {
+    public Vector3f getPhysicsLocationLocation() {
         return physicsCharacter.getPhysicsLocation();
     }
-    
+
     @Override
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) 
-    {
+    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
     }
-    
+
     @Override
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) 
-    {
-        if (botChannel.getAnimationName().equals(JUMPE))
-        {
+    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+        if (botChannel.getAnimationName().equals(JUMPE)) {
             botChannel.setAnim(IDLEB, 0.5f); //second parameter important for character feel
             topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
             botChannel.setLoopMode(LoopMode.Cycle);
             topChannel.setLoopMode(LoopMode.Cycle);
         }
 
-        if (botChannel.getAnimationName().equals(JUMPS)) 
-        {
+        if (botChannel.getAnimationName().equals(JUMPS)) {
             botChannel.setAnim(JUMP, 0.1f); //second parameter important for character feel
             botChannel.setLoopMode(LoopMode.Cycle);
         }
-        
-        if (botChannel.getAnimationName().equals("StandUpBack")) 
-        {
+
+        if (botChannel.getAnimationName().equals("StandUpBack")) {
             botChannel.setAnim(IDLEB, 0.1f); //second parameter important for character feel
             botChannel.setLoopMode(LoopMode.Cycle);
             topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
             topChannel.setLoopMode(LoopMode.Cycle);
-            
+
         }
     }
-    
-    private void setAnimationControl() 
-    {
+
+    private void setAnimationControl() {
         control = object.getControl(AnimControl.class);
         control.addListener(this);
         botChannel = control.createChannel();
@@ -152,9 +149,8 @@ public final class Player extends GameObject implements AnimEventListener {
         topChannel.setLoopMode(LoopMode.Cycle);
         botChannel.setLoopMode(LoopMode.Cycle);
     }
-    
-    public void setFollowingCameraNode(Camera cam) 
-    {
+
+    public void setFollowingCameraNode(Camera cam) {
         this.cam = cam;
         camNode = new CameraNode("CamNode", cam);
         camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
@@ -162,77 +158,70 @@ public final class Player extends GameObject implements AnimEventListener {
         camNode.lookAt(object.getLocalTranslation(), Vector3f.UNIT_Y);
         gameObjectNode.attachChild(camNode);
     }
-    
-    private void placeCharacter(Node rootNode, Vector3f startPos) 
-    {
+
+    private void placeCharacter(Node rootNode, Vector3f startPos) {
         gameObjectNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
         physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
         rootNode.attachChild(gameObjectNode);
         gameObjectNode.attachChild(object);
     }
-    
+
     @Override
-    public boolean handleCollisions(GameObject gObject)
-    {
+    public boolean handleCollisions(GameObject gObject) {
         return false;
     }
 
-    
     @Override
-    public void loadPhysics()
-    {
+    public void loadPhysics() {
         physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
         physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
         gameObjectNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
     }
-    
+
     @Override
-    protected void loadModel()
-    {
+    protected void loadModel() {
         object = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         object.scale(0.1f);
         //object.setCullHint(Spatial.CullHint.Dynamic);
-        
+
         gameObjectNode.attachChild(object);
     }
-    
+
     @Override
-    protected void createMaterial() 
-    {
+    protected void createMaterial() {
         /**
          * Temp Material whitemat = new Material(assetManager,
          * "Common/MatDefs/Misc/Unshaded.j3md"); whitemat.setColor("Color",
          * ColorRGBA.White); model.setMaterial(whitemat);*
          */
     }
-    
-    public Player(AssetManager assetManager, BulletAppState bulletAppState, Node rootNode, Camera cam, Vector3f startPos)
-    {
+
+    public Player(AssetManager assetManager, BulletAppState bulletAppState, Node rootNode, Camera cam, Vector3f startPos) {
         this.cam = cam;
         this.assetManager = assetManager;
         this.bulletAppState = bulletAppState;
-            
+
         SCORE = 0;
-            
+        stepInt = 0;
+
         createMaterial();
         loadModel();
         loadPhysics();
         placeCharacter(rootNode, startPos);
         setFollowingCameraNode(cam);
         setAnimationControl();
+        initAudio();
         physicsCharacter.setJumpSpeed(JUMPSPEED);
     }
-    
-    public Player(AssetManager assetManager) 
-    {
+
+    public Player(AssetManager assetManager) {
         //Temp
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
     }
 
-    public void stop() 
-    {
+    public void stop() {
         leftStrafe = false;
         rightStrafe = false;
         leftRotate = false;
@@ -246,9 +235,8 @@ public final class Player extends GameObject implements AnimEventListener {
         botChannel.setAnim(IDLEB, 0.5f);
         topChannel.setAnim(IDLET, 0.5f);
     }
-    
-    public void die()
-    {
+
+    public void die() {
         stop();
         dead = true;
         botChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
@@ -256,19 +244,17 @@ public final class Player extends GameObject implements AnimEventListener {
         topChannel.setAnim("StandUpBack", 0.2f); //second parameter important for character feel
         topChannel.setLoopMode(LoopMode.DontLoop);
     }
-    
-    public void dance()
-    {
+
+    public void dance() {
         stop();
         dead = true;
         botChannel.setAnim("Dance"); //second parameter important for character feel
         botChannel.setLoopMode(LoopMode.Cycle);
         topChannel.setAnim("Dance", 0.2f); //second parameter important for character feel
         topChannel.setLoopMode(LoopMode.Cycle);
-    }    
-    
-    public void controls(String name, boolean keyPressed) 
-    {
+    }
+
+    public void controls(String name, boolean keyPressed) {
         if (name.equals("Strafe Left")) {
             if (keyPressed) {
                 leftStrafe = true;
@@ -306,14 +292,13 @@ public final class Player extends GameObject implements AnimEventListener {
                 backward = false;
             }
         } else if (name.equals("Jump")) {
-            physicsCharacter.jump();   
+            physicsCharacter.jump();
         }
     }
-    
+
     //Note: This is equivalent to "update" you can probably replace this. You just need to be aware of the if(!freeCam) condition
     //on Main.
-    public void move(float tpf) 
-    {
+    public void move(float tpf) {
         Vector3f camDir = cam.getDirection().mult(WALKSPEED);
         Vector3f camLeft = cam.getLeft().mult(WALKSPEED);
         camDir.y = 0;
@@ -335,67 +320,129 @@ public final class Player extends GameObject implements AnimEventListener {
         } else if (backward) {
             walkDirection.addLocal(camDir.negate());
         }
-        if(!dead)
-        {
-            if (physicsCharacter.onGround()) 
-            {
-                if (botChannel.getAnimationName().equals(JUMP)) 
-                {
+        if (!dead) {
+            if (physicsCharacter.onGround()) {
+                if (botChannel.getAnimationName().equals(JUMP)) {
                     botChannel.setAnim(JUMPE, 0); //second parameter important for character feel
                     botChannel.setLoopMode(LoopMode.DontLoop);
+                    
+                    float r = (float) Math.random();
+                    if(r>0.5f)
+                    {
+                        aLand1.playInstance();
+                    }
+                    else
+                    {
+                        aLand2.playInstance();
+                    }
                 }
 
                 //Buttons
-                if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) 
-                {
-                    if (!botChannel.getAnimationName().equals(RUNB)) 
-                    {
+                if (leftRotate || rightRotate || backward || forward || leftStrafe || rightStrafe) {
+                    if (!botChannel.getAnimationName().equals(RUNB)) {
+                        stepInt = 0;
                         botChannel.setAnim(RUNB, 0.1f); //second parameter important for character feel
                     }
 
                     //Turn on and off top part for more natural animations
-                    if (!topChannel.getAnimationName().equals(RUNT) && (backward || forward || leftStrafe || rightStrafe)) 
-                    {
+                    if (!topChannel.getAnimationName().equals(RUNT) && (backward || forward || leftStrafe || rightStrafe)) {
                         topChannel.setAnim(RUNT, 0.5f);
                     }
 
-                    if (topChannel.getAnimationName().equals(RUNT) && (!backward && !forward && !leftStrafe && !rightStrafe)) 
-                    {
+                    if (topChannel.getAnimationName().equals(RUNT) && (!backward && !forward && !leftStrafe && !rightStrafe)) {
                         topChannel.setAnim(IDLET, 0.4f);
                     }
 
                     if (!backward && !forward && !leftStrafe && !rightStrafe) //Animation speed
                     {
                         botChannel.setSpeed(0.6f);
-                    } 
-                    else 
-                    {
+                    } else {
                         botChannel.setSpeed(1);
                     }
-                } 
-                else 
-                {
-                    if (botChannel.getAnimationName().equals(RUNB)) 
-                    {
+                } else {
+                    if (botChannel.getAnimationName().equals(RUNB)) {
                         botChannel.setAnim(IDLEB, 0.1f);
                         topChannel.setAnim(IDLET, 0.4f);
                     }
                 }
-            } 
-            else 
-            {
-                if (!botChannel.getAnimationName().equals(JUMPS) && !botChannel.getAnimationName().equals(JUMP) && !botChannel.getAnimationName().equals(JUMPE)) 
-                {
+            } else {
+                if (!botChannel.getAnimationName().equals(JUMPS) && !botChannel.getAnimationName().equals(JUMP) && !botChannel.getAnimationName().equals(JUMPE)) {
                     botChannel.setAnim(JUMPS, 0.1f); //second parameter important for character feel
                     botChannel.setLoopMode(LoopMode.DontLoop);
                 }
             }
         }
 
+        playSteps(tpf);
+
         physicsCharacter.setWalkDirection(walkDirection);
         physicsCharacter.setViewDirection(viewDirection);
     }
-    
+
+    private void initAudio() {
+
+        left1 = new AudioNode(assetManager, "Sounds/walking/left1.wav");
+        left1.setVolume(0.1f);
+        left1.setPositional(true);
+        left2 = new AudioNode(assetManager, "Sounds/walking/left2.wav");
+        left2.setVolume(0.1f);
+        left2.setPositional(true);
+        left3 = new AudioNode(assetManager, "Sounds/walking/left3.wav");
+        left3.setVolume(0.1f);
+        left3.setPositional(true);
+        right1 = new AudioNode(assetManager, "Sounds/walking/right1.wav");
+        right1.setVolume(0.1f);
+        right1.setPositional(true);
+        right2 = new AudioNode(assetManager, "Sounds/walking/right2.wav");
+        right2.setVolume(0.1f);
+        right2.setPositional(true);
+        right3 = new AudioNode(assetManager, "Sounds/walking/right3.wav");
+        right3.setVolume(0.1f);
+        right3.setPositional(true);
+        
+        aLand1 = new AudioNode(assetManager, "Sounds/walking/land1.wav");
+        aLand1.setVolume(0.1f);
+        aLand1.setReverbEnabled(true);
+        aLand1.setPositional(false);
+        
+        aLand2 = new AudioNode(assetManager, "Sounds/walking/land2.wav");
+        aLand2.setVolume(0.1f);
+        aLand2.setReverbEnabled(true);
+        aLand2.setPositional(false);
+    }
+
+    private void playSteps(float tpf) {
+
+       
+        if (botChannel.getAnimationName().equals(RUNB)) {
+            stepInt += 1;
+            if(stepInt > 120)
+            {
+                int r =FastMath.nextRandomInt(0, 2);
+                AudioNode step;
+                switch(r)
+                {
+                    case 0:
+                        step = left1;
+                        break;
+                    case 1:
+                        step = left2;
+                        break;
+                    case 2: 
+                        step = left3;
+                        break;
+                    default:
+                        step = left1;
+                  
+                }
+                step.setLocalTranslation(object.getLocalTranslation());
+                step.playInstance();
+                
+                stepInt = 0;
+            }
+        }
+    }
+    /*
     public Vector3f getModelTranslation()
     {
         return object.getWorldTranslation();
@@ -405,4 +452,5 @@ public final class Player extends GameObject implements AnimEventListener {
     {
         return object.getWorldRotation();
     }
+     */
 }
