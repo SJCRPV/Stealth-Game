@@ -301,8 +301,8 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        //To avoid not showing objects behind player. Does not work well with flycam
-        cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
+        //To avoid not showing objects behind player.
+        cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.1f, 1000f);
 
         //Activate physics
         bulletAppState = new BulletAppState();

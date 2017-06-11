@@ -68,7 +68,7 @@ public final class Player extends GameObject implements AnimEventListener {
     AudioNode aLand1;
     AudioNode aLand2;
     
-    int stepInt;
+    float stepInt;
 
     public void setShadowMode(RenderQueue.ShadowMode shadowMode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -381,24 +381,18 @@ public final class Player extends GameObject implements AnimEventListener {
 
     private void initAudio() {
 
-        left1 = new AudioNode(assetManager, "Sounds/walking/left1.wav");
-        left1.setVolume(0.1f);
-        left1.setPositional(true);
-        left2 = new AudioNode(assetManager, "Sounds/walking/left2.wav");
-        left2.setVolume(0.1f);
-        left2.setPositional(true);
-        left3 = new AudioNode(assetManager, "Sounds/walking/left3.wav");
-        left3.setVolume(0.1f);
-        left3.setPositional(true);
-        right1 = new AudioNode(assetManager, "Sounds/walking/right1.wav");
-        right1.setVolume(0.1f);
-        right1.setPositional(true);
-        right2 = new AudioNode(assetManager, "Sounds/walking/right2.wav");
-        right2.setVolume(0.1f);
-        right2.setPositional(true);
-        right3 = new AudioNode(assetManager, "Sounds/walking/right3.wav");
-        right3.setVolume(0.1f);
-        right3.setPositional(true);
+        left1 = new AudioNode(assetManager, "Sounds/walking/step1.wav");
+        left1.setVolume(0.2f);
+        left2 = new AudioNode(assetManager, "Sounds/walking/step2.wav");
+        left2.setVolume(0.2f);
+        left3 = new AudioNode(assetManager, "Sounds/walking/step3.wav");
+        left3.setVolume(0.2f);
+        right1 = new AudioNode(assetManager, "Sounds/walking/step4.wav");
+        right1.setVolume(0.2f);
+        right2 = new AudioNode(assetManager, "Sounds/walking/step5.wav");
+        right2.setVolume(0.2f);
+        right3 = new AudioNode(assetManager, "Sounds/walking/step6.wav");
+        right3.setVolume(0.2f);
         
         aLand1 = new AudioNode(assetManager, "Sounds/walking/land1.wav");
         aLand1.setVolume(0.1f);
@@ -415,10 +409,17 @@ public final class Player extends GameObject implements AnimEventListener {
 
        
         if (botChannel.getAnimationName().equals(RUNB)) {
-            stepInt += 1;
-            if(stepInt > 120)
+            stepInt += tpf;
+           float maxStep;
+           if(topChannel.getAnimationName().equals(RUNT))
+               maxStep = 0.4f;
+           else
+               maxStep = 0.6f;
+           
+            if(stepInt > maxStep)
             {
-                int r =FastMath.nextRandomInt(0, 2);
+                
+                int r =FastMath.nextRandomInt(0, 6);
                 AudioNode step;
                 switch(r)
                 {
@@ -431,11 +432,19 @@ public final class Player extends GameObject implements AnimEventListener {
                     case 2: 
                         step = left3;
                         break;
+                    case 3:
+                        step = right1;
+                        break;
+                    case 4:
+                        step = right2;
+                        break;
+                    case 5: 
+                        step = right3;
+                        break;
                     default:
-                        step = left1;
+                        step = right2;
                   
                 }
-                step.setLocalTranslation(object.getLocalTranslation());
                 step.playInstance();
                 
                 stepInt = 0;
