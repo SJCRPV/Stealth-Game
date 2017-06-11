@@ -106,16 +106,6 @@ public class Main extends SimpleApplication {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y);
                 addLightToRelevantAreas(light);
                 
-                AudioNode aTorch = new AudioNode(assetManager, "Sounds/firetest.wav");
-                aTorch.setLooping(true);
-                aTorch.setPositional(true);
-                aTorch.setLocalTranslation(gObject.getWorldTranslation().add(0, 0.55f, 0));
-                //aTorch.setTimeOffset((float) Math.random());
-                aTorch.setVolume(2);
-                aTorch.setRefDistance(0.01f);
-                aTorch.setMaxDistance(5000);
-                aNode.attachChild(aTorch);
-                //aTorch.play(); 
             }
         }
     }
@@ -177,9 +167,6 @@ public class Main extends SimpleApplication {
         aNode = new Node("Audio");
         rootNode.attachChild(aNode);
         initAudio();
-        
-        
-        
 
         sceneNode = new Node("Scene");
         mazeNode = prepareMazeNode();
@@ -277,6 +264,9 @@ public class Main extends SimpleApplication {
             AudioNode audion = (AudioNode) sound;
             audion.stop();
         }
+        
+        //aAmbient.stop();
+        
         for (GameObject gObject : gObjectsList) {
             if (gObject.getClassName().equals("Enemy")) {
                 Enemy e = (Enemy) gObject;
@@ -335,6 +325,7 @@ public class Main extends SimpleApplication {
                 if (playing) {
                     playing = false;
                     player.dance();
+                    aAmbient.play();
 
                     hudText.setLocalTranslation(0, settings.getHeight() / 2, 0); // position
                     hudText.setText("You found the treasure! \n Press R to play again \n Your score: " + Integer.toString(player.getScore()));             // the text
@@ -344,9 +335,9 @@ public class Main extends SimpleApplication {
             if (gObject.getClassName().equals("Enemy")) {
                 if (playing) {
                     
-                    aDeath.setLocalTranslation(gObject.getWorldTranslation());
+                    aDeath.setLocalTranslation(player.getWorldTranslation());
                     aDeath.play();
-                    aHit.setLocalTranslation(gObject.getWorldTranslation());
+                    aHit.setLocalTranslation(player.getWorldTranslation());
                     aHit.play();
 
                     Enemy e = (Enemy) gObject;
@@ -378,18 +369,20 @@ public class Main extends SimpleApplication {
         if (!freeCam) {
             player.move(tpf);
         }
-
-        //if (!freeCam) {
-          listener.setLocation(player.getWorldTranslation());
-          listener.setRotation(player.getSpatial().getWorldRotation());     
-        //} else {
-            //listener.setLocation(cam.getLocation());
-            //listener.setRotation(cam.getRotation());
-        //}
-
+        
+            listener.setLocation(cam.getLocation());
+            listener.setRotation(cam.getRotation());
+            
         for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
             handleCollisions(gObject);
+            
+            /**
+            if (gObject.getClassName().equals("Enemy")) {
+                Enemy e = (Enemy) gObject;
+                e.getAudio().move(gObject.getWorldTranslation());
+                System.out.println(gObject.getWorldTranslation());
+            }**/
         }
         for (FullLight light : lightList) {
             light.setRadius(8 + (float) (Math.random()));
@@ -414,18 +407,18 @@ public class Main extends SimpleApplication {
         aDeath = new AudioNode(assetManager, "Sounds/death.wav");
         aDeath.setPositional(true);
         aDeath.setReverbEnabled(true);
+        aDeath.setRefDistance(0.2f);
+        aDeath.setMaxDistance(5000);
         aNode.attachChild(aDeath);
         
         aHit = new AudioNode(assetManager, "Sounds/hit.wav");
         aHit.setPositional(true);
         aNode.attachChild(aHit);
 
-        aAmbient = new AudioNode(assetManager, "Sounds/ambient.ogg", true);
-        aAmbient.setLooping(true);  // activate continuous playing
+        aAmbient = new AudioNode(assetManager, "Sounds/win.ogg", true);
+        //aAmbient.setLooping(true);  // activate continuous playing
         aAmbient.setPositional(false);
-        aAmbient.setVolume(0.01f);
-        //aNode.attachChild(aAmbient);
-        //aAmbient.play(); // play continuously!
-
+        aAmbient.setVolume(0.2f);
+        aNode.attachChild(aAmbient);
     }
 }

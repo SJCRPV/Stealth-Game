@@ -11,6 +11,8 @@ import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.AudioSource;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResult;
@@ -137,11 +139,12 @@ public final class Enemy extends GameObject implements AnimEventListener {
         aWalk.setPositional(true);
         aWalk.setLocalTranslation(gameObjectNode.getWorldTranslation());
         aWalk.setLooping(true);
-        //aWalk.setVolume(0.1f);
-        aWalk.setRefDistance(0.1f);
+        aWalk.setVolume(0.2f);
+        aWalk.setRefDistance(0.04f);
         aWalk.setMaxDistance(5000);
         aWalk.setReverbEnabled(true);
-        aWalk.play();
+        aWalk.setTimeOffset((float) Math.random() * 4);
+        
         direction = (float) (Math.random() * 2 * FastMath.PI);
         //direction = FastMath.PI /2;
 
@@ -184,11 +187,17 @@ public final class Enemy extends GameObject implements AnimEventListener {
         rotation.fromAngles(0, 0, direction);
         gameObjectNode.setLocalRotation(rotation);
         gameObjectNode.move(tpf * SPEED * FastMath.cos(direction), tpf * SPEED * FastMath.sin(direction), 0);
+        aWalk.updateGeometricState(); //  this did it! 
+        aWalk.move(tpf * SPEED * FastMath.cos(direction), tpf * SPEED * FastMath.sin(direction), 0);
     }
     
     @Override
     public void update(float tpf) 
     {
+        
+        if(aWalk.getStatus() == Status.Stopped)
+            aWalk.play();
+        
         if(!stop)
         {
             castRay(tpf);
@@ -211,4 +220,5 @@ public final class Enemy extends GameObject implements AnimEventListener {
     {
         aWalk.stop();
     }
+    
 }
