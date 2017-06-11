@@ -380,11 +380,11 @@ public class Main extends SimpleApplication {
         }
 
         //if (!freeCam) {
-          //listener.setLocation(player.getModelTranslation());
-          //listener.setRotation(player.getModelRotation());     
+          listener.setLocation(player.getWorldTranslation());
+          listener.setRotation(player.getSpatial().getWorldRotation());     
         //} else {
-            listener.setLocation(cam.getLocation());
-            listener.setRotation(cam.getRotation());
+            //listener.setLocation(cam.getLocation());
+            //listener.setRotation(cam.getRotation());
         //}
 
         for (GameObject gObject : gObjectsList) {
@@ -405,8 +405,8 @@ public class Main extends SimpleApplication {
         
         audioRenderer.setEnvironment(new Environment(Environment.Dungeon));
        
-        aGem = new AudioNode(assetManager, "Sounds/collectGem2.wav");
-        aGem.setVolume(0.1f);
+        aGem = new AudioNode(assetManager, "Sounds/gem.wav");
+        aGem.setVolume(0.5f);
         aGem.setPositional(false);
         aGem.setDirectional(false);
         aNode.attachChild(aGem);
