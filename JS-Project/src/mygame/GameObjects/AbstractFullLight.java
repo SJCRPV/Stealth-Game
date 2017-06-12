@@ -14,7 +14,7 @@ import com.jme3.app.state.AbstractAppState;
 public abstract class AbstractFullLight extends AbstractAppState {
     //I know. The way it is now doesn't warrant the existence of this class. I just want to see if a need for more development
     //on this becomes necessary.
-    static final int SHADOWMAP_SIZE = 1024;
+    static final int SHADOWMAP_SIZE = 8;
     
     @Override
     public abstract void update(float tpf);

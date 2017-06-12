@@ -12,8 +12,10 @@ import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
+import com.jme3.shadow.PointLightShadowFilter;
 import com.jme3.shadow.PointLightShadowRenderer;
 
 /**
@@ -25,6 +27,7 @@ public class FullLight extends AbstractFullLight{
     AssetManager assetManager;
     PointLight light;
     PointLightShadowRenderer shadow;
+    //PointLightShadowFilter shadow;
     ViewPort viewPort;
     Vector3f directionToPlayer;
     
@@ -35,7 +38,9 @@ public class FullLight extends AbstractFullLight{
     
     public void removeShadow()
     {
+        //viewPort.getProcessors().remove(shadow);
         viewPort.removeProcessor(shadow);
+        shadow.cleanup();
     }
     
     public PointLight getLight()
@@ -53,7 +58,6 @@ public class FullLight extends AbstractFullLight{
         if(results.size() > 0)
         {
             CollisionResult closest = results.getClosestCollision();
-            System.out.println(closest.getGeometry().getName());
             return closest.getGeometry().getName().equalsIgnoreCase("Sinbad-geom-2");
         }
         return false;
@@ -64,6 +68,13 @@ public class FullLight extends AbstractFullLight{
         shadow = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         shadow.setLight(light);
         viewPort.addProcessor(shadow);
+        
+//        shadow = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+//        shadow.setLight(light);
+//        shadow.setEnabled(true);
+//        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+//        fpp.addFilter(shadow);
+//        viewPort.addProcessor(fpp);
     }
     
     public void addShadow()
