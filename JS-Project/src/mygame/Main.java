@@ -62,7 +62,7 @@ public class Main extends SimpleApplication {
     Material sparkleMat;
     ParticleEmitter sparkles;
     BitmapText hudText;
-
+    
     AudioNode aAmbient;
 
     private void addLightToRelevantAreas(FullLight lamp_light) {
@@ -92,6 +92,7 @@ public class Main extends SimpleApplication {
             if (gObject.getClassName().equals("Objective")) {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y);
                 addLightToRelevantAreas(light);
+                
             }
         }
     }
@@ -163,14 +164,12 @@ public class Main extends SimpleApplication {
 
         aNode.attachChild(Player.getAudioNode());
         audioList.add(Player.getAudioNode());
-
-        aAmbient = new AudioNode(assetManager, "Sounds/ambient.ogg", AudioData.DataType.Stream);
-        aAmbient.setLooping(true);  // activate continuous playing
+        
+        aAmbient = new AudioNode(assetManager, "Sounds/win.ogg", true);
+        //aAmbient.setLooping(true);  // activate continuous playing
         aAmbient.setPositional(false);
-        aAmbient.setVolume(0.01f);
+        aAmbient.setVolume(0.2f);
         aNode.attachChild(aAmbient);
-        audioList.add(aAmbient);
-        aAmbient.play(); // play continuously!
     }
 
     private void initGame() {
@@ -273,7 +272,15 @@ public class Main extends SimpleApplication {
         for (AudioNode sound : audioList) {
             sound.stop();
         }
-
+        
+        //aAmbient.stop();
+        
+        for (GameObject gObject : gObjectsList) {
+            if (gObject.getClassName().equals("Enemy")) {
+                Enemy e = (Enemy) gObject;
+                e.stopWalk();              
+            }
+        }
         bulletAppState.getPhysicsSpace().removeAll(rootNode);
         rootNode.detachAllChildren();
         guiNode.detachAllChildren();
@@ -302,8 +309,8 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        //To avoid not showing objects behind player. Does not work well with flycam
-        cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.0001f, 1000f);
+        //To avoid not showing objects behind player.
+        cam.setFrustumPerspective(45, settings.getWidth() / settings.getHeight(), 0.1f, 1000f);
 
         //Activate physics
         bulletAppState = new BulletAppState();
@@ -326,6 +333,7 @@ public class Main extends SimpleApplication {
                 if (playing) {
                     playing = false;
                     player.dance();
+                    aAmbient.play();
 
                     hudText.setLocalTranslation(0, settings.getHeight() / 2, 0); // position
                     hudText.setText("You found the treasure! \n Press R to play again \n Your score: " + Integer.toString(player.getScore()));             // the text
@@ -335,7 +343,8 @@ public class Main extends SimpleApplication {
             if (gObject.getClassName().equals("Enemy")) {
                 if (playing) {
 
-                    player.playAudioInstance();
+                    player.playAudioInstance("death");
+                    player.playAudioInstance("hit");
 
                     Enemy e = (Enemy) gObject;
                     e.stop();
@@ -366,18 +375,19 @@ public class Main extends SimpleApplication {
         if (!freeCam) {
             player.move(tpf);
         }
-
-        if (!freeCam) {
-            listener.setLocation(player.getWorldTranslation());
-            listener.setRotation(player.getSpatial().getWorldRotation());
-        } else {
             listener.setLocation(cam.getLocation());
             listener.setRotation(cam.getRotation());
-        }
-
+            
         for (GameObject gObject : gObjectsList) {
             gObject.update(tpf);
             handleCollisions(gObject);
+            
+            /**
+            if (gObject.getClassName().equals("Enemy")) {
+                Enemy e = (Enemy) gObject;
+                e.getAudio().move(gObject.getWorldTranslation());
+                System.out.println(gObject.getWorldTranslation());
+            }**/
         }
         for (FullLight light : lightList) {
             light.setRadius(8 + (float) (Math.random()));

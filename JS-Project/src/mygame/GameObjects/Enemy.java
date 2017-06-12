@@ -10,6 +10,9 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioNode;
+import com.jme3.audio.AudioSource;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResult;
@@ -39,6 +42,8 @@ public final class Enemy extends GameObject implements AnimEventListener {
     private final static float MIN_DIST = 1.2f;
     private final static float SPEED = 1f;
     private final static float ROT = 60 * FastMath.DEG_TO_RAD;
+    
+    AudioNode aWalk;
 
     @Override
     public String getClassName() 
@@ -129,7 +134,17 @@ public final class Enemy extends GameObject implements AnimEventListener {
         defineObjectBounds();
         defineLighting();
         setAnimationControl();
-
+        
+        aWalk = new AudioNode(assetManager, "Sounds/robot.wav");
+        aWalk.setPositional(true);
+        aWalk.setLocalTranslation(gameObjectNode.getWorldTranslation());
+        aWalk.setLooping(true);
+        aWalk.setVolume(0.2f);
+        aWalk.setRefDistance(0.04f);
+        aWalk.setMaxDistance(5000);
+        aWalk.setReverbEnabled(true);
+        aWalk.setTimeOffset((float) Math.random() * 4);
+        
         direction = (float) (Math.random() * 2 * FastMath.PI);
         //direction = FastMath.PI /2;
 
@@ -172,15 +187,23 @@ public final class Enemy extends GameObject implements AnimEventListener {
         rotation.fromAngles(0, 0, direction);
         gameObjectNode.setLocalRotation(rotation);
         gameObjectNode.move(tpf * SPEED * FastMath.cos(direction), tpf * SPEED * FastMath.sin(direction), 0);
+        aWalk.updateGeometricState(); //  this did it! 
+        aWalk.move(tpf * SPEED * FastMath.cos(direction), tpf * SPEED * FastMath.sin(direction), 0);
     }
     
     @Override
     public void update(float tpf) 
     {
+        
+        if(aWalk.getStatus() == Status.Stopped)
+            aWalk.play();
+        
         if(!stop)
         {
             castRay(tpf);
         }
+        
+        aWalk.setLocalTranslation(gameObjectNode.getWorldTranslation());
         /**
          * CollisionResults results = new CollisionResults(); Ray ray = new
          * Ray(gameObjectNode.getWorldTranslation(), new Vector3f(0,0,1*speed));
@@ -192,4 +215,10 @@ public final class Enemy extends GameObject implements AnimEventListener {
          * if(closest.getDistance()<MIN_DIST) speed = -speed; } 
         */
     }
+    
+    public void stopWalk()
+    {
+        aWalk.stop();
+    }
+    
 }
