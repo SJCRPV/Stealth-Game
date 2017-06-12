@@ -53,7 +53,8 @@ public class FullLight extends AbstractFullLight{
         if(results.size() > 0)
         {
             CollisionResult closest = results.getClosestCollision();
-            return closest.getGeometry().getName().equalsIgnoreCase("player");
+            System.out.println(closest.getGeometry().getName());
+            return closest.getGeometry().getName().equalsIgnoreCase("Sinbad-geom-2");
         }
         return false;
     }

@@ -66,8 +66,7 @@ public class Main extends SimpleApplication {
     AudioNode aAmbient;
 
     private void addLightToRelevantAreas(FullLight lamp_light) {
-        allEncompassingNode.addLight(lamp_light.getLight());
-        allEncompassingNode.setShadowMode(ShadowMode.Receive);
+        rootNode.addLight(lamp_light.getLight());
         lightList.add(lamp_light);
     }
 
@@ -92,7 +91,6 @@ public class Main extends SimpleApplication {
             if (gObject.getClassName().equals("Objective")) {
                 FullLight light = new FullLight(assetManager, viewPort, gObject, ColorRGBA.Yellow.mult(0.8f), 10f, Vector3f.UNIT_Y);
                 addLightToRelevantAreas(light);
-                
             }
         }
     }
@@ -118,8 +116,8 @@ public class Main extends SimpleApplication {
     {
         player = sprinkler.getPlayer();
         player.getNode().setShadowMode(ShadowMode.Cast);
-        rootNode.attachChild(player.getNode());
         allEncompassingNode.attachChild(player.getNode());
+        sprinkleNode.detachChild(player.getNode());
     }
 
     private Node prepareSprinkleNode() {
@@ -130,7 +128,6 @@ public class Main extends SimpleApplication {
         Node node = new Node();
         node.attachChild(sprinkler.sprinkle());
         node.setShadowMode(ShadowMode.Receive);
-        preparePlayer();
 
         return node;
     }
@@ -181,6 +178,7 @@ public class Main extends SimpleApplication {
         
         sprinkleNode = prepareSprinkleNode();
         gObjectsList = sprinkler.getGOList();
+        preparePlayer();
 
         sceneNode.attachChild(mazeNode);
         sceneNode.attachChild(sprinkleNode);
@@ -191,6 +189,7 @@ public class Main extends SimpleApplication {
         lightScene();
         
         allEncompassingNode.attachChild(sceneNode);
+        allEncompassingNode.setShadowMode(ShadowMode.Receive);
 
         //More confortable flycam and disable
         setFlyCamSettings();
