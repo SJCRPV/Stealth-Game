@@ -6,6 +6,7 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioNode;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResults;
 import com.jme3.effect.ParticleEmitter;
@@ -32,6 +33,17 @@ public final class Gem extends GameObject {
     ParticleEmitter sparkles;
     
     private final static int GEMVALUE = 50;
+    private static AudioNode aGem;
+    
+    public static AudioNode getAudioNode()
+    {
+        return aGem;
+    }
+    
+    public void playAudioInstance()
+    {
+        aGem.playInstance();
+    }
     
     @Override
     public String getClassName() {
@@ -126,6 +138,13 @@ public final class Gem extends GameObject {
     {
     }
     
+    private void loadAudio()
+    {
+        aGem = new AudioNode(assetManager, "Sounds/collectGem.ogg");
+        aGem.setPositional(false);
+        aGem.setDirectional(false);
+    }
+    
     @Override
     protected void loadModel() {
         Sphere gemS = new Sphere(32, 32, 0.25f);
@@ -141,6 +160,7 @@ public final class Gem extends GameObject {
         this.assetManager = assetManager;
         createMaterial();
         loadModel();
+        loadAudio();
         loadParticles();
 
         //Temp

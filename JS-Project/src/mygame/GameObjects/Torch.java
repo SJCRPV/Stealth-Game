@@ -6,6 +6,8 @@
 package mygame.GameObjects;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioData;
+import com.jme3.audio.AudioNode;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.effect.shapes.EmitterPointShape;
@@ -25,6 +27,7 @@ public final class Torch extends StandardObject {
 
     ParticleEmitter fire;
     Material fireMat;
+    AudioNode aTorch;
     
     @Override
     public String getClassName()
@@ -32,15 +35,16 @@ public final class Torch extends StandardObject {
         return "Torch";
     }
     
+    public AudioNode getAudioNode()
+    {
+        return aTorch;
+    }
+    
     private void loadParticles()
     {
         //TODO: Make it more convincing. The fire specks aren't jumping out of the torch, they're being shoved out.
-        Geometry g = (Geometry)object;
-        Box s = (Box)g.getMesh();
         ColorRGBA startColour = new ColorRGBA(0.8f, 0.8f, 0f, 0.5f);
         ColorRGBA endColour = new ColorRGBA(0.6f, 0f, 0.1f, 1f);
-        
-        
         
         fire = new ParticleEmitter("Fire", ParticleMesh.Type.Triangle, 20);
         fire.setShape(new EmitterPointShape(Vector3f.ZERO));
@@ -84,6 +88,20 @@ public final class Torch extends StandardObject {
     {
     }
     
+    public void loadAudio()
+    {
+        //Potential problem. Only one will play sounds.
+        aTorch = new AudioNode(assetManager, "Sounds/fire.ogg", AudioData.DataType.Stream);
+        aTorch.setLooping(true);
+        aTorch.setPositional(true);
+        aTorch.setLocalTranslation(object.getWorldTranslation().add(0, 0.55f, 0));
+        aTorch.setVolume(80);
+        aTorch.setPitch(0.8f);
+        aTorch.setRefDistance(0.1f);
+        aTorch.setMaxDistance(2000f);
+        aTorch.play();
+    }
+    
     @Override
     protected void loadModel() {
         Box flowerPotBox = new Box(0.05f, 0.05f, 0.5f);
@@ -102,6 +120,7 @@ public final class Torch extends StandardObject {
         this.assetManager = assetManager;
         createMaterial();
         loadModel();
+//        loadAudio();
         loadParticles();
         defineObjectBounds();
         

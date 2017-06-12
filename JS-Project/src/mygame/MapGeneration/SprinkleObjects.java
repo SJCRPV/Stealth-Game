@@ -13,14 +13,11 @@ import mygame.GameObjects.GameObject;
 import mygame.GameObjects.Player;
 import mygame.GameObjects.Enemy;
 import com.jme3.asset.AssetManager;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.shape.Box;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +29,6 @@ public class SprinkleObjects extends Generation {
     
     Node sprinkledObjects;
     Node mazeNode;
-    Node rootNode;
     AssetManager assetManager;
     List<GameObject> listOfGObjects;
     
@@ -49,16 +45,15 @@ public class SprinkleObjects extends Generation {
     private final float CRATE_CHANCE;
     private final float ENEMY_CHANCE;
 
-    private int maxPointsInLevel;
     private int playerSpawnRoomNum;
+    private int objectiveSpawnRoomNum;
     private int currentRoomNum;
-    private int numOfEnemies;
     private int numOfGems;
     private Geometry playerGeo;
 	
     public List<GameObject> getGOList()
     {
-        //System.out.println("We have " + listOfGObjects.size() + " in our GO list.");
+        //System.out.println("We have " + listOfGObjects.size() + " objects in our GO list.");
         return listOfGObjects;
     }
     
@@ -164,52 +159,62 @@ public class SprinkleObjects extends Generation {
         findLocation(enemy);
     }
 
-    private void sprinkleObjective()
+    public void sprinkleObjective()
     {
-        int objectiveSpawnRoomNum;
         GameObject objective = new Objective(assetManager);
         Vector3f location;
         int[] playCellCoor = player.getCellCoordinates();
         int[] objCellCoor;
         do
         {
-            objectiveSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
             location = whereToSprinkle(objective);
             objCellCoor = objective.getCellCoordinates();
-        } while(objectiveSpawnRoomNum == playerSpawnRoomNum && !isItFarEnough(objCellCoor, playCellCoor));
+        } while(!isItFarEnough(objCellCoor, playCellCoor));
         putObjectInPlace(objective, location);
     }
-    
-    private void sprinklePlayer()
+
+    private Vector3f correctAxis(Vector3f vec)
     {
-        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
-        player = new Player(assetManager);
-        Vector3f location = whereToSprinkle(player);
-        Box p = new Box(0.25f,0.25f,0.25f);
-        Geometry pg = new Geometry("Player",p);
-        Material pm = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        pm.setColor("Color", ColorRGBA.White);
-        pg.setMaterial(pm);
-        pg.setLocalTranslation(location);
-        sprinkledObjects.attachChild(pg);
-        playerGeo = pg;
+        return new Vector3f(vec.x, vec.z, -vec.y);
+    }
+    
+    public void sprinklePlayer()
+    {
+        player = new Player(assetManager, cam);
+        findLocation(player);
+        player.loadPhysics();
+        player.setPhysicsLocation(correctAxis(player.getNode().getWorldTranslation()));
+    }
+    
+    public Player getPlayer()
+    {
+        return player;
     }
 	
-    public Geometry getPlayer()
+    public Geometry getPlayerGeo()
     {
         return playerGeo;
     }
     
     public Node sprinkle()
     {
-        sprinklePlayer();
-        sprinkleObjective();
+        playerSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+        do
+        {
+            objectiveSpawnRoomNum = generateRandomNum(0, completedAreas.size() - 1);
+        } while(objectiveSpawnRoomNum == playerSpawnRoomNum);
         
         for(currentRoomNum = 0; currentRoomNum < completedAreas.size(); currentRoomNum++)
         {
+            if(currentRoomNum == playerSpawnRoomNum)
+            {
+                sprinklePlayer();
+            }
+            
             int currentChance = generateRandomNum(1, 100);
             for(int i = 0, gemCounter = 0, enemyCounter = 0, torchCounter = 0; i < MAX_GAMEOBJECT_SPAWN_ATTEMPTS; i++)
             {
+                
                 if(currentChance < CRATE_CHANCE)
                 {
                     sprinkleCrate();
@@ -234,7 +239,9 @@ public class SprinkleObjects extends Generation {
                 }
             }
         }
-        maxPointsInLevel = numOfGems * TREASURE_VALUE;
+        currentRoomNum = objectiveSpawnRoomNum;
+        sprinkleObjective();
+        //maxPointsInLevel = numOfGems * TREASURE_VALUE;
         return sprinkledObjects;
     }
     
@@ -243,7 +250,6 @@ public class SprinkleObjects extends Generation {
     {
         this.cam = cam;
         this.mazeNode = mazeNode;
-        //this.rootNode = rootNode;
         sprinkledObjects = new Node();
         assetManager = newAssetManager;
         TREASURE_VALUE = treasurePointValue;
@@ -255,7 +261,7 @@ public class SprinkleObjects extends Generation {
         ENEMY_CHANCE = enemyChance;
         CRATE_CHANCE = crateChance;
         GEM_CHANCE = treasureChance;
-        numOfEnemies = Math.round(completedAreas.size() * 0.9f);
+        //numOfEnemies = Math.round(completedAreas.size() * 0.9f);
 
         listOfGObjects = new ArrayList();
     }

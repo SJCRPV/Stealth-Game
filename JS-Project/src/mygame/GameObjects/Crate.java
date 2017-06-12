@@ -55,9 +55,9 @@ public final class Crate extends StandardObject {
     
     @Override
     protected void loadModel() {
-        Box computerDeskBox = new Box(0.25f, 0.25f, 0.25f);
-        object = new Geometry("Computer Desk", computerDeskBox);
-        TangentBinormalGenerator.generate(computerDeskBox);
+        Box crate = new Box(0.25f, 0.25f, 0.25f);
+        object = new Geometry("Crate", crate);
+        TangentBinormalGenerator.generate(crate);
         object.setMaterial(objectMat);
         object.rotate(0,0,(float) (Math.random() * Math.PI));
         object.setCullHint(Spatial.CullHint.Dynamic);

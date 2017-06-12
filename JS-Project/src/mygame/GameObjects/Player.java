@@ -14,7 +14,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
+import com.jme3.audio.AudioNode;
 import static com.jme3.bullet.PhysicsSpace.getPhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -22,7 +22,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
-import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
 
 public final class Player extends GameObject implements AnimEventListener {
@@ -39,8 +38,9 @@ public final class Player extends GameObject implements AnimEventListener {
     protected static String IDLEB = "IdleBase";
     protected static String RUNT = "RunTop";
     protected static String RUNB = "RunBase";
+    private static AudioNode aPlayer;
+    private static AudioNode aDeath;
 
-    private BulletAppState bulletAppState;
     private CharacterControl physicsCharacter;
     private CameraNode camNode;
     boolean rotate = false;
@@ -100,12 +100,7 @@ public final class Player extends GameObject implements AnimEventListener {
     
     public void setPhysicsLocation(Vector3f location)
     {
-        physicsCharacter.setPhysicsLocation(location);
-    }
-
-    public Vector3f getPhysicsLocationLocation() 
-    {
-        return physicsCharacter.getPhysicsLocation();
+        physicsCharacter.warp(location);
     }
     
     @Override
@@ -136,7 +131,6 @@ public final class Player extends GameObject implements AnimEventListener {
             botChannel.setLoopMode(LoopMode.Cycle);
             topChannel.setAnim(IDLET, 0.5f); //second parameter important for character feel
             topChannel.setLoopMode(LoopMode.Cycle);
-            
         }
     }
     
@@ -162,29 +156,37 @@ public final class Player extends GameObject implements AnimEventListener {
         gameObjectNode.attachChild(camNode);
     }
     
-    private void placeCharacter(Node rootNode, Vector3f startPos) 
-    {
-        gameObjectNode.addControl(physicsCharacter);
-        getPhysicsSpace().add(physicsCharacter);
-        physicsCharacter.setPhysicsLocation(startPos); //Start position in the game
-        rootNode.attachChild(gameObjectNode);
-        gameObjectNode.attachChild(object);
-    }
-    
     @Override
     public boolean handleCollisions(GameObject gObject)
     {
         return false;
     }
-
     
     @Override
     public void loadPhysics()
     {
         physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.2f, 0.5f), .1f);
-        physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
         gameObjectNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
+    }
+    
+    public void playAudioInstance()
+    {
+        aDeath.playInstance();
+    }
+    
+    public static AudioNode getAudioNode()
+    {
+        return aPlayer;
+    }
+    
+    private void loadAudio()
+    {
+        aPlayer = new AudioNode();
+        aDeath = new AudioNode(assetManager, "Sounds/death.ogg");
+        aDeath.setPositional(false);
+        aDeath.setDirectional(false);
+        aPlayer.attachChild(aDeath);
     }
     
     @Override
@@ -200,32 +202,24 @@ public final class Player extends GameObject implements AnimEventListener {
     @Override
     protected void createMaterial() 
     {
-        /**
-         * Temp Material whitemat = new Material(assetManager,
-         * "Common/MatDefs/Misc/Unshaded.j3md"); whitemat.setColor("Color",
-         * ColorRGBA.White); model.setMaterial(whitemat);*
-         */
     }
     
-    public Player(AssetManager assetManager, BulletAppState bulletAppState, Node rootNode, Camera cam, Vector3f startPos)
+    public Player(AssetManager assetManager, Camera cam) 
     {
         this.cam = cam;
         this.assetManager = assetManager;
-        this.bulletAppState = bulletAppState;
-            
+        
         SCORE = 0;
-            
+        
         createMaterial();
         loadModel();
-        loadPhysics();
-        placeCharacter(rootNode, startPos);
+        loadAudio();
+        //loadPhysics();
         setFollowingCameraNode(cam);
         setAnimationControl();
-        physicsCharacter.setJumpSpeed(JUMPSPEED);
-    }
-    
-    public Player(AssetManager assetManager) 
-    {
+        
+        gameObjectNode.attachChild(object);
+        
         //Temp
         objectDimensions = new Vector3f(0.4f, 1f, 1f);
     }

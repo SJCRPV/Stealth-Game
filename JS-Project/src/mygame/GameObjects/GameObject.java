@@ -34,8 +34,8 @@ public abstract class GameObject extends AbstractAppState {
     
     protected abstract void createMaterial();
     protected abstract void loadModel();
-    public abstract void loadPhysics();
     protected abstract GameObject getGObjectClone();
+    public abstract void loadPhysics();
     public abstract String getClassName();
     public abstract boolean handleCollisions(GameObject collider);
     
@@ -44,12 +44,6 @@ public abstract class GameObject extends AbstractAppState {
         BoundingBox bb = (BoundingBox)object.getWorldBound();
         bb.getExtent(objectDimensions);
     }
-    
-    /*public Spatial placeObject(Vector3f location)
-    {
-        object.setLocalTranslation(location);
-        return object;
-    }*/
     
     public int[] getCellCoordinates()
     {
@@ -64,6 +58,10 @@ public abstract class GameObject extends AbstractAppState {
     public Vector3f getWorldTranslation()
     {
         return gameObjectNode.getWorldTranslation();
+    }
+    public Vector3f getLocalTranslation()
+    {
+        return gameObjectNode.getLocalTranslation();
     }
     public void setLocalTranslation(Vector3f location)
     {
@@ -80,7 +78,7 @@ public abstract class GameObject extends AbstractAppState {
         return object;
     }
     
-     public Node getNode()
+    public Node getNode()
     {
         return gameObjectNode;
     }
