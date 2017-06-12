@@ -45,6 +45,10 @@ public final class Crate extends StandardObject {
     @Override
     public boolean handleCollisions(GameObject collider) 
     {
+        if(collider.getClassName().equals("Player"))
+        {
+            
+        }
         return false;
     }
 

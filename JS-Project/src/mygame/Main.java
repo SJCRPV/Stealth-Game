@@ -315,7 +315,6 @@ public class Main extends SimpleApplication {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-        //initKeys is only here for testing individual systems.
         initKeys();
         initGame();
     }
