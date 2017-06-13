@@ -39,8 +39,8 @@ public class FullLight extends AbstractFullLight{
     public void removeShadow()
     {
         //viewPort.getProcessors().remove(shadow);
-        viewPort.removeProcessor(shadow);
-        shadow.cleanup();
+//        viewPort.removeProcessor(shadow);
+//        shadow.cleanup();
     }
     
     public PointLight getLight()
