@@ -65,9 +65,9 @@ public class FullLight extends AbstractFullLight{
     
     private void setShadow()
     {
-        shadow = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
-        shadow.setLight(light);
-        viewPort.addProcessor(shadow);
+//        shadow = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
+//        shadow.setLight(light);
+//        viewPort.addProcessor(shadow);
         
 //        shadow = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
 //        shadow.setLight(light);
@@ -79,7 +79,7 @@ public class FullLight extends AbstractFullLight{
     
     public void addShadow()
     {
-        setShadow();
+        //setShadow();
     }
     
     public FullLight(AssetManager assetManager, ViewPort viewPort, GameObject gObject, ColorRGBA colour, float lightRadius, 
@@ -91,7 +91,7 @@ public class FullLight extends AbstractFullLight{
         light.setPosition(gObject.getWorldTranslation().add(position));
         this.assetManager = assetManager;
         this.viewPort = viewPort;
-        setShadow();
+        //setShadow();
     }
 
     @Override
