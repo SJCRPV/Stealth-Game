@@ -272,7 +272,7 @@ public class Main extends SimpleApplication {
             sound.stop();
         }
         
-        //aAmbient.stop();
+        aAmbient.stop();
         
         for (GameObject gObject : gObjectsList) {
             if (gObject.getClassName().equals("Enemy")) {
