@@ -6,6 +6,7 @@ import mygame.GameObjects.Player;
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.Environment;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
@@ -156,6 +157,8 @@ public class Main extends SimpleApplication {
     
     private void initAudio() {
        
+        audioRenderer.setEnvironment(new Environment(Environment.Dungeon));
+        
         aNode.attachChild(Gem.getAudioNode());
         audioList.add(Gem.getAudioNode());
 
