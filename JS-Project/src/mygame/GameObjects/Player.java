@@ -171,12 +171,12 @@ public final class Player extends GameObject implements AnimEventListener {
         if(sound.equals("death"))
         {
             aDeath.setLocalTranslation(gameObjectNode.getWorldTranslation());
-            aDeath.playInstance();
+            aDeath.play();
         }
         if(sound.equals("hit"))
         {
             aHit.setLocalTranslation(gameObjectNode.getWorldTranslation());
-            aHit.playInstance();
+            aHit.play();
         }
     }
     
@@ -214,7 +214,7 @@ public final class Player extends GameObject implements AnimEventListener {
         aDeath.setReverbEnabled(true);
         aDeath.setRefDistance(0.2f);
         aDeath.setMaxDistance(5000);
-        aDeath.setPositional(false);
+        aDeath.setPositional(true);
         aDeath.setDirectional(false);
         
         aHit = new AudioNode(assetManager, "Sounds/hit.wav");
